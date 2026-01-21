@@ -10,7 +10,8 @@
       "Bash(open:*)",
       "Bash(git rm:*)",
       "Bash(git push:*)",
-      "Bash(gh repo view:*)"
+      "Bash(gh repo view:*)",
+      "Bash(gh repo list:*)"
     ]
   }
 }
