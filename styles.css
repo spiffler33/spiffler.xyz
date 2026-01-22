@@ -166,7 +166,7 @@ h2 {
 .project-name {
     font-size: 1rem;
     font-weight: 500;
-    color: var(--accent);
+    color: var(--accent-secondary);
     margin-bottom: 8px;
 }
 
