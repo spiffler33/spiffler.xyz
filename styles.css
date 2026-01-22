@@ -358,7 +358,7 @@ footer {
 }
 
 .post-body a {
-    color: var(--accent);
+    color: var(--accent-secondary);
 }
 
 .post-body code {
