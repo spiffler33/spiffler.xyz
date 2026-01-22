@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gravity Physics Demo - Mobile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas {
+            border: 2px solid #333;
+            background-color: #e8f4ff;
+            display: block;
+            width: 100%;
+            flex: 1;
+        }
+
+        .top-controls {
+            background: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        select {
+            flex: 1;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .gravity-info {
+            font-size: 14px;
+            font-weight: bold;
+            color: #0066cc;
+            white-space: nowrap;
+        }
+
+        .bottom-controls {
+            background: white;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            border-top: 2px solid #ddd;
+        }
+
+        .action-button {
+            flex: 1;
+            font-size: 18px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .drop-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .reset-button {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .action-button:active {
+            transform: scale(0.95);
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-controls">
+        <select id="celestialBody">
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="earth" selected>Earth</option>
+            <option value="moon">Moon</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+            <option value="pluto">Pluto</option>
+            <option value="sun">Sun</option>
+            <option value="ceres">Ceres</option>
+        </select>
+        <div class="gravity-info" id="gravityDisplay">9.81 m/s²</div>
+        <div class="toggle-container">
+            <input type="checkbox" id="timeToggle">
+            <label for="timeToggle">Sync</label>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="bottom-controls">
+        <button class="action-button drop-button" id="dropBtn">DROP BALL! 🎾</button>
+        <button class="action-button reset-button" id="resetBtn">RESET 🔄</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const celestialSelect = document.getElementById('celestialBody');
+        const gravityDisplay = document.getElementById('gravityDisplay');
+        const resetBtn = document.getElementById('resetBtn');
+        const dropBtn = document.getElementById('dropBtn');
+        const timeToggle = document.getElementById('timeToggle');
+
+        // Set canvas size based on window
+        function resizeCanvas() {
+            const topHeight = document.querySelector('.top-controls').offsetHeight;
+            const bottomHeight = document.querySelector('.bottom-controls').offsetHeight;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - topHeight - bottomHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Gravity values in m/s²
+        const gravityValues = {
+            mercury: 3.7,
+            venus: 8.87,
+            earth: 9.81,
+            moon: 1.62,
+            mars: 3.71,
+            jupiter: 24.79,
+            saturn: 10.44,
+            uranus: 8.69,
+            neptune: 11.15,
+            pluto: 0.62,
+            sun: 274.0,
+            ceres: 0.27
+        };
+
+        // Physics constants
+        const BUILDING_HEIGHT = 15; // meters (5 stories)
+        const PIXELS_PER_METER = 20; // Fixed scale for consistency
+        const COEFFICIENT_OF_RESTITUTION = 0.75; // Tennis ball on concrete
+        const INITIAL_HORIZONTAL_VELOCITY = 7; // m/s (7-year-old throw)
+        const GROUND_HEIGHT = 60; // pixels from bottom
+        const BALL_RADIUS = 12; // pixels
+        const TRAIL_LENGTH = 30;
+        const MAX_TRAIL_POINTS = 150;
+        const FIXED_TIME_STEP = 1/60; // 60 FPS physics
+
+        // Tennis ball properties
+        const BALL_MASS = 0.057; // kg
+        const DRAG_COEFFICIENT = 0.47; // sphere
+        const AIR_DENSITY = 1.225; // kg/m³ at sea level
+        const BALL_AREA = Math.PI * Math.pow(0.0335, 2); // m²
+
+        // Ball state
+        let ball = {
+            x: 100,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            falling: false,
+            trail: [],
+            startTime: 0,
+            elapsedTime: 0
+        };
+
+        // Camera offset for scrolling view
+        let cameraX = 0;
+
+        let gravity = gravityValues.earth;
+        let lastTime = performance.now();
+        let accumulator = 0;
+
+        // Update gravity display
+        function updateGravityDisplay() {
+            gravity = gravityValues[celestialSelect.value];
+            gravityDisplay.textContent = gravity.toFixed(1) + ' m/s²';
+        }
+
+        // Reset ball position
+        function resetBall() {
+            ball = {
+                x: 100,
+                y: canvas.height - GROUND_HEIGHT - (BUILDING_HEIGHT * PIXELS_PER_METER),
+                vx: 0,
+                vy: 0,
+                falling: false,
+                trail: [],
+                startTime: 0,
+                elapsedTime: 0
+            };
+            cameraX = 0;
+            dropBtn.disabled = false;
+        }
+
+        // Drop the ball
+        function dropBall() {
+            if (!ball.falling) {
+                ball.falling = true;
+                ball.vx = INITIAL_HORIZONTAL_VELOCITY;
+                ball.startTime = performance.now();
+                ball.elapsedTime = 0;
+                dropBtn.disabled = true;
+            }
+        }
+
+        // Update physics
+        function updatePhysics(dt) {
+            if (!ball.falling) return;
+
+            // Normalize time if toggle is on
+            let effectiveDt = dt;
+            if (timeToggle.checked) {
+                const timeScaleFactor = Math.sqrt(gravityValues.earth / gravity);
+                effectiveDt = dt * timeScaleFactor;
+            }
+
+            ball.elapsedTime += effectiveDt;
+
+            // Add to trail
+            if (ball.trail.length === 0 ||
+                Math.sqrt(Math.pow(ball.x - ball.trail[ball.trail.length - 1].x, 2) +
+                         Math.pow(ball.y - ball.trail[ball.trail.length - 1].y, 2)) > 3) {
+                ball.trail.push({x: ball.x, y: ball.y, alpha: 1});
+                if (ball.trail.length > MAX_TRAIL_POINTS) {
+                    ball.trail.shift();
+                }
+            }
+
+            // Air resistance
+            const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+            if (speed > 0) {
+                const dragForce = 0.5 * DRAG_COEFFICIENT * AIR_DENSITY * BALL_AREA * speed * speed;
+                const dragAccel = dragForce / BALL_MASS;
+
+                const dragX = (ball.vx / speed) * dragAccel * dt;
+                const dragY = (ball.vy / speed) * dragAccel * dt;
+
+                ball.vx -= dragX;
+                ball.vy -= dragY;
+            }
+
+            // Apply gravity
+            ball.vy += gravity * dt;
+
+            // Update position
+            ball.x += ball.vx * PIXELS_PER_METER * dt;
+            ball.y += ball.vy * PIXELS_PER_METER * dt;
+
+            // Update camera to follow ball horizontally
+            const screenCenter = canvas.width / 2;
+            if (ball.x - cameraX > screenCenter + 100) {
+                cameraX = ball.x - screenCenter - 100;
+            }
+
+            // Ground collision
+            if (ball.y + BALL_RADIUS >= canvas.height - GROUND_HEIGHT) {
+                ball.y = canvas.height - GROUND_HEIGHT - BALL_RADIUS;
+                ball.vy = -ball.vy * COEFFICIENT_OF_RESTITUTION;
+                ball.vx *= 0.98;
+
+                if (Math.abs(ball.vy) < 0.5) {
+                    ball.vy = 0;
+                    ball.vx *= 0.92;
+                }
+            }
+
+            // Fade trail
+            ball.trail.forEach(point => {
+                point.alpha -= 0.02;
+            });
+            ball.trail = ball.trail.filter(point => point.alpha > 0);
+        }
+
+        // Draw everything
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#e8f4ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Save context for camera transform
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            // Draw ground
+            ctx.fillStyle = '#8B7355';
+            ctx.fillRect(cameraX, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+
+            // Draw ground line
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cameraX, canvas.height - GROUND_HEIGHT);
+            ctx.lineTo(cameraX + canvas.width, canvas.height - GROUND_HEIGHT);
+            ctx.stroke();
+
+            // Draw cars - extend far to the right
+            const carLength = 4.5 * PIXELS_PER_METER;
+            const carHeight = 25;
+            const carY = canvas.height - GROUND_HEIGHT + 10;
+
+            let carX = 100; // Start where ball drops
+            let carCount = 0;
+            const maxCars = 20; // Draw many cars
+
+            while (carCount < maxCars) {
+                // Only draw cars visible on screen
+                if (carX + carLength > cameraX - 50 && carX < cameraX + canvas.width + 50) {
+                    // Car body
+                    ctx.fillStyle = carCount % 3 === 0 ? '#CC3333' : carCount % 3 === 1 ? '#3333CC' : '#33CC33';
+                    ctx.fillRect(carX, carY, carLength - 5, carHeight);
+
+                    // Car roof
+                    ctx.fillRect(carX + carLength * 0.2, carY - 10, carLength * 0.5, 10);
+
+                    // Wheels
+                    ctx.fillStyle = '#222';
+                    ctx.beginPath();
+                    ctx.arc(carX + carLength * 0.2, carY + carHeight, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(carX + carLength * 0.7, carY + carHeight, 6, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Car number
+                    ctx.fillStyle = '#FFF';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(carCount + 1, carX + carLength/2, carY + carHeight/2 + 5);
+                }
+
+                carX += carLength;
+                carCount++;
+            }
+
+            // Draw trail
+            ball.trail.forEach((point) => {
+                ctx.globalAlpha = point.alpha * 0.3;
+                ctx.fillStyle = '#cc66ff';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, BALL_RADIUS * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            // Draw building
+            const buildingX = 80;
+            const buildingWidth = 40;
+            const buildingHeight = BUILDING_HEIGHT * PIXELS_PER_METER;
+
+            if (buildingX + buildingWidth > cameraX && buildingX < cameraX + canvas.width) {
+                // Building
+                ctx.fillStyle = '#9999BB';
+                ctx.fillRect(buildingX, canvas.height - GROUND_HEIGHT - buildingHeight, buildingWidth, buildingHeight);
+
+                // Building outline
+                ctx.strokeStyle = '#666688';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(buildingX, canvas.height - GROUND_HEIGHT - buildingHeight, buildingWidth, buildingHeight);
+
+                // Building label
+                ctx.font = '12px Arial';
+                ctx.fillStyle = '#444';
+                ctx.textAlign = 'center';
+                ctx.fillText('15m', buildingX + buildingWidth/2, canvas.height - GROUND_HEIGHT - buildingHeight - 10);
+            }
+
+            // Draw ball
+            const gradient = ctx.createRadialGradient(ball.x - 3, ball.y - 3, 0, ball.x, ball.y, BALL_RADIUS);
+            gradient.addColorStop(0, '#a0ffff');
+            gradient.addColorStop(1, '#40e0d0');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#663399';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw hanging string if not falling
+            if (!ball.falling) {
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(ball.x, 0);
+                ctx.lineTo(ball.x, ball.y - BALL_RADIUS);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Restore context
+            ctx.restore();
+
+            // Draw fixed UI elements (timer, etc)
+            if (ball.falling) {
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Time: ${ball.elapsedTime.toFixed(1)}s`, 10, 30);
+
+                // Speed
+                const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#666';
+                ctx.fillText(`Speed: ${speed.toFixed(1)} m/s`, 10, 55);
+
+                // Distance traveled
+                const distance = (ball.x - 100) / PIXELS_PER_METER;
+                ctx.fillText(`Distance: ${Math.max(0, distance).toFixed(1)} m`, 10, 75);
+            }
+        }
+
+        // Animation loop
+        function animate(currentTime) {
+            const frameTime = Math.min((currentTime - lastTime) / 1000, 0.25);
+            lastTime = currentTime;
+
+            accumulator += frameTime;
+
+            while (accumulator >= FIXED_TIME_STEP) {
+                updatePhysics(FIXED_TIME_STEP);
+                accumulator -= FIXED_TIME_STEP;
+            }
+
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        dropBtn.addEventListener('click', dropBall);
+        resetBtn.addEventListener('click', resetBall);
+        celestialSelect.addEventListener('change', updateGravityDisplay);
+
+        // Prevent scrolling
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Initialize
+        updateGravityDisplay();
+        resetBall();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>

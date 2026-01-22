@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gravity Jump Demo - Mobile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas {
+            border: 2px solid #333;
+            background-color: #e8f4ff;
+            display: block;
+            width: 100%;
+            flex: 1;
+        }
+
+        .top-controls {
+            background: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        select {
+            flex: 1;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .gravity-info {
+            font-size: 14px;
+            font-weight: bold;
+            color: #0066cc;
+            white-space: nowrap;
+        }
+
+        .bottom-controls {
+            background: white;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            border-top: 2px solid #ddd;
+        }
+
+        .action-button {
+            flex: 1;
+            font-size: 18px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .drop-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .reset-button {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .action-button:active {
+            transform: scale(0.95);
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-controls">
+        <select id="celestialBody">
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="earth" selected>Earth</option>
+            <option value="moon">Moon</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+            <option value="pluto">Pluto</option>
+            <option value="sun">Sun</option>
+            <option value="ceres">Ceres</option>
+        </select>
+        <div class="gravity-info" id="gravityDisplay">9.81 m/s²</div>
+        <div class="toggle-container">
+            <input type="checkbox" id="timeToggle">
+            <label for="timeToggle">Sync</label>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="bottom-controls">
+        <button class="action-button drop-button" id="dropBtn">JUMP! 🤸‍♂️</button>
+        <button class="action-button reset-button" id="resetBtn">RESET 🔄</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const celestialSelect = document.getElementById('celestialBody');
+        const gravityDisplay = document.getElementById('gravityDisplay');
+        const resetBtn = document.getElementById('resetBtn');
+        const dropBtn = document.getElementById('dropBtn');
+        const timeToggle = document.getElementById('timeToggle');
+
+        function resizeCanvas() {
+            const topHeight = document.querySelector('.top-controls').offsetHeight;
+            const bottomHeight = document.querySelector('.bottom-controls').offsetHeight;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - topHeight - bottomHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Gravity values in m/s²
+        const gravityValues = {
+            mercury: 3.7,
+            venus: 8.87,
+            earth: 9.81,
+            moon: 1.62,
+            mars: 3.71,
+            jupiter: 24.79,
+            saturn: 10.44,
+            uranus: 8.69,
+            neptune: 11.15,
+            pluto: 0.62,
+            sun: 274.0,
+            ceres: 0.27
+        };
+
+        // Physics constants
+        const BUILDING_HEIGHT = 15; // meters (5 stories)
+        const PIXELS_PER_METER = 20; // Fixed scale for consistency
+        const COEFFICIENT_OF_RESTITUTION = 0;    // no bounce
+        // Calculate initial jump speed to reach ~0.6 m on Earth
+        const INITIAL_VERTICAL_VELOCITY = Math.sqrt(2 * gravityValues.earth * 0.6); // m/s
+        const GROUND_HEIGHT = 60; // pixels from bottom
+        const BALL_RADIUS = 12; // pixels
+        const MAX_TRAIL_POINTS = 150;
+        const FIXED_TIME_STEP = 1/60; // 60 FPS physics
+
+        // Aerodynamics (kept in case you want drag)
+        const BALL_MASS = 0.057; // kg
+        const DRAG_COEFFICIENT = 0.47;
+        const AIR_DENSITY = 1.225;
+        const BALL_AREA = Math.PI * Math.pow(0.0335, 2);
+
+        // Ball state
+        let ball = {
+            x: 100,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            falling: false,
+            trail: [],
+            startTime: 0,
+            elapsedTime: 0,
+            startY: 0
+        };
+
+        let cameraX = 0;
+        let gravity = gravityValues.earth;
+        let lastTime = performance.now();
+        let accumulator = 0;
+
+        function updateGravityDisplay() {
+            gravity = gravityValues[celestialSelect.value];
+            gravityDisplay.textContent = gravity.toFixed(2) + ' m/s²';
+        }
+
+        function resetBall() {
+            ball = {
+                x: 100,
+                y: canvas.height - GROUND_HEIGHT - BALL_RADIUS,
+                vx: 0,
+                vy: 0,
+                falling: false,
+                trail: [],
+                startTime: 0,
+                elapsedTime: 0,
+                startY: canvas.height - GROUND_HEIGHT - BALL_RADIUS
+            };
+            cameraX = 0;
+            dropBtn.disabled = false;
+        }
+
+        function dropBall() {
+            if (!ball.falling) {
+                ball.falling = true;
+                ball.vx = 0;
+                ball.vy = -INITIAL_VERTICAL_VELOCITY;
+                ball.startTime = performance.now();
+                ball.elapsedTime = 0;
+                dropBtn.disabled = true;
+            }
+        }
+
+        function updatePhysics(dt) {
+            if (!ball.falling) return;
+
+            let effectiveDt = dt;
+            if (timeToggle.checked) {
+                const timeScale = Math.sqrt(gravityValues.earth / gravity);
+                effectiveDt = dt * timeScale;
+            }
+            ball.elapsedTime += effectiveDt;
+
+            // Air resistance (optional)
+            const speed = Math.hypot(ball.vx, ball.vy);
+            if (speed > 0) {
+                const drag = 0.5 * DRAG_COEFFICIENT * AIR_DENSITY * BALL_AREA * speed*speed;
+                const aDrag = drag / BALL_MASS;
+                ball.vx -= (ball.vx/speed)*aDrag*dt;
+                ball.vy -= (ball.vy/speed)*aDrag*dt;
+            }
+
+            // Gravity
+            ball.vy += gravity * dt;
+
+            // Move
+            ball.x += ball.vx * PIXELS_PER_METER * dt;
+            ball.y += ball.vy * PIXELS_PER_METER * dt;
+
+            // Ground contact → stop
+            if (ball.y + BALL_RADIUS >= canvas.height - GROUND_HEIGHT) {
+                ball.y = canvas.height - GROUND_HEIGHT - BALL_RADIUS;
+                ball.vy = 0;
+                ball.falling = false;
+            }
+        }
+
+        function draw() {
+            // Clear
+            ctx.fillStyle = '#e8f4ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Camera
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            // Ground
+            ctx.fillStyle = '#8B7355';
+            ctx.fillRect(cameraX, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cameraX, canvas.height - GROUND_HEIGHT);
+            ctx.lineTo(cameraX + canvas.width, canvas.height - GROUND_HEIGHT);
+            ctx.stroke();
+
+            // Building
+            const buildingX = 80;
+            const bW = 40;
+            const bH = BUILDING_HEIGHT * PIXELS_PER_METER;
+            if (buildingX + bW > cameraX && buildingX < cameraX + canvas.width) {
+                ctx.fillStyle = '#9999BB';
+                ctx.fillRect(buildingX, canvas.height - GROUND_HEIGHT - bH, bW, bH);
+                ctx.strokeStyle = '#666688';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(buildingX, canvas.height - GROUND_HEIGHT - bH, bW, bH);
+                ctx.font = '12px Arial';
+                ctx.fillStyle = '#444';
+                ctx.textAlign = 'center';
+                ctx.fillText('15 m', buildingX + bW/2, canvas.height - GROUND_HEIGHT - bH - 10);
+            }
+
+            // Ball
+            const grad = ctx.createRadialGradient(ball.x-3, ball.y-3, 0, ball.x, ball.y, BALL_RADIUS);
+            grad.addColorStop(0, '#a0ffff');
+            grad.addColorStop(1, '#40e0d0');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI*2);
+            ctx.fill();
+            ctx.strokeStyle = '#20b2aa';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Stats overlay
+            if (ball.startTime) {
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Time: ${ball.elapsedTime.toFixed(2)}s`, 10, 30);
+
+                const height = Math.max(0, (ball.startY - ball.y) / PIXELS_PER_METER);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#666';
+                ctx.fillText(`Height: ${height.toFixed(2)} m`, 10, 60);
+            }
+        }
+
+        function animate(now) {
+            const frame = Math.min((now - lastTime)/1000, 0.25);
+            lastTime = now;
+            accumulator += frame;
+            while (accumulator >= FIXED_TIME_STEP) {
+                updatePhysics(FIXED_TIME_STEP);
+                accumulator -= FIXED_TIME_STEP;
+            }
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        dropBtn.addEventListener('click', dropBall);
+        resetBtn.addEventListener('click', resetBall);
+        celestialSelect.addEventListener('change', updateGravityDisplay);
+        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+        // Init
+        updateGravityDisplay();
+        resetBall();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>

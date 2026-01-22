@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Wave Machine - See Sound!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #waveCanvas {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            margin: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .wave-types {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .wave-type {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .wave-type.active {
+            background: white;
+            color: #764ba2;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 60px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .play-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .play-btn.playing {
+            background: #ef4444;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #764ba2;
+        }
+
+        .water-content, .ocean-floor {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .water-content.active, .ocean-floor.active {
+            background: white;
+            color: #764ba2;
+        }
+
+        .ocean-controls {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            button {
+                font-size: 0.9rem;
+                padding: 0.6rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌊 Wave Machine</h1>
+        <p>See how sound, water, and light waves work!</p>
+    </div>
+
+    <canvas id="waveCanvas"></canvas>
+
+    <div class="controls">
+        <div class="wave-types">
+            <div class="wave-type active" data-type="sound">
+                <span>🔊 Sound</span>
+            </div>
+            <div class="wave-type" data-type="water">
+                <span>💧 Water</span>
+            </div>
+            <div class="wave-type" data-type="light">
+                <span>💡 Light</span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="play-btn" id="playBtn">▶️ Play Sound</button>
+            <button class="mode-btn" id="particleBtn">Show Particles</button>
+        </div>
+
+        <div class="control-group">
+            <label>Frequency (Pitch)</label>
+            <div class="slider-container">
+                <input type="range" id="frequency" min="1" max="20" value="5" step="0.1">
+                <span class="value-display" id="freqDisplay">5 Hz</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Amplitude (Volume)</label>
+            <div class="slider-container">
+                <input type="range" id="amplitude" min="10" max="100" value="50" step="5">
+                <span class="value-display" id="ampDisplay">50%</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Animation Speed</label>
+            <div class="slider-container">
+                <input type="range" id="speed" min="0.5" max="3" value="1" step="0.1">
+                <span class="value-display" id="speedDisplay">1x</span>
+            </div>
+        </div>
+
+        <div class="ocean-controls" id="oceanControls">
+            <div class="control-group">
+                <label>Ocean Depth</label>
+                <div class="slider-container">
+                    <input type="range" id="depth" min="1" max="100" value="50" step="1">
+                    <span class="value-display" id="depthDisplay">50m</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>What's in the Water?</label>
+                <div class="button-group">
+                    <button class="water-content active" data-content="clear">Clear</button>
+                    <button class="water-content" data-content="plankton">Plankton</button>
+                    <button class="water-content" data-content="sand">Sandy</button>
+                    <button class="water-content" data-content="algae">Algae</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Ocean Floor</label>
+                <div class="button-group">
+                    <button class="ocean-floor active" data-floor="sand">Sand</button>
+                    <button class="ocean-floor" data-floor="rocks">Rocks</button>
+                    <button class="ocean-floor" data-floor="coral">Coral</button>
+                    <button class="ocean-floor" data-floor="kelp">Kelp</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get elements
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // State variables
+        let waveType = 'sound';
+        let showParticles = false;
+        let time = 0;
+        let animationId;
+        let isPlaying = false;
+        let audioCtx = null;
+        let oscillator = null;
+        let gainNode = null;
+
+        // Ocean variables
+        let oceanDepth = 50;
+        let waterContent = 'clear';
+        let oceanFloor = 'sand';
+
+        // Get controls
+        const playBtn = document.getElementById('playBtn');
+        const particleBtn = document.getElementById('particleBtn');
+        const frequencySlider = document.getElementById('frequency');
+        const amplitudeSlider = document.getElementById('amplitude');
+        const speedSlider = document.getElementById('speed');
+        const depthSlider = document.getElementById('depth');
+        const oceanControls = document.getElementById('oceanControls');
+
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Update displays
+        function updateDisplays() {
+            document.getElementById('freqDisplay').textContent = frequencySlider.value + ' Hz';
+            document.getElementById('ampDisplay').textContent = amplitudeSlider.value + '%';
+            document.getElementById('speedDisplay').textContent = speedSlider.value + 'x';
+            document.getElementById('depthDisplay').textContent = depthSlider.value + 'm';
+
+            // Update sound if playing
+            if (isPlaying && oscillator) {
+                oscillator.frequency.value = parseFloat(frequencySlider.value) * 50;
+                if (gainNode) {
+                    gainNode.gain.value = parseFloat(amplitudeSlider.value) / 100 * 0.3;
+                }
+            }
+        }
+
+        // Wave type selection
+        document.querySelectorAll('.wave-type').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.wave-type').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                waveType = this.dataset.type;
+
+                // Update UI based on wave type
+                if (waveType === 'sound') {
+                    playBtn.style.display = 'block';
+                    particleBtn.style.display = 'block';
+                    oceanControls.style.display = 'none';
+                } else if (waveType === 'water') {
+                    playBtn.style.display = 'none';
+                    particleBtn.style.display = 'none';
+                    oceanControls.style.display = 'block';
+                    showParticles = false;
+                    if (isPlaying) stopSound();
+                } else {
+                    playBtn.style.display = 'none';
+                    particleBtn.style.display = 'none';
+                    oceanControls.style.display = 'none';
+                    showParticles = false;
+                    if (isPlaying) stopSound();
+                }
+            });
+        });
+
+        // Play button
+        playBtn.addEventListener('click', function() {
+            if (isPlaying) {
+                stopSound();
+            } else {
+                playSound();
+            }
+        });
+
+        // Particle button
+        particleBtn.addEventListener('click', function() {
+            showParticles = !showParticles;
+            this.textContent = showParticles ? 'Show Waves' : 'Show Particles';
+            this.classList.toggle('active');
+        });
+
+        // Sliders
+        frequencySlider.addEventListener('input', updateDisplays);
+        amplitudeSlider.addEventListener('input', updateDisplays);
+        speedSlider.addEventListener('input', updateDisplays);
+        depthSlider.addEventListener('input', function() {
+            oceanDepth = parseInt(this.value);
+            updateDisplays();
+        });
+
+        // Ocean controls
+        document.querySelectorAll('.water-content').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.water-content').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                waterContent = this.dataset.content;
+            });
+        });
+
+        document.querySelectorAll('.ocean-floor').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.ocean-floor').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                oceanFloor = this.dataset.floor;
+            });
+        });
+
+        // Sound functions
+        function playSound() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            oscillator = audioCtx.createOscillator();
+            gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.frequency.value = parseFloat(frequencySlider.value) * 50;
+            gainNode.gain.value = parseFloat(amplitudeSlider.value) / 100 * 0.3;
+            oscillator.type = 'sine';
+            oscillator.start();
+
+            isPlaying = true;
+            playBtn.textContent = '⏸️ Stop Sound';
+            playBtn.classList.add('playing');
+        }
+
+        function stopSound() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+            isPlaying = false;
+            playBtn.textContent = '▶️ Play Sound';
+            playBtn.classList.remove('playing');
+        }
+
+        // Draw functions
+        function drawSoundWave(freq, amp) {
+            const centerY = canvas.height / 2;
+
+            if (showParticles) {
+                // Particle view
+                const particles = 40;
+                const spacing = canvas.width / particles;
+
+                ctx.fillStyle = 'white';
+                for (let i = 0; i < particles; i++) {
+                    const x = i * spacing + spacing / 2;
+                    const displacement = Math.sin((i * 0.5 - time) * freq * 0.3) * amp * 0.5;
+
+                    ctx.globalAlpha = 0.8;
+                    ctx.beginPath();
+                    ctx.arc(x + displacement, centerY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            } else {
+                // Wave view
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+
+                for (let x = 0; x < canvas.width; x++) {
+                    const y = centerY + Math.sin((x * 0.02 - time) * freq * 0.3) * amp;
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+        }
+
+        function drawWaterWave(freq, amp) {
+            const centerY = canvas.height / 2;
+
+            // Calculate ocean color
+            let r = 64, g = 164, b = 223;
+
+            // Depth effect
+            const depthFactor = oceanDepth / 100;
+            r *= (1 - depthFactor * 0.8);
+            g *= (1 - depthFactor * 0.5);
+            b *= (1 - depthFactor * 0.2);
+
+            // Water content effect
+            if (waterContent === 'plankton') {
+                g += 40; r -= 20;
+            } else if (waterContent === 'sand') {
+                r += 40; g += 30; b -= 30;
+            } else if (waterContent === 'algae') {
+                g += 20; r -= 30; b -= 40;
+            }
+
+            // Clamp values
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+
+            // Draw water
+            const gradient = ctx.createLinearGradient(0, centerY, 0, canvas.height);
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.5)`);
+            gradient.addColorStop(1, `rgba(${r*0.3}, ${g*0.4}, ${b*0.5}, 0.9)`);
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, centerY, canvas.width, canvas.height - centerY);
+
+            // Draw wave
+            ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+
+            for (let x = 0; x < canvas.width; x++) {
+                const y = centerY + Math.sin((x * 0.02 - time) * freq * 0.3) * amp;
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Draw depth text
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(`Depth: ${oceanDepth}m`, 20, 30);
+        }
+
+        function drawLightWave(freq, amp) {
+            const centerY = canvas.height / 2;
+
+            // Map frequency to color
+            const hue = (freq - 1) / 19 * 300;
+            const color = `hsl(${hue}, 100%, 50%)`;
+
+            // Draw wave
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = color;
+            ctx.beginPath();
+
+            for (let x = 0; x < canvas.width; x++) {
+                const y = centerY + Math.sin((x * 0.02 - time) * freq * 0.3) * amp;
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Color label
+            ctx.fillStyle = color;
+            ctx.font = 'bold 16px Arial';
+            let colorName = 'Red';
+            if (freq > 6) colorName = 'Orange';
+            if (freq > 9) colorName = 'Yellow';
+            if (freq > 12) colorName = 'Green';
+            if (freq > 15) colorName = 'Blue';
+            if (freq > 18) colorName = 'Violet';
+            ctx.fillText(colorName + ' Light', 20, 30);
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const freq = parseFloat(frequencySlider.value);
+            const amp = parseFloat(amplitudeSlider.value);
+            const speed = parseFloat(speedSlider.value);
+
+            time += speed * 0.05;
+
+            if (waveType === 'sound') {
+                drawSoundWave(freq, amp);
+            } else if (waveType === 'water') {
+                drawWaterWave(freq, amp);
+            } else if (waveType === 'light') {
+                drawLightWave(freq, amp);
+            }
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Start
+        updateDisplays();
+        animate();
+    </script>
+</body>
+</html>

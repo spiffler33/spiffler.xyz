@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Playground - Interactive Science Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent: #22d3ee;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Animated background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Navigation */
+        nav {
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-home {
+            color: var(--text-dim);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .nav-home:hover {
+            color: var(--text);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--text), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* Demo Grid */
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-card {
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .demo-preview {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .demo-preview::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .demo-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .demo-description {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            flex: 1;
+        }
+
+        .demo-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .tag.easy {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--accent);
+            color: var(--background);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Coming Soon Card */
+        .coming-soon {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .coming-soon .demo-preview {
+            background: linear-gradient(135deg, #374151, #4b5563);
+        }
+
+        .coming-soon-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-dim);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 4rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1rem;
+            }
+
+            .demos-grid {
+                padding: 1rem;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <nav>
+        <a href="/" class="nav-home">
+            <span>←</span> Back to Home
+        </a>
+        <div class="page-title">Physics Playground</div>
+    </nav>
+
+    <section class="header">
+        <h1>🚀 Physics Playground</h1>
+        <p>Explore the wonders of physics through interactive demonstrations. Click on any demo to start experimenting!</p>
+    </section>
+
+    <section class="demos-grid">
+        <!-- Gravity Demo -->
+        <a href="/physics-playground/gravity/" class="demo-card">
+            <div class="new-badge">New!</div>
+            <div class="demo-preview">
+                🎾
+            </div>
+            <div class="demo-content">
+                <h3 class="demo-title">Gravity Ball Drop</h3>
+                <p class="demo-description">Drop a tennis ball on different planets and see how gravity affects its motion. Compare Earth, Moon, Jupiter, and more!</p>
+                <div class="demo-tags">
+                    <span class="tag easy">Easy</span>
+                    <span class="tag">Gravity</span>
+                    <span class="tag">Planets</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Gravity Jump Demo -->
+        <a href="/physics-playground/gravity-jump/" class="demo-card">
+            <div class="new-badge">New!</div>
+            <div class="demo-preview">
+                🦘
+            </div>
+            <div class="demo-content">
+                <h3 class="demo-title">Gravity Jump</h3>
+                <p class="demo-description">See how high you can jump on different planets! Experience the difference between Earth and Moon gravity.</p>
+                <div class="demo-tags">
+                    <span class="tag easy">Easy</span>
+                    <span class="tag">Gravity</span>
+                    <span class="tag">Interactive</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- Pendulum Lab -->
+        <div class="demo-card coming-soon">
+            <div class="demo-preview">
+                🎯
+                <span class="coming-soon-label">Coming Soon</span>
+            </div>
+            <div class="demo-content">
+                <h3 class="demo-title">Pendulum Lab</h3>
+                <p class="demo-description">Explore how pendulum length and gravity affect swing time. Create mesmerizing patterns with multiple pendulums!</p>
+                <div class="demo-tags">
+                    <span class="tag">Oscillation</span>
+                    <span class="tag">Time</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave Machine -->
+        <div class="demo-card coming-soon">
+            <div class="demo-preview">
+                🌊
+                <span class="coming-soon-label">Coming Soon</span>
+            </div>
+            <div class="demo-content">
+                <h3 class="demo-title">Wave Machine</h3>
+                <p class="demo-description">Visualize sound waves, light waves, and water waves. See how frequency and amplitude affect wave behavior.</p>
+                <div class="demo-tags">
+                    <span class="tag">Waves</span>
+                    <span class="tag">Sound</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Mixer -->
+        <div class="demo-card coming-soon">
+            <div class="demo-preview">
+                🎨
+                <span class="coming-soon-label">Coming Soon</span>
+            </div>
+            <div class="demo-content">
+                <h3 class="demo-title">Color Mixer</h3>
+                <p class="demo-description">Mix light colors (RGB) vs paint colors. Discover why mixing light is different from mixing paint!</p>
+                <div class="demo-tags">
+                    <span class="tag easy">Easy</span>
+                    <span class="tag">Light</span>
+                    <span class="tag">Color</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projectile Motion -->
+        <div class="demo-card coming-soon">
+            <div class="demo-preview">
+                🎯
+                <span class="coming-soon-label">Coming Soon</span>
+            </div>
+            <div class="demo-content">
+                <h3 class="demo-title">Projectile Motion</h3>
+                <p class="demo-description">Launch objects at different angles and speeds. Find the perfect angle for maximum distance!</p>
+                <div class="demo-tags">
+                    <span class="tag">Motion</span>
+                    <span class="tag">Angles</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Keep exploring, keep learning! 🌟</p>
+    </footer>
+
+    <script>
+        // Create random stars
+        const starsContainer = document.getElementById('stars');
+        const numStars = 100;
+
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Add click animation for coming soon cards
+        document.querySelectorAll('.coming-soon').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 500);
+            });
+        });
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

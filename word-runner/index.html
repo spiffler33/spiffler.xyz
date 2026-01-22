@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Word Runner - Typography Adventure</title>
+    <style>
+        /* === GLOBAL STYLES === */
+        * {
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* === GAME CONTAINER === */
+        #gameContainer {
+            margin-top: 10px;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+        }
+
+        canvas {
+            border: 3px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            background: white;
+            width: 100%;
+            height: auto;
+            display: block;
+            max-width: 900px;
+        }
+
+        /* === UI CONTROLS === */
+        #controls {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* === INFO DISPLAY === */
+        #gameInfo {
+            display: flex;
+            gap: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0 10px;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.8);
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* === SPEED CONTROL === */
+        #speedControl {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.8);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        input[type="range"] {
+            width: 120px;
+        }
+
+        /* === FILE UPLOAD === */
+        #fileUpload {
+            background: rgba(255,255,255,0.8);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        /* === GAME OVER SCREEN === */
+        #gameOverScreen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            max-width: 90%;
+        }
+
+        #gameOverScreen h2 {
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        #finalScore {
+            font-size: 22px;
+            margin: 20px 0;
+        }
+
+        /* === MOBILE JUMP BUTTON === */
+        #mobileJump {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(76, 175, 80, 0.8);
+            border: 3px solid #333;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        #mobileJump:active {
+            background: rgba(76, 175, 80, 1);
+            transform: scale(0.95);
+        }
+
+        /* === MOBILE RESPONSIVENESS === */
+        @media (max-width: 768px) {
+            #gameInfo {
+                font-size: 16px;
+                gap: 10px;
+            }
+            
+            .info-item {
+                padding: 6px 12px;
+            }
+            
+            #controls {
+                gap: 8px;
+            }
+            
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            #speedControl {
+                font-size: 14px;
+            }
+            
+            input[type="range"] {
+                width: 100px;
+            }
+            
+            #mobileJump {
+                display: block;
+            }
+            
+            #gameOverScreen h2 {
+                font-size: 24px;
+            }
+            
+            #finalScore {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #gameInfo {
+                font-size: 14px;
+            }
+            
+            .info-item {
+                padding: 5px 10px;
+            }
+            
+            button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            #mobileJump {
+                width: 70px;
+                height: 70px;
+                font-size: 16px;
+            }
+        }
+
+        /* === INSTRUCTIONS === */
+        #instructions {
+            text-align: center;
+            margin: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        @media (min-width: 769px) {
+            #instructions {
+                content: "Press SPACEBAR to jump over ascenders!";
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- === GAME INFO DISPLAY === -->
+    <div id="gameInfo">
+        <div class="info-item">Lives: <span id="lives">3</span></div>
+        <div class="info-item">Score: <span id="score">0</span></div>
+        <div class="info-item">High Score: <span id="highScore">0</span></div>
+    </div>
+
+    <!-- === GAME CANVAS === -->
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="900" height="400"></canvas>
+        <div id="instructions">Press SPACEBAR or tap JUMP to leap over ascenders!</div>
+    </div>
+
+    <!-- === CONTROLS === -->
+    <div id="controls">
+        <button id="startBtn">Start Game</button>
+        <button id="pauseBtn">Pause</button>
+        
+        <div id="speedControl">
+            <label>Speed: </label>
+            <input type="range" id="speedSlider" min="1" max="10" value="3">
+            <span id="speedValue">3</span>
+        </div>
+        
+        <div id="fileUpload">
+            <label>Load Words: </label>
+            <input type="file" id="fileInput" accept=".txt">
+        </div>
+    </div>
+
+    <!-- === GAME OVER SCREEN === -->
+    <div id="gameOverScreen">
+        <h2>Game Over!</h2>
+        <div id="finalScore"></div>
+        <button onclick="resetGame()">Play Again</button>
+    </div>
+
+    <!-- === MOBILE JUMP BUTTON === -->
+    <button id="mobileJump">JUMP</button>
+
+    <script>
+        // === GAME CONFIGURATION === //
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Handle canvas scaling for mobile
+        function resizeCanvas() {
+            const container = document.getElementById('gameContainer');
+            const maxWidth = Math.min(900, window.innerWidth - 20);
+            const scale = maxWidth / 900;
+            
+            canvas.style.width = maxWidth + 'px';
+            canvas.style.height = (400 * scale) + 'px';
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Default word pack - country names
+        const defaultWords = [
+            "France", "Germany", "Netherlands", "Switzerland", "Thailand",
+            "Australia", "Portugal", "Lithuania", "Afghanistan", "Ethiopia",
+            "Philippines", "Bangladesh", "Kazakhstan", "Uzbekistan", "Turkmenistan",
+            "Guatemala", "Madagascar", "Mozambique", "United Kingdom", "South Africa",
+            "New Zealand", "Saudi Arabia", "North Korea", "South Korea", "Costa Rica",
+            "India", "Singapore"
+        ];
+
+        // Letters with ascenders
+        const ascenderLetters = ['b', 'd', 'f', 'h', 'k', 'l', 't'];
+        
+        // === GAME STATE === //
+        let gameState = {
+            isRunning: false,
+            isPaused: false,
+            score: 0,
+            lives: 3,
+            speed: 3,
+            words: [...defaultWords],
+            currentWords: [],
+            gameTime: 0,
+            highScore: 0
+        };
+
+        // === PLAYER CLASS === //
+        class Player {
+            constructor() {
+                this.x = 100;
+                this.y = 200;
+                this.width = 15;  // Even thinner for better gameplay
+                this.height = 20; // Proportional height
+                this.velocityY = 0;
+                this.isJumping = false;
+                this.onGround = false;
+                this.color = '#FF6B6B';
+            }
+
+            jump() {
+                if (this.onGround && !this.isJumping) {
+                    this.velocityY = -9;  // Adjusted jump force
+                    this.isJumping = true;
+                    this.onGround = false;
+                }
+            }
+
+            update() {
+                // Apply gravity
+                this.velocityY += 0.45;
+                this.y += this.velocityY;
+
+                // Check if on ground (will be set by collision detection)
+                if (this.velocityY > 0) {
+                    this.isJumping = false;
+                }
+            }
+
+            draw() {
+                // Draw player as a stick figure for clarity
+                ctx.fillStyle = this.color;
+                // Body
+                ctx.fillRect(this.x + 2, this.y + 5, this.width - 4, this.height - 5);
+                // Head
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2, this.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                // Simple legs
+                ctx.fillRect(this.x + 2, this.y + this.height - 5, 4, 5);
+                ctx.fillRect(this.x + this.width - 6, this.y + this.height - 5, 4, 5);
+            }
+        }
+
+        // === WORD PLATFORM CLASS === //
+        class WordPlatform {
+            constructor(text, x) {
+                this.text = text;
+                this.x = x;
+                this.y = 250;
+                this.fontSize = 60;  // Bigger font for better platform
+                this.letterSpacing = 1;
+                this.ascenders = [];
+                this.width = 0;
+                this.ascenderHeight = 12; // Slightly shorter ascender obstacles
+                this.calculateDimensions();
+            }
+
+            calculateDimensions() {
+                ctx.font = `${this.fontSize}px Arial`;
+                this.width = ctx.measureText(this.text).width + (this.text.length * this.letterSpacing);
+                
+                // Calculate ascender positions
+                let currentX = 0;
+                for (let i = 0; i < this.text.length; i++) {
+                    const letter = this.text[i].toLowerCase();
+                    const letterWidth = ctx.measureText(this.text[i]).width;
+                    
+                    if (ascenderLetters.includes(letter)) {
+                        this.ascenders.push({
+                            x: currentX,
+                            width: letterWidth * 0.5, // Make ascender hitbox even narrower for better gameplay
+                            letter: this.text[i]
+                        });
+                    }
+                    currentX += letterWidth + this.letterSpacing;
+                }
+            }
+
+            update() {
+                this.x -= gameState.speed;
+            }
+
+            draw() {
+                ctx.font = `${this.fontSize}px Arial`;
+                ctx.fillStyle = '#333';
+                
+                // Draw each letter
+                let currentX = this.x;
+                for (let i = 0; i < this.text.length; i++) {
+                    ctx.fillText(this.text[i], currentX, this.y);
+                    currentX += ctx.measureText(this.text[i]).width + this.letterSpacing;
+                }
+
+                // Draw ascender obstacles (smaller, more visible)
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                this.ascenders.forEach(ascender => {
+                    // Draw as a visible obstacle on top of the ascender
+                    ctx.fillRect(
+                        this.x + ascender.x + ascender.width * 0.5, // Better centered on the letter
+                        this.y - this.fontSize - this.ascenderHeight + 2,
+                        ascender.width,
+                        this.ascenderHeight
+                    );
+                });
+            }
+
+            isOffScreen() {
+                return this.x + this.width < -50;
+            }
+        }
+
+        // === GAME OBJECTS === //
+        const player = new Player();
+        let platforms = [];
+
+        // === INPUT HANDLING === //
+        let touchStartY = 0;
+        let isTouching = false;
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && gameState.isRunning && !gameState.isPaused) {
+                e.preventDefault();
+                player.jump();
+            }
+        });
+        
+        // Touch controls for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState.isRunning && !gameState.isPaused) {
+                touchStartY = e.touches[0].clientY;
+                isTouching = true;
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (isTouching && gameState.isRunning && !gameState.isPaused) {
+                player.jump();
+                isTouching = false;
+            }
+        });
+        
+        // Mobile jump button
+        const mobileJumpBtn = document.getElementById('mobileJump');
+        mobileJumpBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState.isRunning && !gameState.isPaused) {
+                player.jump();
+            }
+        });
+        
+        mobileJumpBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (gameState.isRunning && !gameState.isPaused) {
+                player.jump();
+            }
+        });
+        
+        // Prevent scrolling on mobile
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target.closest('#gameContainer') || e.target.id === 'mobileJump') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // === UI CONTROLS === //
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('pauseBtn').addEventListener('click', togglePause);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            gameState.speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = e.target.value;
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const words = content.split(/\s+/).filter(word => word.length > 2);
+                    if (words.length > 0) {
+                        gameState.words = words;
+                        alert(`Loaded ${words.length} words from file!`);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // === GAME FUNCTIONS === //
+        function startGame() {
+            gameState.isRunning = true;
+            gameState.isPaused = false;
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.gameTime = 0;
+            platforms = [];
+            
+            // Create initial platform for player to start on
+            const startWord = gameState.words[Math.floor(Math.random() * gameState.words.length)];
+            platforms.push(new WordPlatform(startWord, 50));
+            
+            // Position player on the first platform
+            player.x = 100;
+            player.y = 150; // Start higher so they land on the platform
+            player.velocityY = 0;
+            player.onGround = false;
+            
+            updateUI();
+            document.getElementById('gameOverScreen').style.display = 'none';
+            gameLoop();
+        }
+
+        function togglePause() {
+            if (gameState.isRunning) {
+                gameState.isPaused = !gameState.isPaused;
+                document.getElementById('pauseBtn').textContent = gameState.isPaused ? 'Resume' : 'Pause';
+                if (!gameState.isPaused) {
+                    gameLoop();
+                }
+            }
+        }
+
+        function resetGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
+        }
+
+        function gameOver() {
+            gameState.isRunning = false;
+            if (gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+            }
+            document.getElementById('finalScore').textContent = `Final Score: ${gameState.score}`;
+            document.getElementById('gameOverScreen').style.display = 'block';
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('lives').textContent = gameState.lives;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('highScore').textContent = gameState.highScore;
+        }
+
+        // === COLLISION DETECTION === //
+        function checkCollisions() {
+            player.onGround = false;
+            let onPlatform = false;
+
+            platforms.forEach(platform => {
+                // Check if player is above the word
+                const playerBottom = player.y + player.height;
+                const wordTop = platform.y - platform.fontSize;
+                const playerRight = player.x + player.width;
+                const playerLeft = player.x;
+                const wordLeft = platform.x;
+                const wordRight = platform.x + platform.width;
+
+                // Check if player is on the word platform
+                if (playerBottom >= wordTop && playerBottom <= wordTop + 10 &&
+                    playerRight > wordLeft && playerLeft < wordRight) {
+                    
+                    // Check collision with ascenders
+                    let hitAscender = false;
+                    platform.ascenders.forEach(ascender => {
+                        const ascenderLeft = platform.x + ascender.x + ascender.width * 0.5;
+                        const ascenderRight = ascenderLeft + ascender.width;
+                        const ascenderTop = wordTop - 12 + 2; // Match the visual ascender height
+
+                        if (playerRight > ascenderLeft && playerLeft < ascenderRight &&
+                            playerBottom > ascenderTop && player.y < wordTop) {
+                            hitAscender = true;
+                        }
+                    });
+
+                    if (hitAscender && !player.isJumping) {
+                        // Hit an ascender - lose a life
+                        gameState.lives--;
+                        player.velocityY = -8; // Bounce back
+                        player.color = '#FF0000';
+                        setTimeout(() => { player.color = '#FF6B6B'; }, 500);
+                        
+                        if (gameState.lives <= 0) {
+                            gameOver();
+                        }
+                        updateUI();
+                    } else if (!hitAscender) {
+                        // Successfully on platform
+                        player.y = wordTop - player.height;
+                        player.velocityY = 0;
+                        player.onGround = true;
+                        onPlatform = true;
+                    }
+                }
+            });
+
+            // Check if player fell off
+            if (!onPlatform && player.y > canvas.height) {
+                gameState.lives--;
+                if (gameState.lives <= 0) {
+                    gameOver();
+                } else {
+                    // Reset player position
+                    player.x = 100;
+                    player.y = 100;
+                    player.velocityY = 0;
+                }
+                updateUI();
+            }
+        }
+
+        // === GAME LOOP === //
+        function gameLoop() {
+            if (!gameState.isRunning || gameState.isPaused) return;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            ctx.fillStyle = '#E8F4F8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update game time
+            gameState.gameTime++;
+
+            // Generate new platforms
+            if (platforms.length === 0 || platforms[platforms.length - 1].x < canvas.width - 100) {
+                const randomWord = gameState.words[Math.floor(Math.random() * gameState.words.length)];
+                const gap = 30 + Math.random() * 50; // Much smaller gaps!
+                const lastX = platforms.length > 0 ? platforms[platforms.length - 1].x + platforms[platforms.length - 1].width : canvas.width;
+                platforms.push(new WordPlatform(randomWord, lastX + gap));
+            }
+
+            // Update and draw platforms
+            platforms = platforms.filter(platform => !platform.isOffScreen());
+            platforms.forEach(platform => {
+                platform.update();
+                platform.draw();
+            });
+
+            // Update player
+            player.update();
+            checkCollisions();
+
+            // Draw player
+            player.draw();
+
+            // Update score
+            if (gameState.gameTime % 30 === 0) {
+                gameState.score += 10;
+                updateUI();
+            }
+
+            // Continue game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        // === INITIALIZATION === //
+        updateUI();
+        document.getElementById('speedValue').textContent = gameState.speed;
+    </script>
+</body>
+</html>
