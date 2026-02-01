@@ -192,10 +192,127 @@
             font-size: 0.875rem;
         }
 
+        /* --- Landing (Surface Mode) --- */
+        .landing {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .featured-card {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 32px 28px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: border-color 200ms, background 200ms;
+        }
+        .featured-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-tertiary);
+        }
+
+        .featured-title {
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .featured-summary {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .featured-tags {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .featured-cta {
+            display: inline-block;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            background: none;
+            border: 1px solid var(--accent-secondary);
+            border-radius: 4px;
+            padding: 8px 20px;
+            cursor: pointer;
+            transition: background 150ms, color 150ms;
+        }
+        .featured-cta:hover {
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+        }
+
+        .landing-secondary {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .landing-link {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            transition: color 150ms;
+        }
+        .landing-link:hover {
+            color: var(--text-secondary);
+        }
+
+        .resume-strip {
+            width: 100%;
+            max-width: 560px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .resume-strip-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .resume-strip-btn {
+            font-family: inherit;
+            font-size: 0.7rem;
+            color: var(--accent-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .resume-strip-btn:hover { text-decoration: underline; }
+
         @media (max-width: 600px) {
             .reader { padding: 0 16px; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
             .nav-arrow { display: block; }
+            .landing { padding: 0 16px; }
+            .featured-card { padding: 24px 20px; }
         }
 
         @media (max-width: 400px) {
@@ -205,6 +322,23 @@
 </head>
 <body>
     <div class="loading" id="loading">loading...</div>
+
+    <div class="landing" id="landing" style="display:none">
+        <div class="resume-strip" id="resume-strip" style="display:none">
+            <span class="resume-strip-text" id="resume-strip-text"></span>
+            <button class="resume-strip-btn" id="resume-btn">Resume</button>
+        </div>
+        <div class="featured-card" id="featured-card">
+            <div class="featured-title" id="featured-title"></div>
+            <div class="featured-summary" id="featured-summary"></div>
+            <div class="featured-tags" id="featured-tags"></div>
+            <button class="featured-cta">Read this</button>
+        </div>
+        <div class="landing-secondary">
+            <button class="landing-link" id="another-btn">Another one</button>
+            <button class="landing-link" id="browse-btn">pick your own &rarr;</button>
+        </div>
+    </div>
 
     <div class="reader" id="reader" style="display:none">
         <div class="filter-bar" id="filter-bar">
@@ -242,14 +376,30 @@
 
         const KEY_POS = `library-${slug}-pos`;
         const KEY_BM = `library-${slug}-bookmarks`;
+        const KEY_HISTORY = `library-${slug}-history`;
+        const KEY_LAST_OPEN = `library-${slug}-lastOpen`;
 
         let passages = [];
         let meta = {};
         let pos = 0;
-        let filterMode = null;   // null | 'system:heart' | 'favorites'
+        let filterMode = null;
         let filteredIds = [];
         let filterPos = 0;
-        let savedPos = 0;         // main-sequence position saved when entering filter
+        let savedPos = 0;
+        let featuredPassage = null;
+
+        // --- Read History ---
+        function getHistory() {
+            try { return JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]'); } catch { return []; }
+        }
+        function addToHistory(id) {
+            const h = getHistory();
+            h.push({ id, ts: Date.now() });
+            localStorage.setItem(KEY_HISTORY, JSON.stringify(h));
+        }
+        function getReadIds() {
+            return new Set(getHistory().map(e => e.id));
+        }
 
         // --- Bookmarks ---
         function getBookmarks() {
@@ -263,6 +413,122 @@
             setBookmarks(bm);
         }
 
+        // --- Featured Passage Algorithm ---
+        function pickFeatured() {
+            const history = getHistory();
+            const readIds = getReadIds();
+            const lastOpen = parseInt(localStorage.getItem(KEY_LAST_OPEN) || '0', 10);
+            const daysSinceOpen = lastOpen ? (Date.now() - lastOpen) / (1000 * 60 * 60 * 24) : 999;
+
+            // First ever visit — passage 1
+            if (history.length === 0) {
+                return passages[0];
+            }
+
+            const unread = passages.filter(p => !readIds.has(p.id));
+            if (unread.length === 0) {
+                // All read — pick a random one
+                return passages[Math.floor(Math.random() * passages.length)];
+            }
+
+            // Long absence (7+ days) — pick from a body_system they haven't explored much
+            if (daysSinceOpen > 7) {
+                const systemCounts = {};
+                history.forEach(e => {
+                    const p = passages.find(pp => pp.id === e.id);
+                    if (p) systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
+                });
+                // Find least-read systems among unread passages
+                const unreadSystems = [...new Set(unread.map(p => p.body_system))];
+                unreadSystems.sort((a, b) => (systemCounts[a] || 0) - (systemCounts[b] || 0));
+                const targetSystem = unreadSystems[0];
+                const candidates = unread.filter(p => p.body_system === targetSystem && p.theme === 'narrative');
+                if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
+                const fallback = unread.filter(p => p.body_system === targetSystem);
+                return fallback[Math.floor(Math.random() * fallback.length)];
+            }
+
+            // Normal return — weighted toward engaged topics, prefer narrative
+            const systemCounts = {};
+            const themeCounts = {};
+            history.forEach(e => {
+                const p = passages.find(pp => pp.id === e.id);
+                if (p) {
+                    systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
+                    themeCounts[p.theme] = (themeCounts[p.theme] || 0) + 1;
+                }
+            });
+
+            // Score unread passages
+            const scored = unread.map(p => {
+                let score = 1;
+                score += (systemCounts[p.body_system] || 0) * 2;
+                score += (themeCounts[p.theme] || 0);
+                if (p.theme === 'narrative') score += 3;
+                // Avoid very recent passages (within last 5 read)
+                const recentIds = history.slice(-5).map(e => e.id);
+                const pChapter = p.chapter;
+                const recentChapters = recentIds.map(id => {
+                    const rp = passages.find(pp => pp.id === id);
+                    return rp ? rp.chapter : null;
+                });
+                if (recentChapters.includes(pChapter)) score *= 0.3;
+                return { passage: p, score };
+            });
+
+            // Weighted random pick
+            const totalScore = scored.reduce((s, e) => s + e.score, 0);
+            let r = Math.random() * totalScore;
+            for (const entry of scored) {
+                r -= entry.score;
+                if (r <= 0) return entry.passage;
+            }
+            return scored[scored.length - 1].passage;
+        }
+
+        // --- Estimate read time ---
+        function estimateMinutes(passage) {
+            const words = passage.content.split(/\s+/).length;
+            return Math.max(1, Math.round(words / 200));
+        }
+
+        // --- Show Landing ---
+        function showLanding() {
+            featuredPassage = pickFeatured();
+            const p = featuredPassage;
+
+            document.getElementById('featured-title').textContent = p.title;
+            document.getElementById('featured-summary').textContent = p.summary;
+            document.getElementById('featured-tags').textContent =
+                `${p.body_system} · ${p.theme} · ~${estimateMinutes(p)} min`;
+
+            // Resume strip
+            const savedPosVal = localStorage.getItem(KEY_POS);
+            const history = getHistory();
+            if (history.length > 0 && savedPosVal !== null) {
+                const resumeP = passages[parseInt(savedPosVal, 10)];
+                if (resumeP && resumeP.id !== p.id) {
+                    document.getElementById('resume-strip-text').textContent =
+                        `You were reading: "${resumeP.title}"`;
+                    document.getElementById('resume-strip').style.display = 'flex';
+                }
+            }
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('landing').style.display = 'flex';
+        }
+
+        // --- Enter Reader ---
+        function enterReader(passageId) {
+            const idx = passages.findIndex(p => p.id === passageId);
+            if (idx >= 0) pos = idx;
+
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('reader').style.display = 'flex';
+            addToHistory(passageId);
+            render();
+        }
+
         // --- Load ---
         fetch(`${slug}/passages.json`)
             .then(r => r.json())
@@ -274,13 +540,48 @@
                 const saved = localStorage.getItem(KEY_POS);
                 pos = saved ? Math.min(parseInt(saved, 10), passages.length - 1) : 0;
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('reader').style.display = 'flex';
-                render();
+                // Migrate: seed history from existing position if needed
+                const history = getHistory();
+                if (history.length === 0 && saved !== null && parseInt(saved, 10) > 0) {
+                    // They had progress in old schema — seed history with passages up to saved pos
+                    for (let i = 0; i <= Math.min(parseInt(saved, 10), passages.length - 1); i++) {
+                        addToHistory(passages[i].id);
+                    }
+                }
+
+                showLanding();
+                localStorage.setItem(KEY_LAST_OPEN, Date.now().toString());
             })
             .catch(() => {
                 document.getElementById('loading').textContent = 'book not found';
             });
+
+        // --- Landing events ---
+        document.getElementById('featured-card').addEventListener('click', () => {
+            if (featuredPassage) enterReader(featuredPassage.id);
+        });
+
+        document.getElementById('another-btn').addEventListener('click', () => {
+            featuredPassage = pickFeatured();
+            const p = featuredPassage;
+            document.getElementById('featured-title').textContent = p.title;
+            document.getElementById('featured-summary').textContent = p.summary;
+            document.getElementById('featured-tags').textContent =
+                `${p.body_system} · ${p.theme} · ~${estimateMinutes(p)} min`;
+        });
+
+        document.getElementById('resume-btn').addEventListener('click', () => {
+            const savedPosVal = localStorage.getItem(KEY_POS);
+            if (savedPosVal !== null) {
+                const resumeP = passages[parseInt(savedPosVal, 10)];
+                if (resumeP) enterReader(resumeP.id);
+            }
+        });
+
+        document.getElementById('browse-btn').addEventListener('click', () => {
+            // For now, enter reader at current position (browse mode comes later)
+            enterReader(passages[pos].id);
+        });
 
         // --- Render ---
         function currentPassage() {
@@ -325,9 +626,8 @@
                 nextHookEl.textContent = filterMode ? 'end of filter' : 'fin';
             }
 
-            // Position
-            document.getElementById('position').textContent =
-                `${currentIndex() + 1} / ${currentTotal()}`;
+            // Position — no denominators, just a subtle marker
+            document.getElementById('position').textContent = '';
 
             // Bookmark
             const bmBtn = document.getElementById('bookmark-btn');
@@ -365,6 +665,8 @@
             } else {
                 pos = Math.max(0, Math.min(pos + delta, passages.length - 1));
             }
+            const p = currentPassage();
+            if (p) addToHistory(p.id);
             render();
         }
 
