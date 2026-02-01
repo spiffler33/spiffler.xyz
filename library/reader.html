@@ -36,152 +36,6 @@
             line-height: 1.6;
         }
 
-        /* --- Layout --- */
-        .reader {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 0 24px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* --- Chapter bar --- */
-        .chapter-bar {
-            padding: 16px 0 12px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-align: center;
-            flex-shrink: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* --- Passage area --- */
-        .passage-area {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 16px 0;
-        }
-
-        .passage-text {
-            max-width: 700px;
-            width: 100%;
-            font-size: 0.95rem;
-            line-height: 1.85;
-            color: var(--text-secondary);
-        }
-
-        .passage-text p {
-            margin-bottom: 1.2em;
-        }
-        .passage-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* --- Bottom bar --- */
-        .bottom-bar {
-            flex-shrink: 0;
-            padding: 12px 0 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .next-hook {
-            flex: 1;
-            font-size: 0.8rem;
-            color: var(--accent-secondary);
-            opacity: 0.7;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            cursor: pointer;
-        }
-        .next-hook:hover { opacity: 1; }
-
-        .position {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        .bookmark-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            color: var(--text-muted);
-            padding: 4px;
-            transition: color 150ms;
-        }
-        .bookmark-btn:hover { color: var(--accent-secondary); }
-        .bookmark-btn.active { color: var(--accent-secondary); }
-
-        /* --- Tag --- */
-        .tag {
-            display: inline-block;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            border-radius: 3px;
-            padding: 1px 6px;
-            cursor: pointer;
-            transition: border-color 150ms, color 150ms;
-            text-decoration: none;
-        }
-        .tag:hover {
-            border-color: var(--accent-secondary);
-            color: var(--accent-secondary);
-        }
-
-        /* --- Wander / filter bar --- */
-        .filter-bar {
-            display: none;
-            padding: 8px 0;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            flex-shrink: 0;
-            align-items: center;
-            gap: 8px;
-        }
-        .filter-bar.visible { display: flex; }
-        .filter-bar a {
-            color: var(--accent-secondary);
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .filter-bar a:hover { text-decoration: underline; }
-        .filter-label {
-            color: var(--text-secondary);
-        }
-
-        /* --- Mobile nav arrows --- */
-        .nav-arrow {
-            display: none;
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            padding: 20px 8px;
-            cursor: pointer;
-            opacity: 0.3;
-            z-index: 10;
-            transition: opacity 150ms;
-        }
-        .nav-arrow:active { opacity: 0.7; }
-        .nav-prev { left: 0; }
-        .nav-next { right: 0; }
-
         /* --- Loading --- */
         .loading {
             height: 100%;
@@ -307,12 +161,173 @@
         }
         .resume-strip-btn:hover { text-decoration: underline; }
 
+        /* --- Reader (Immersion Mode) --- */
+        .reader {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .reader-header {
+            padding: 16px 24px 0;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+
+        .passage-area {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 24px 24px 0;
+        }
+
+        .passage-text {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--text-secondary);
+        }
+
+        .passage-text p {
+            margin-bottom: 1.2em;
+        }
+        .passage-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- Post-passage flow (appears after text) --- */
+        .post-passage {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 48px 0 80px;
+            display: none;
+        }
+
+        .post-passage.visible {
+            display: block;
+        }
+
+        .post-divider {
+            width: 40px;
+            height: 1px;
+            background: var(--border);
+            margin: 0 auto 32px;
+        }
+
+        .post-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 200ms, background 200ms;
+        }
+        .post-btn:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-secondary);
+        }
+
+        .post-btn-primary {
+            border-color: var(--accent-secondary);
+        }
+        .post-btn-primary:hover {
+            background: rgba(34, 211, 238, 0.06);
+            border-color: var(--accent-secondary);
+        }
+
+        .post-btn-label {
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            margin-bottom: 4px;
+        }
+        .post-btn:not(.post-btn-primary) .post-btn-label {
+            color: var(--text-secondary);
+        }
+
+        .post-btn-detail {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .post-btn-done .post-btn-label {
+            color: var(--text-muted);
+        }
+
+        /* --- Completion Card --- */
+        .completion {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            max-width: 480px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .completion-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .completion-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .completion-btn {
+            font-family: inherit;
+            font-size: 0.8rem;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 150ms, color 150ms, border-color 150ms;
+        }
+
+        .completion-btn-save {
+            color: var(--accent-secondary);
+            background: none;
+            border: 1px solid var(--accent-secondary);
+        }
+        .completion-btn-save:hover {
+            background: var(--accent-secondary);
+            color: var(--bg-primary);
+        }
+
+        .completion-btn-home {
+            color: var(--text-muted);
+            background: none;
+            border: 1px solid var(--border);
+        }
+        .completion-btn-home:hover {
+            border-color: var(--border-hover);
+            color: var(--text-secondary);
+        }
+
         @media (max-width: 600px) {
-            .reader { padding: 0 16px; }
+            .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
-            .nav-arrow { display: block; }
+            .reader-header { padding: 14px 16px 0; }
             .landing { padding: 0 16px; }
             .featured-card { padding: 24px 20px; }
+            .completion { padding: 0 16px; }
         }
 
         @media (max-width: 400px) {
@@ -341,31 +356,32 @@
     </div>
 
     <div class="reader" id="reader" style="display:none">
-        <div class="filter-bar" id="filter-bar">
-            <span class="filter-label" id="filter-label"></span>
-            <a id="filter-exit">&larr; back to sequence</a>
-            <span style="margin-left:auto">
-                <a id="filter-fav">&#9733; favorites</a>
-            </span>
-        </div>
-
-        <div class="chapter-bar" id="chapter-bar"></div>
-
+        <div class="reader-header" id="reader-header"></div>
         <div class="passage-area" id="passage-area">
             <div class="passage-text" id="passage-text"></div>
-        </div>
-
-        <div class="bottom-bar">
-            <div style="display:flex;align-items:center;gap:8px">
-                <button class="bookmark-btn" id="bookmark-btn">&#9734;</button>
-                <span class="tag" id="system-tag"></span>
+            <div class="post-passage" id="post-passage">
+                <div class="post-divider"></div>
+                <button class="post-btn post-btn-primary" id="post-primary">
+                    <div class="post-btn-label" id="post-primary-label"></div>
+                    <div class="post-btn-detail" id="post-primary-detail"></div>
+                </button>
+                <button class="post-btn" id="post-secondary">
+                    <div class="post-btn-label" id="post-secondary-label">Different vibe</div>
+                    <div class="post-btn-detail" id="post-secondary-detail"></div>
+                </button>
+                <button class="post-btn post-btn-done" id="post-done">
+                    <div class="post-btn-label">Done for now</div>
+                </button>
             </div>
-            <div class="next-hook" id="next-hook"></div>
-            <div class="position" id="position"></div>
         </div>
+    </div>
 
-        <button class="nav-arrow nav-prev" id="nav-prev">&lsaquo;</button>
-        <button class="nav-arrow nav-next" id="nav-next">&rsaquo;</button>
+    <div class="completion" id="completion" style="display:none">
+        <div class="completion-text" id="completion-text"></div>
+        <div class="completion-actions">
+            <button class="completion-btn completion-btn-save" id="completion-save">Save a line</button>
+            <button class="completion-btn completion-btn-home" id="completion-home">Home</button>
+        </div>
     </div>
 
     <script>
@@ -382,11 +398,40 @@
         let passages = [];
         let meta = {};
         let pos = 0;
-        let filterMode = null;
-        let filteredIds = [];
-        let filterPos = 0;
-        let savedPos = 0;
         let featuredPassage = null;
+        let currentRec = null;    // recommended next passage
+        let currentAlt = null;    // "different vibe" passage
+        let sessionPassages = []; // passages read this session
+
+        // Theme classification for the Story→Science→Meaning loop
+        // narrative, personal, history → "story-like"
+        // science → "science"
+        // philosophy → "meaning"
+        function themeClass(theme) {
+            if (theme === 'science') return 'science';
+            if (theme === 'philosophy') return 'meaning';
+            return 'story'; // narrative, personal, history
+        }
+
+        function nextThemeClass(tc) {
+            if (tc === 'story') return 'science';
+            if (tc === 'science') return 'meaning';
+            return 'story'; // meaning → story
+        }
+
+        function themeClassToThemes(tc) {
+            if (tc === 'science') return ['science'];
+            if (tc === 'meaning') return ['philosophy'];
+            return ['narrative', 'personal', 'history'];
+        }
+
+        // Contextual label for the primary recommendation
+        function primaryLabel(currentTheme) {
+            const tc = themeClass(currentTheme);
+            if (tc === 'story') return 'The science behind this \u2192';
+            if (tc === 'science') return 'What this means \u2192';
+            return 'Another story \u2192';
+        }
 
         // --- Read History ---
         function getHistory() {
@@ -406,7 +451,6 @@
             try { return JSON.parse(localStorage.getItem(KEY_BM) || '{}'); } catch { return {}; }
         }
         function setBookmarks(bm) { localStorage.setItem(KEY_BM, JSON.stringify(bm)); }
-        function isBookmarked(id) { return !!getBookmarks()[id]; }
         function toggleBookmark(id) {
             const bm = getBookmarks();
             if (bm[id]) delete bm[id]; else bm[id] = true;
@@ -420,25 +464,19 @@
             const lastOpen = parseInt(localStorage.getItem(KEY_LAST_OPEN) || '0', 10);
             const daysSinceOpen = lastOpen ? (Date.now() - lastOpen) / (1000 * 60 * 60 * 24) : 999;
 
-            // First ever visit — passage 1
-            if (history.length === 0) {
-                return passages[0];
-            }
+            if (history.length === 0) return passages[0];
 
             const unread = passages.filter(p => !readIds.has(p.id));
             if (unread.length === 0) {
-                // All read — pick a random one
                 return passages[Math.floor(Math.random() * passages.length)];
             }
 
-            // Long absence (7+ days) — pick from a body_system they haven't explored much
             if (daysSinceOpen > 7) {
                 const systemCounts = {};
                 history.forEach(e => {
                     const p = passages.find(pp => pp.id === e.id);
                     if (p) systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
                 });
-                // Find least-read systems among unread passages
                 const unreadSystems = [...new Set(unread.map(p => p.body_system))];
                 unreadSystems.sort((a, b) => (systemCounts[a] || 0) - (systemCounts[b] || 0));
                 const targetSystem = unreadSystems[0];
@@ -448,7 +486,6 @@
                 return fallback[Math.floor(Math.random() * fallback.length)];
             }
 
-            // Normal return — weighted toward engaged topics, prefer narrative
             const systemCounts = {};
             const themeCounts = {};
             history.forEach(e => {
@@ -459,24 +496,20 @@
                 }
             });
 
-            // Score unread passages
             const scored = unread.map(p => {
                 let score = 1;
                 score += (systemCounts[p.body_system] || 0) * 2;
                 score += (themeCounts[p.theme] || 0);
                 if (p.theme === 'narrative') score += 3;
-                // Avoid very recent passages (within last 5 read)
                 const recentIds = history.slice(-5).map(e => e.id);
-                const pChapter = p.chapter;
                 const recentChapters = recentIds.map(id => {
                     const rp = passages.find(pp => pp.id === id);
                     return rp ? rp.chapter : null;
                 });
-                if (recentChapters.includes(pChapter)) score *= 0.3;
+                if (recentChapters.includes(p.chapter)) score *= 0.3;
                 return { passage: p, score };
             });
 
-            // Weighted random pick
             const totalScore = scored.reduce((s, e) => s + e.score, 0);
             let r = Math.random() * totalScore;
             for (const entry of scored) {
@@ -486,10 +519,110 @@
             return scored[scored.length - 1].passage;
         }
 
+        // --- Story→Science→Meaning recommendation engine ---
+        function pickRecommended(current) {
+            const readIds = getReadIds();
+            const sessionIds = new Set(sessionPassages.map(p => p.id));
+            const wantClass = nextThemeClass(themeClass(current.theme));
+            const wantThemes = themeClassToThemes(wantClass);
+
+            // Exclude current + already read this session
+            function isCandidate(p) {
+                return p.id !== current.id && !sessionIds.has(p.id);
+            }
+
+            // Priority 1: same chapter, complementary theme
+            let candidates = passages.filter(p =>
+                isCandidate(p) && p.chapter === current.chapter && wantThemes.includes(p.theme));
+            if (candidates.length > 0) return pickWeighted(candidates, readIds);
+
+            // Priority 2: same body_system, complementary theme
+            candidates = passages.filter(p =>
+                isCandidate(p) && p.body_system === current.body_system && wantThemes.includes(p.theme));
+            if (candidates.length > 0) return pickWeighted(candidates, readIds);
+
+            // Priority 3: different body_system, narrative (fresh hook)
+            if (wantClass === 'story') {
+                candidates = passages.filter(p =>
+                    isCandidate(p) && p.body_system !== current.body_system && themeClass(p.theme) === 'story');
+                if (candidates.length > 0) return pickWeighted(candidates, readIds);
+            }
+
+            // Priority 4: any complementary theme
+            candidates = passages.filter(p =>
+                isCandidate(p) && wantThemes.includes(p.theme));
+            if (candidates.length > 0) return pickWeighted(candidates, readIds);
+
+            // Fallback: any unread narrative
+            candidates = passages.filter(p =>
+                isCandidate(p) && !readIds.has(p.id) && themeClass(p.theme) === 'story');
+            if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
+
+            // Last resort: any passage not current
+            candidates = passages.filter(p => isCandidate(p));
+            if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
+
+            return null;
+        }
+
+        // Prefer unread, weighted random
+        function pickWeighted(candidates, readIds) {
+            const scored = candidates.map(p => ({
+                passage: p,
+                score: readIds.has(p.id) ? 0.2 : 1
+            }));
+            const total = scored.reduce((s, e) => s + e.score, 0);
+            let r = Math.random() * total;
+            for (const e of scored) {
+                r -= e.score;
+                if (r <= 0) return e.passage;
+            }
+            return scored[scored.length - 1].passage;
+        }
+
+        // "Different vibe" — contrasting theme AND/OR body_system
+        function pickDifferentVibe(current) {
+            const readIds = getReadIds();
+            const sessionIds = new Set(sessionPassages.map(p => p.id));
+            const curClass = themeClass(current.theme);
+
+            function isCandidate(p) {
+                return p.id !== current.id && !sessionIds.has(p.id);
+            }
+
+            // Different body_system AND different theme class
+            let candidates = passages.filter(p =>
+                isCandidate(p) && p.body_system !== current.body_system && themeClass(p.theme) !== curClass);
+            if (candidates.length > 0) return pickWeighted(candidates, readIds);
+
+            // Different body_system OR different theme class
+            candidates = passages.filter(p =>
+                isCandidate(p) && (p.body_system !== current.body_system || themeClass(p.theme) !== curClass));
+            if (candidates.length > 0) return pickWeighted(candidates, readIds);
+
+            // Anything else
+            candidates = passages.filter(p => isCandidate(p));
+            if (candidates.length > 0) return pickWeighted(candidates, readIds);
+
+            return null;
+        }
+
         // --- Estimate read time ---
         function estimateMinutes(passage) {
             const words = passage.content.split(/\s+/).length;
             return Math.max(1, Math.round(words / 200));
+        }
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // --- Show/hide views ---
+        function hideAll() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('reader').style.display = 'none';
+            document.getElementById('completion').style.display = 'none';
         }
 
         // --- Show Landing ---
@@ -500,21 +633,20 @@
             document.getElementById('featured-title').textContent = p.title;
             document.getElementById('featured-summary').textContent = p.summary;
             document.getElementById('featured-tags').textContent =
-                `${p.body_system} · ${p.theme} · ~${estimateMinutes(p)} min`;
+                `${p.body_system} \xb7 ${p.theme} \xb7 ~${estimateMinutes(p)} min`;
 
-            // Resume strip
             const savedPosVal = localStorage.getItem(KEY_POS);
             const history = getHistory();
             if (history.length > 0 && savedPosVal !== null) {
                 const resumeP = passages[parseInt(savedPosVal, 10)];
                 if (resumeP && resumeP.id !== p.id) {
                     document.getElementById('resume-strip-text').textContent =
-                        `You were reading: "${resumeP.title}"`;
+                        `You were reading: \u201c${resumeP.title}\u201d`;
                     document.getElementById('resume-strip').style.display = 'flex';
                 }
             }
 
-            document.getElementById('loading').style.display = 'none';
+            hideAll();
             document.getElementById('landing').style.display = 'flex';
         }
 
@@ -523,10 +655,73 @@
             const idx = passages.findIndex(p => p.id === passageId);
             if (idx >= 0) pos = idx;
 
-            document.getElementById('landing').style.display = 'none';
+            hideAll();
             document.getElementById('reader').style.display = 'flex';
             addToHistory(passageId);
-            render();
+            sessionPassages.push(passages[pos]);
+            renderPassage();
+        }
+
+        // --- Render passage ---
+        function renderPassage() {
+            const p = passages[pos];
+            if (!p) return;
+
+            // Minimal header: body_system · theme · chapter
+            document.getElementById('reader-header').textContent =
+                `${p.body_system} \xb7 ${p.theme} \xb7 ${p.chapter}`;
+
+            // Passage text
+            const textEl = document.getElementById('passage-text');
+            const html = p.content.split('\n').filter(s => s.trim())
+                .map(para => `<p>${escapeHtml(para)}</p>`).join('');
+            textEl.innerHTML = html;
+
+            // Compute recommendations
+            currentRec = pickRecommended(p);
+            currentAlt = pickDifferentVibe(p);
+
+            // Post-passage buttons
+            const postEl = document.getElementById('post-passage');
+            postEl.classList.add('visible');
+
+            // Primary — contextual recommendation
+            document.getElementById('post-primary-label').textContent = primaryLabel(p.theme);
+            if (currentRec) {
+                document.getElementById('post-primary-detail').textContent =
+                    `${currentRec.title} \xb7 ~${estimateMinutes(currentRec)} min`;
+            } else {
+                document.getElementById('post-primary-detail').textContent = '';
+            }
+
+            // Secondary — different vibe
+            if (currentAlt) {
+                document.getElementById('post-secondary-detail').textContent =
+                    `${currentAlt.body_system} \xb7 ${currentAlt.theme}`;
+            } else {
+                document.getElementById('post-secondary-detail').textContent = '';
+            }
+
+            // Scroll to top
+            document.getElementById('passage-area').scrollTop = 0;
+
+            // Save position
+            localStorage.setItem(KEY_POS, pos);
+        }
+
+        // --- Show Completion Card ---
+        function showCompletion() {
+            const p = passages[pos];
+            const lines = [
+                `You read about ${p.body_system === 'general' ? 'life and death' : 'the ' + p.body_system}. That counts.`,
+            ];
+            if (sessionPassages.length > 1) {
+                lines[0] = `You read ${sessionPassages.length} passages. That counts.`;
+            }
+
+            document.getElementById('completion-text').textContent = lines[0];
+            hideAll();
+            document.getElementById('completion').style.display = 'flex';
         }
 
         // --- Load ---
@@ -543,7 +738,6 @@
                 // Migrate: seed history from existing position if needed
                 const history = getHistory();
                 if (history.length === 0 && saved !== null && parseInt(saved, 10) > 0) {
-                    // They had progress in old schema — seed history with passages up to saved pos
                     for (let i = 0; i <= Math.min(parseInt(saved, 10), passages.length - 1); i++) {
                         addToHistory(passages[i].id);
                     }
@@ -567,7 +761,7 @@
             document.getElementById('featured-title').textContent = p.title;
             document.getElementById('featured-summary').textContent = p.summary;
             document.getElementById('featured-tags').textContent =
-                `${p.body_system} · ${p.theme} · ~${estimateMinutes(p)} min`;
+                `${p.body_system} \xb7 ${p.theme} \xb7 ~${estimateMinutes(p)} min`;
         });
 
         document.getElementById('resume-btn').addEventListener('click', () => {
@@ -579,178 +773,67 @@
         });
 
         document.getElementById('browse-btn').addEventListener('click', () => {
-            // For now, enter reader at current position (browse mode comes later)
             enterReader(passages[pos].id);
         });
 
-        // --- Render ---
-        function currentPassage() {
-            if (filterMode) {
-                return passages.find(p => p.id === filteredIds[filterPos]);
+        // --- Post-passage events ---
+        document.getElementById('post-primary').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentRec) {
+                const idx = passages.findIndex(p => p.id === currentRec.id);
+                if (idx >= 0) {
+                    pos = idx;
+                    addToHistory(currentRec.id);
+                    sessionPassages.push(currentRec);
+                    renderPassage();
+                }
             }
-            return passages[pos];
-        }
+        });
 
-        function currentIndex() {
-            return filterMode ? filterPos : pos;
-        }
-
-        function currentTotal() {
-            return filterMode ? filteredIds.length : passages.length;
-        }
-
-        function render() {
-            const p = currentPassage();
-            if (!p) return;
-
-            // Chapter bar
-            document.getElementById('chapter-bar').textContent = p.chapter;
-
-            // Passage text
-            const area = document.getElementById('passage-area');
-            const textEl = document.getElementById('passage-text');
-            const html = p.content.split('\n').filter(s => s.trim())
-                .map(para => `<p>${escapeHtml(para)}</p>`).join('');
-            textEl.innerHTML = html;
-            area.scrollTop = 0;
-
-            // Next hook
-            const nextHookEl = document.getElementById('next-hook');
-            const ni = currentIndex() + 1;
-            if (ni < currentTotal()) {
-                const nextP = filterMode
-                    ? passages.find(pp => pp.id === filteredIds[ni])
-                    : passages[ni];
-                nextHookEl.textContent = nextP ? nextP.title : '';
-            } else {
-                nextHookEl.textContent = filterMode ? 'end of filter' : 'fin';
+        document.getElementById('post-secondary').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentAlt) {
+                const idx = passages.findIndex(p => p.id === currentAlt.id);
+                if (idx >= 0) {
+                    pos = idx;
+                    addToHistory(currentAlt.id);
+                    sessionPassages.push(currentAlt);
+                    renderPassage();
+                }
             }
+        });
 
-            // Position — no denominators, just a subtle marker
-            document.getElementById('position').textContent = '';
+        document.getElementById('post-done').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showCompletion();
+        });
 
-            // Bookmark
-            const bmBtn = document.getElementById('bookmark-btn');
-            bmBtn.innerHTML = isBookmarked(p.id) ? '&#9733;' : '&#9734;';
-            bmBtn.classList.toggle('active', isBookmarked(p.id));
-
-            // Tag
-            document.getElementById('system-tag').textContent = p.body_system;
-
-            // Filter bar
-            const fb = document.getElementById('filter-bar');
-            if (filterMode) {
-                fb.classList.add('visible');
-                const label = filterMode === 'favorites' ? '&#9733; favorites' : filterMode.replace('system:', '');
-                document.getElementById('filter-label').innerHTML = label;
-                document.getElementById('filter-fav').style.display = filterMode === 'favorites' ? 'none' : '';
-            } else {
-                fb.classList.remove('visible');
-            }
-
-            // Save position
-            if (!filterMode) {
-                localStorage.setItem(KEY_POS, pos);
-            }
-        }
-
-        function escapeHtml(s) {
-            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-
-        // --- Navigation ---
-        function go(delta) {
-            if (filterMode) {
-                filterPos = Math.max(0, Math.min(filterPos + delta, filteredIds.length - 1));
-            } else {
-                pos = Math.max(0, Math.min(pos + delta, passages.length - 1));
-            }
-            const p = currentPassage();
-            if (p) addToHistory(p.id);
-            render();
-        }
-
-        // --- Filter / Wander ---
-        function enterFilter(mode) {
-            savedPos = pos;
-            filterMode = mode;
-
-            if (mode === 'favorites') {
+        // --- Completion events ---
+        document.getElementById('completion-save').addEventListener('click', () => {
+            // Save current passage as bookmark (MVP: save whole passage)
+            const p = passages[pos];
+            if (p) {
                 const bm = getBookmarks();
-                filteredIds = passages.filter(p => bm[p.id]).map(p => p.id);
-            } else {
-                const system = mode.replace('system:', '');
-                filteredIds = passages.filter(p => p.body_system === system).map(p => p.id);
+                bm[p.id] = true;
+                setBookmarks(bm);
+                document.getElementById('completion-save').textContent = 'Saved';
+                document.getElementById('completion-save').style.opacity = '0.5';
+                document.getElementById('completion-save').style.pointerEvents = 'none';
             }
+        });
 
-            filterPos = 0;
-            if (filteredIds.length === 0) {
-                exitFilter();
-                return;
-            }
-            render();
-        }
+        document.getElementById('completion-home').addEventListener('click', () => {
+            sessionPassages = [];
+            showLanding();
+        });
 
-        function exitFilter() {
-            filterMode = null;
-            filteredIds = [];
-            filterPos = 0;
-            pos = savedPos;
-            render();
-        }
-
-        // --- Events ---
-
-        // Keyboard
+        // --- Keyboard (reader only) ---
         document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowRight' || e.key === 'k') go(1);
-            else if (e.key === 'ArrowLeft' || e.key === 'j') go(-1);
-            else if (e.key === 'b') {
-                toggleBookmark(currentPassage().id);
-                render();
+            if (document.getElementById('reader').style.display === 'none') return;
+            if (e.key === 'Escape') {
+                showCompletion();
             }
         });
-
-        // Click left/right halves (desktop)
-        document.getElementById('passage-area').addEventListener('click', e => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            if (x > rect.width * 0.5) go(1);
-            else go(-1);
-        });
-
-        // Mobile arrows
-        document.getElementById('nav-prev').addEventListener('click', e => { e.stopPropagation(); go(-1); });
-        document.getElementById('nav-next').addEventListener('click', e => { e.stopPropagation(); go(1); });
-
-        // Next hook click
-        document.getElementById('next-hook').addEventListener('click', () => go(1));
-
-        // Swipe
-        let touchStartX = 0;
-        document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-        document.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
-        });
-
-        // Bookmark
-        document.getElementById('bookmark-btn').addEventListener('click', e => {
-            e.stopPropagation();
-            toggleBookmark(currentPassage().id);
-            render();
-        });
-
-        // Tag → wander
-        document.getElementById('system-tag').addEventListener('click', e => {
-            e.stopPropagation();
-            const p = currentPassage();
-            if (p) enterFilter('system:' + p.body_system);
-        });
-
-        // Filter bar actions
-        document.getElementById('filter-exit').addEventListener('click', exitFilter);
-        document.getElementById('filter-fav').addEventListener('click', () => enterFilter('favorites'));
     })();
     </script>
 </body>
