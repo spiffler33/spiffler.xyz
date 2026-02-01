@@ -580,6 +580,122 @@
         }
         .anthology-back:hover { color: var(--text-secondary); }
 
+        /* --- Browse Mode --- */
+        .browse-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .browse-back {
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 24px;
+            padding: 0;
+        }
+        .browse-back:hover { color: var(--text-secondary); }
+
+        .browse-heading {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .browse-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .browse-filter-btn {
+            font-family: inherit;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: border-color 200ms, color 200ms, background 200ms;
+        }
+        .browse-filter-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-secondary);
+        }
+        .browse-filter-btn.active {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+            background: rgba(34, 211, 238, 0.06);
+        }
+
+        .browse-group {
+            margin-bottom: 32px;
+        }
+
+        .browse-group-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: capitalize;
+        }
+
+        .browse-card {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: border-color 200ms, background 200ms;
+        }
+        .browse-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-secondary);
+        }
+        .browse-card.read {
+            opacity: 0.5;
+        }
+
+        .browse-card-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .browse-card-summary {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .browse-card-tags {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        .browse-show-more {
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 0;
+            transition: color 150ms;
+        }
+        .browse-show-more:hover { color: var(--text-secondary); }
+
         @media (max-width: 600px) {
             .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
@@ -589,6 +705,7 @@
             .completion { padding: 0 16px; }
             .map-view { padding: 40px 16px; }
             .anthology-view { padding: 40px 16px; }
+            .browse-view { padding: 40px 16px; }
             .map-bar-label { width: 64px; font-size: 0.7rem; }
         }
 
@@ -667,6 +784,13 @@
         <button class="anthology-back" id="anthology-back">&larr; back</button>
         <div class="anthology-heading">Passages that stuck</div>
         <div id="anthology-list"></div>
+    </div>
+
+    <div class="browse-view" id="browse-view" style="display:none">
+        <button class="browse-back" id="browse-back">&larr; back</button>
+        <div class="browse-heading">Pick your own</div>
+        <div class="browse-filters" id="browse-filters"></div>
+        <div id="browse-groups"></div>
     </div>
 
     <script>
@@ -993,6 +1117,7 @@
             document.getElementById('completion').style.display = 'none';
             document.getElementById('map-view').style.display = 'none';
             document.getElementById('anthology-view').style.display = 'none';
+            document.getElementById('browse-view').style.display = 'none';
         }
 
         // --- Show Landing ---
@@ -1267,7 +1392,7 @@
         });
 
         document.getElementById('browse-btn').addEventListener('click', () => {
-            enterReader(passages[pos].id);
+            showBrowse();
         });
 
         document.getElementById('map-btn').addEventListener('click', () => {
@@ -1283,6 +1408,103 @@
         });
 
         document.getElementById('anthology-back').addEventListener('click', () => {
+            showLanding();
+        });
+
+        // --- Browse Mode ---
+        const BROWSE_PAGE_SIZE = 6;
+        let browseExpanded = {}; // body_system → true if "show more" clicked
+        let browseThemeFilter = null; // null = all, or a theme string
+
+        function showBrowse() {
+            browseExpanded = {};
+            browseThemeFilter = null;
+            renderBrowse();
+            hideAll();
+            document.getElementById('browse-view').style.display = 'flex';
+        }
+
+        function renderBrowse() {
+            const readIds = getReadIds();
+
+            // Collect all unique themes for filter chips
+            const allThemes = [...new Set(passages.map(p => p.theme))].sort();
+
+            const filtersEl = document.getElementById('browse-filters');
+            filtersEl.innerHTML = `<button class="browse-filter-btn ${browseThemeFilter === null ? 'active' : ''}" data-theme="">all</button>` +
+                allThemes.map(t =>
+                    `<button class="browse-filter-btn ${browseThemeFilter === t ? 'active' : ''}" data-theme="${escapeHtml(t)}">${escapeHtml(t)}</button>`
+                ).join('');
+
+            filtersEl.querySelectorAll('.browse-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const t = btn.dataset.theme;
+                    browseThemeFilter = t === '' ? null : t;
+                    browseExpanded = {};
+                    renderBrowse();
+                });
+            });
+
+            // Group passages by body_system
+            const groups = {};
+            passages.forEach(p => {
+                if (browseThemeFilter && p.theme !== browseThemeFilter) return;
+                if (!groups[p.body_system]) groups[p.body_system] = [];
+                groups[p.body_system].push(p);
+            });
+
+            // Sort groups by number of passages (largest first)
+            const sortedSystems = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+
+            const groupsEl = document.getElementById('browse-groups');
+            groupsEl.innerHTML = sortedSystems.map(sys => {
+                const all = groups[sys];
+                const expanded = browseExpanded[sys];
+                const visible = expanded ? all : all.slice(0, BROWSE_PAGE_SIZE);
+                const hasMore = all.length > BROWSE_PAGE_SIZE && !expanded;
+
+                const cards = visible.map(p => {
+                    const readClass = readIds.has(p.id) ? ' read' : '';
+                    return `<div class="browse-card${readClass}" data-passage-id="${p.id}">
+                        <div class="browse-card-title">${escapeHtml(p.title)}</div>
+                        <div class="browse-card-summary">${escapeHtml(p.summary)}</div>
+                        <div class="browse-card-tags">${escapeHtml(p.body_system)} · ${escapeHtml(p.theme)} · ~${estimateMinutes(p)} min</div>
+                    </div>`;
+                }).join('');
+
+                const showMoreBtn = hasMore
+                    ? `<button class="browse-show-more" data-system="${escapeHtml(sys)}">show more (${all.length - BROWSE_PAGE_SIZE})</button>`
+                    : '';
+
+                return `<div class="browse-group">
+                    <div class="browse-group-label">${escapeHtml(sys)}</div>
+                    ${cards}
+                    ${showMoreBtn}
+                </div>`;
+            }).join('');
+
+            if (sortedSystems.length === 0) {
+                groupsEl.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted)">No passages match this filter.</div>';
+            }
+
+            // Card click → enter reader
+            groupsEl.querySelectorAll('.browse-card').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = parseInt(el.dataset.passageId, 10);
+                    enterReader(id);
+                });
+            });
+
+            // Show more click
+            groupsEl.querySelectorAll('.browse-show-more').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    browseExpanded[btn.dataset.system] = true;
+                    renderBrowse();
+                });
+            });
+        }
+
+        document.getElementById('browse-back').addEventListener('click', () => {
             showLanding();
         });
 
