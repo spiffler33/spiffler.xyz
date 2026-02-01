@@ -762,18 +762,7 @@
                 return passages[0];
             }
 
-            // Use recommendation engine from last-read passage if available
-            const history = getHistory();
-            if (history.length > 0) {
-                const lastReadId = history[history.length - 1].id;
-                const lastRead = passages.find(p => p.id === lastReadId);
-                if (lastRead) {
-                    const rec = pickRecommended(lastRead);
-                    if (rec) return rec;
-                }
-            }
-
-            // Fallback: first unread in order
+            // Always follow the book's natural order
             return unread[0];
         }
 
