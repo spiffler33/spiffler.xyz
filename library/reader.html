@@ -177,6 +177,9 @@
             text-align: center;
             flex-shrink: 0;
             opacity: 0.6;
+            transition: opacity 400ms, max-height 400ms, padding 400ms;
+            max-height: 50px;
+            overflow: hidden;
         }
 
         .passage-area {
@@ -193,13 +196,76 @@
             font-size: 0.95rem;
             line-height: 1.85;
             color: var(--text-secondary);
+            transition: opacity 300ms ease;
         }
+
+        .passage-text.fading { opacity: 0; }
 
         .passage-text p {
             margin-bottom: 1.2em;
         }
         .passage-text p:last-child {
             margin-bottom: 0;
+        }
+
+        /* --- Hyperfocus Mode --- */
+        .reader.hyperfocus .reader-header {
+            opacity: 0;
+            max-height: 0;
+            padding: 0;
+        }
+
+        .reader.hyperfocus .post-passage {
+            /* Simplify post-passage in hyperfocus: hide secondary/done, minimal primary */
+        }
+        .reader.hyperfocus .post-btn:not(.post-btn-primary) {
+            display: none;
+        }
+        .reader.hyperfocus .post-btn-primary {
+            border-color: var(--border);
+        }
+        .reader.hyperfocus .post-btn-primary .post-btn-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .reader.hyperfocus .post-btn-primary .post-btn-detail {
+            display: none;
+        }
+
+        .hyperfocus-exit {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 300ms;
+            z-index: 10;
+        }
+        .hyperfocus-exit:hover { color: var(--text-secondary); }
+        .reader.hyperfocus .hyperfocus-exit {
+            display: flex;
+            opacity: 0.3;
+        }
+        .reader.hyperfocus .hyperfocus-exit:hover {
+            opacity: 1;
+        }
+
+        /* Reveal chrome on hover/tap at top */
+        .reader.hyperfocus:hover .reader-header,
+        .reader.hyperfocus.chrome-reveal .reader-header {
+            opacity: 0.6;
+            max-height: 50px;
+            padding: 16px 24px 0;
         }
 
         /* --- Post-passage flow (appears after text) --- */
@@ -356,6 +422,7 @@
     </div>
 
     <div class="reader" id="reader" style="display:none">
+        <button class="hyperfocus-exit" id="hyperfocus-exit" title="Exit focus mode">&times;</button>
         <div class="reader-header" id="reader-header"></div>
         <div class="passage-area" id="passage-area">
             <div class="passage-text" id="passage-text"></div>
@@ -402,6 +469,11 @@
         let currentRec = null;    // recommended next passage
         let currentAlt = null;    // "different vibe" passage
         let sessionPassages = []; // passages read this session
+        let sessionTimestamps = []; // timestamps of each passage entry this session
+        let hyperfocusActive = false;
+
+        const HYPERFOCUS_GAP_MS = 90000; // 90 seconds max gap between reads
+        const HYPERFOCUS_MIN_STREAK = 3;
 
         // Theme classification for the Story→Science→Meaning loop
         // narrative, personal, history → "story-like"
@@ -613,6 +685,45 @@
             return Math.max(1, Math.round(words / 200));
         }
 
+        // --- Hyperfocus detection ---
+        function checkHyperfocus() {
+            if (sessionTimestamps.length < HYPERFOCUS_MIN_STREAK) {
+                setHyperfocus(false);
+                return;
+            }
+            // Check last N reads had short gaps
+            let streak = 1;
+            for (let i = sessionTimestamps.length - 1; i > 0; i--) {
+                const gap = sessionTimestamps[i] - sessionTimestamps[i - 1];
+                if (gap <= HYPERFOCUS_GAP_MS) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            setHyperfocus(streak >= HYPERFOCUS_MIN_STREAK);
+        }
+
+        function setHyperfocus(on) {
+            hyperfocusActive = on;
+            const readerEl = document.getElementById('reader');
+            if (on) {
+                readerEl.classList.add('hyperfocus');
+            } else {
+                readerEl.classList.remove('hyperfocus');
+            }
+        }
+
+        // --- Crossfade transition ---
+        function crossfadeTo(renderFn) {
+            const textEl = document.getElementById('passage-text');
+            textEl.classList.add('fading');
+            setTimeout(() => {
+                renderFn();
+                textEl.classList.remove('fading');
+            }, 300);
+        }
+
         function escapeHtml(s) {
             return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
@@ -659,6 +770,8 @@
             document.getElementById('reader').style.display = 'flex';
             addToHistory(passageId);
             sessionPassages.push(passages[pos]);
+            sessionTimestamps.push(Date.now());
+            checkHyperfocus();
             renderPassage();
         }
 
@@ -702,7 +815,8 @@
                 document.getElementById('post-secondary-detail').textContent = '';
             }
 
-            // Scroll to top
+            // Reset auto-advance flag and scroll to top
+            autoAdvanceTriggered = false;
             document.getElementById('passage-area').scrollTop = 0;
 
             // Save position
@@ -777,30 +891,25 @@
         });
 
         // --- Post-passage events ---
+        function advanceToPassage(passage) {
+            const idx = passages.findIndex(p => p.id === passage.id);
+            if (idx < 0) return;
+            pos = idx;
+            addToHistory(passage.id);
+            sessionPassages.push(passage);
+            sessionTimestamps.push(Date.now());
+            checkHyperfocus();
+            crossfadeTo(() => renderPassage());
+        }
+
         document.getElementById('post-primary').addEventListener('click', (e) => {
             e.stopPropagation();
-            if (currentRec) {
-                const idx = passages.findIndex(p => p.id === currentRec.id);
-                if (idx >= 0) {
-                    pos = idx;
-                    addToHistory(currentRec.id);
-                    sessionPassages.push(currentRec);
-                    renderPassage();
-                }
-            }
+            if (currentRec) advanceToPassage(currentRec);
         });
 
         document.getElementById('post-secondary').addEventListener('click', (e) => {
             e.stopPropagation();
-            if (currentAlt) {
-                const idx = passages.findIndex(p => p.id === currentAlt.id);
-                if (idx >= 0) {
-                    pos = idx;
-                    addToHistory(currentAlt.id);
-                    sessionPassages.push(currentAlt);
-                    renderPassage();
-                }
-            }
+            if (currentAlt) advanceToPassage(currentAlt);
         });
 
         document.getElementById('post-done').addEventListener('click', (e) => {
@@ -824,14 +933,44 @@
 
         document.getElementById('completion-home').addEventListener('click', () => {
             sessionPassages = [];
+            sessionTimestamps = [];
+            setHyperfocus(false);
             showLanding();
+        });
+
+        // --- Hyperfocus exit ---
+        document.getElementById('hyperfocus-exit').addEventListener('click', () => {
+            setHyperfocus(false);
+            // Reset streak so it won't immediately re-trigger
+            sessionTimestamps = [Date.now()];
+        });
+
+        // --- Auto-advance: in hyperfocus, scrolling past post-passage loads next ---
+        let autoAdvanceTriggered = false;
+        document.getElementById('passage-area').addEventListener('scroll', () => {
+            if (!hyperfocusActive || !currentRec || autoAdvanceTriggered) return;
+            const area = document.getElementById('passage-area');
+            const scrollBottom = area.scrollTop + area.clientHeight;
+            const scrollMax = area.scrollHeight;
+            // Trigger when within 40px of bottom
+            if (scrollMax - scrollBottom < 40) {
+                autoAdvanceTriggered = true;
+                advanceToPassage(currentRec);
+            }
         });
 
         // --- Keyboard (reader only) ---
         document.addEventListener('keydown', e => {
             if (document.getElementById('reader').style.display === 'none') return;
             if (e.key === 'Escape') {
-                showCompletion();
+                if (hyperfocusActive) {
+                    // First ESC reveals chrome temporarily
+                    const readerEl = document.getElementById('reader');
+                    readerEl.classList.add('chrome-reveal');
+                    setTimeout(() => readerEl.classList.remove('chrome-reveal'), 3000);
+                } else {
+                    showCompletion();
+                }
             }
         });
     })();
