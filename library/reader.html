@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Reader | spiffler.xyz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #0f1624;
+            --bg-tertiary: #162033;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-secondary: #22d3ee;
+            --border: #1e3a5f;
+            --border-hover: #2d5a87;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', Monaco, Menlo, monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* --- Layout --- */
+        .reader {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* --- Chapter bar --- */
+        .chapter-bar {
+            padding: 16px 0 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex-shrink: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- Passage area --- */
+        .passage-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px 0;
+        }
+
+        .passage-text {
+            max-width: 700px;
+            width: 100%;
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--text-secondary);
+        }
+
+        .passage-text p {
+            margin-bottom: 1.2em;
+        }
+        .passage-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- Bottom bar --- */
+        .bottom-bar {
+            flex-shrink: 0;
+            padding: 12px 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .next-hook {
+            flex: 1;
+            font-size: 0.8rem;
+            color: var(--accent-secondary);
+            opacity: 0.7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .next-hook:hover { opacity: 1; }
+
+        .position {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .bookmark-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-muted);
+            padding: 4px;
+            transition: color 150ms;
+        }
+        .bookmark-btn:hover { color: var(--accent-secondary); }
+        .bookmark-btn.active { color: var(--accent-secondary); }
+
+        /* --- Tag --- */
+        .tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 6px;
+            cursor: pointer;
+            transition: border-color 150ms, color 150ms;
+            text-decoration: none;
+        }
+        .tag:hover {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+
+        /* --- Wander / filter bar --- */
+        .filter-bar {
+            display: none;
+            padding: 8px 0;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-bar.visible { display: flex; }
+        .filter-bar a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .filter-bar a:hover { text-decoration: underline; }
+        .filter-label {
+            color: var(--text-secondary);
+        }
+
+        /* --- Mobile nav arrows --- */
+        .nav-arrow {
+            display: none;
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            padding: 20px 8px;
+            cursor: pointer;
+            opacity: 0.3;
+            z-index: 10;
+            transition: opacity 150ms;
+        }
+        .nav-arrow:active { opacity: 0.7; }
+        .nav-prev { left: 0; }
+        .nav-next { right: 0; }
+
+        /* --- Loading --- */
+        .loading {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 600px) {
+            .reader { padding: 0 16px; }
+            .passage-text { font-size: 0.9rem; line-height: 1.8; }
+            .nav-arrow { display: block; }
+        }
+
+        @media (max-width: 400px) {
+            .passage-text { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">loading...</div>
+
+    <div class="reader" id="reader" style="display:none">
+        <div class="filter-bar" id="filter-bar">
+            <span class="filter-label" id="filter-label"></span>
+            <a id="filter-exit">&larr; back to sequence</a>
+            <span style="margin-left:auto">
+                <a id="filter-fav">&#9733; favorites</a>
+            </span>
+        </div>
+
+        <div class="chapter-bar" id="chapter-bar"></div>
+
+        <div class="passage-area" id="passage-area">
+            <div class="passage-text" id="passage-text"></div>
+        </div>
+
+        <div class="bottom-bar">
+            <div style="display:flex;align-items:center;gap:8px">
+                <button class="bookmark-btn" id="bookmark-btn">&#9734;</button>
+                <span class="tag" id="system-tag"></span>
+            </div>
+            <div class="next-hook" id="next-hook"></div>
+            <div class="position" id="position"></div>
+        </div>
+
+        <button class="nav-arrow nav-prev" id="nav-prev">&lsaquo;</button>
+        <button class="nav-arrow nav-next" id="nav-next">&rsaquo;</button>
+    </div>
+
+    <script>
+    (function () {
+        const params = new URLSearchParams(location.search);
+        const slug = params.get('book');
+        if (!slug) { location.href = '/library/'; return; }
+
+        const KEY_POS = `library-${slug}-pos`;
+        const KEY_BM = `library-${slug}-bookmarks`;
+
+        let passages = [];
+        let meta = {};
+        let pos = 0;
+        let filterMode = null;   // null | 'system:heart' | 'favorites'
+        let filteredIds = [];
+        let filterPos = 0;
+        let savedPos = 0;         // main-sequence position saved when entering filter
+
+        // --- Bookmarks ---
+        function getBookmarks() {
+            try { return JSON.parse(localStorage.getItem(KEY_BM) || '{}'); } catch { return {}; }
+        }
+        function setBookmarks(bm) { localStorage.setItem(KEY_BM, JSON.stringify(bm)); }
+        function isBookmarked(id) { return !!getBookmarks()[id]; }
+        function toggleBookmark(id) {
+            const bm = getBookmarks();
+            if (bm[id]) delete bm[id]; else bm[id] = true;
+            setBookmarks(bm);
+        }
+
+        // --- Load ---
+        fetch(`${slug}/passages.json`)
+            .then(r => r.json())
+            .then(data => {
+                meta = data.meta;
+                passages = data.passages;
+                document.title = `${meta.title} | spiffler.xyz`;
+
+                const saved = localStorage.getItem(KEY_POS);
+                pos = saved ? Math.min(parseInt(saved, 10), passages.length - 1) : 0;
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('reader').style.display = 'flex';
+                render();
+            })
+            .catch(() => {
+                document.getElementById('loading').textContent = 'book not found';
+            });
+
+        // --- Render ---
+        function currentPassage() {
+            if (filterMode) {
+                return passages.find(p => p.id === filteredIds[filterPos]);
+            }
+            return passages[pos];
+        }
+
+        function currentIndex() {
+            return filterMode ? filterPos : pos;
+        }
+
+        function currentTotal() {
+            return filterMode ? filteredIds.length : passages.length;
+        }
+
+        function render() {
+            const p = currentPassage();
+            if (!p) return;
+
+            // Chapter bar
+            document.getElementById('chapter-bar').textContent = p.chapter;
+
+            // Passage text
+            const area = document.getElementById('passage-area');
+            const textEl = document.getElementById('passage-text');
+            const html = p.content.split('\n').filter(s => s.trim())
+                .map(para => `<p>${escapeHtml(para)}</p>`).join('');
+            textEl.innerHTML = html;
+            area.scrollTop = 0;
+
+            // Next hook
+            const nextHookEl = document.getElementById('next-hook');
+            const ni = currentIndex() + 1;
+            if (ni < currentTotal()) {
+                const nextP = filterMode
+                    ? passages.find(pp => pp.id === filteredIds[ni])
+                    : passages[ni];
+                nextHookEl.textContent = nextP ? nextP.title : '';
+            } else {
+                nextHookEl.textContent = filterMode ? 'end of filter' : 'fin';
+            }
+
+            // Position
+            document.getElementById('position').textContent =
+                `${currentIndex() + 1} / ${currentTotal()}`;
+
+            // Bookmark
+            const bmBtn = document.getElementById('bookmark-btn');
+            bmBtn.innerHTML = isBookmarked(p.id) ? '&#9733;' : '&#9734;';
+            bmBtn.classList.toggle('active', isBookmarked(p.id));
+
+            // Tag
+            document.getElementById('system-tag').textContent = p.body_system;
+
+            // Filter bar
+            const fb = document.getElementById('filter-bar');
+            if (filterMode) {
+                fb.classList.add('visible');
+                const label = filterMode === 'favorites' ? '&#9733; favorites' : filterMode.replace('system:', '');
+                document.getElementById('filter-label').innerHTML = label;
+                document.getElementById('filter-fav').style.display = filterMode === 'favorites' ? 'none' : '';
+            } else {
+                fb.classList.remove('visible');
+            }
+
+            // Save position
+            if (!filterMode) {
+                localStorage.setItem(KEY_POS, pos);
+            }
+        }
+
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // --- Navigation ---
+        function go(delta) {
+            if (filterMode) {
+                filterPos = Math.max(0, Math.min(filterPos + delta, filteredIds.length - 1));
+            } else {
+                pos = Math.max(0, Math.min(pos + delta, passages.length - 1));
+            }
+            render();
+        }
+
+        // --- Filter / Wander ---
+        function enterFilter(mode) {
+            savedPos = pos;
+            filterMode = mode;
+
+            if (mode === 'favorites') {
+                const bm = getBookmarks();
+                filteredIds = passages.filter(p => bm[p.id]).map(p => p.id);
+            } else {
+                const system = mode.replace('system:', '');
+                filteredIds = passages.filter(p => p.body_system === system).map(p => p.id);
+            }
+
+            filterPos = 0;
+            if (filteredIds.length === 0) {
+                exitFilter();
+                return;
+            }
+            render();
+        }
+
+        function exitFilter() {
+            filterMode = null;
+            filteredIds = [];
+            filterPos = 0;
+            pos = savedPos;
+            render();
+        }
+
+        // --- Events ---
+
+        // Keyboard
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === 'k') go(1);
+            else if (e.key === 'ArrowLeft' || e.key === 'j') go(-1);
+            else if (e.key === 'b') {
+                toggleBookmark(currentPassage().id);
+                render();
+            }
+        });
+
+        // Click left/right halves (desktop)
+        document.getElementById('passage-area').addEventListener('click', e => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x > rect.width * 0.5) go(1);
+            else go(-1);
+        });
+
+        // Mobile arrows
+        document.getElementById('nav-prev').addEventListener('click', e => { e.stopPropagation(); go(-1); });
+        document.getElementById('nav-next').addEventListener('click', e => { e.stopPropagation(); go(1); });
+
+        // Next hook click
+        document.getElementById('next-hook').addEventListener('click', () => go(1));
+
+        // Swipe
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+        });
+
+        // Bookmark
+        document.getElementById('bookmark-btn').addEventListener('click', e => {
+            e.stopPropagation();
+            toggleBookmark(currentPassage().id);
+            render();
+        });
+
+        // Tag → wander
+        document.getElementById('system-tag').addEventListener('click', e => {
+            e.stopPropagation();
+            const p = currentPassage();
+            if (p) enterFilter('system:' + p.body_system);
+        });
+
+        // Filter bar actions
+        document.getElementById('filter-exit').addEventListener('click', exitFilter);
+        document.getElementById('filter-fav').addEventListener('click', () => enterFilter('favorites'));
+    })();
+    </script>
+</body>
+</html>

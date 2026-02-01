@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library | spiffler.xyz</title>
+    <meta name="description" content="Read books in small, digestible passages. ADHD-friendly book reader.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #0f1624;
+            --bg-tertiary: #162033;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #38bdf8;
+            --accent-secondary: #22d3ee;
+            --border: #1e3a5f;
+            --border-hover: #2d5a87;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'JetBrains Mono', Monaco, Menlo, monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header { padding: 24px 0; border-bottom: 1px solid var(--border); }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent-secondary);
+            text-decoration: none;
+        }
+        .logo:hover { opacity: 0.8; }
+
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 150ms;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+
+        main { flex: 1; padding: 48px 0; }
+
+        .page-header { margin-bottom: 48px; }
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .book-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 24px;
+            text-decoration: none;
+            transition: border-color 150ms, background-color 150ms;
+            display: block;
+        }
+        .book-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-tertiary);
+        }
+
+        .book-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--accent-secondary);
+            margin-bottom: 4px;
+        }
+        .book-author {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .book-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        footer {
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+        .footer-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .footer-content a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        .footer-content a:hover { color: var(--text-primary); }
+        .separator { color: var(--border); }
+
+        @media (max-width: 600px) {
+            .container { padding: 0 16px; }
+            nav { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .nav-links { gap: 16px; }
+            .book-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <h1>library</h1>
+                <p>Read books in small, digestible passages.</p>
+            </div>
+
+            <div class="book-grid" id="book-grid"></div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/tinker.html">&larr; back to tinker</a>
+                <span class="separator">|</span>
+                <span>spiffler.xyz</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const books = [
+            { slug: 'how-we-die', jsonPath: 'how-we-die/passages.json' }
+        ];
+
+        async function loadBooks() {
+            const grid = document.getElementById('book-grid');
+            for (const book of books) {
+                try {
+                    const res = await fetch(book.jsonPath);
+                    const data = await res.json();
+                    const m = data.meta;
+                    const count = data.passages.length;
+
+                    const saved = localStorage.getItem(`library-${m.slug}-pos`);
+                    const pos = saved ? parseInt(saved, 10) : 0;
+
+                    const card = document.createElement('a');
+                    card.href = `reader.html?book=${m.slug}`;
+                    card.className = 'book-card';
+                    card.innerHTML = `
+                        <div class="book-title">${m.title}</div>
+                        <div class="book-author">${m.author}</div>
+                        <div class="book-meta">${count} passages${pos > 0 ? ' · ' + pos + ' / ' + count : ''}</div>
+                    `;
+                    grid.appendChild(card);
+                } catch (e) {
+                    console.error('Failed to load book:', book.slug, e);
+                }
+            }
+        }
+
+        loadBooks();
+    </script>
+</body>
+</html>
