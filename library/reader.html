@@ -187,6 +187,63 @@
             border-color: var(--accent-secondary);
             color: var(--accent-secondary);
         }
+        /* Toggle switch */
+        .settings-toggle-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .settings-toggle-text {
+            flex: 1;
+        }
+        .settings-toggle-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .settings-toggle-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            cursor: pointer;
+            transition: background 200ms, border-color 200ms;
+        }
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 14px;
+            height: 14px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: transform 200ms, background 200ms;
+        }
+        .toggle-switch input:checked + .toggle-track {
+            background: rgba(34, 211, 238, 0.15);
+            border-color: var(--accent-secondary);
+        }
+        .toggle-switch input:checked + .toggle-track::after {
+            transform: translateX(18px);
+            background: var(--accent-secondary);
+        }
+
         .settings-reset-btn {
             font-family: inherit;
             font-size: 0.8rem;
@@ -538,6 +595,18 @@
                 <button class="settings-font-btn" data-size="large">Large</button>
             </div>
         </div>
+        <div class="settings-section">
+            <div class="settings-toggle-row">
+                <div class="settings-toggle-text">
+                    <div class="settings-toggle-label">Show all passages</div>
+                    <div class="settings-toggle-sub">Include detailed medical and historical passages</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="settings-complete-toggle">
+                    <span class="toggle-track"></span>
+                </label>
+            </div>
+        </div>
         <div class="settings-section" style="margin-top: 40px;">
             <button class="settings-reset-btn" id="settings-reset">Start fresh</button>
             <div class="settings-reset-note">Resets your reading position. Saved passages are kept.</div>
@@ -563,10 +632,28 @@
         const KEY_LAST_OPEN = `library-${slug}-lastOpen`;
         const KEY_SAVED = `library-${slug}-saved`;
         const KEY_FONT = `library-${slug}-font`;
+        const KEY_MODE = `library-${slug}-mode`;
+        let allPassages = [];
         let passages = [];
         let meta = {};
         let pos = 0;
         let featuredPassage = null;
+
+        function isCompleteMode() {
+            return localStorage.getItem(KEY_MODE) === 'complete';
+        }
+        function setCompleteMode(on) {
+            if (on) localStorage.setItem(KEY_MODE, 'complete');
+            else localStorage.removeItem(KEY_MODE);
+            rebuildPassages();
+        }
+        function rebuildPassages() {
+            if (isCompleteMode()) {
+                passages = allPassages;
+            } else {
+                passages = allPassages.filter(p => p.priority === 'essential');
+            }
+        }
 
         // --- Read History ---
         function getHistory() {
@@ -681,7 +768,7 @@
             document.getElementById('featured-title').textContent = p.title;
             document.getElementById('featured-summary').textContent = p.summary;
             document.getElementById('featured-tags').textContent =
-                `~${estimateMinutes(p)} min`;
+                `${p.chapter} · ~${estimateMinutes(p)} min`;
 
             // Show "skip to next chapter" if current passage isn't the start of a main chapter
             const skipBtn = document.getElementById('skip-chapter-btn');
@@ -728,8 +815,14 @@
                 .map(para => `<p>${escapeHtml(para)}</p>`).join('');
             textEl.innerHTML = html;
 
-            // Post-passage: sequential next
-            const next = passages[pos + 1];
+            // Post-passage: next unread in active list
+            const readIds = getReadIds();
+            let next = null;
+            for (let i = pos + 1; i < passages.length; i++) {
+                if (!readIds.has(passages[i].id)) { next = passages[i]; break; }
+            }
+            if (!next && pos + 1 < passages.length) next = passages[pos + 1];
+
             const postEl = document.getElementById('post-passage');
             postEl.classList.add('visible');
 
@@ -752,7 +845,10 @@
 
         // --- Show Completion Card ---
         function showCompletion() {
-            const readCount = getReadIds().size;
+            const readIds = getReadIds();
+            const activeIds = new Set(passages.map(p => p.id));
+            let readCount = 0;
+            readIds.forEach(id => { if (activeIds.has(id)) readCount++; });
             document.getElementById('completion-text').textContent =
                 `Nice. ${readCount} passage${readCount !== 1 ? 's' : ''} so far.`;
 
@@ -782,7 +878,7 @@
             } else {
                 const items = [...saved].reverse();
                 listEl.innerHTML = items.map(entry => {
-                    const p = passages.find(pp => pp.id === entry.passageId);
+                    const p = allPassages.find(pp => pp.id === entry.passageId);
                     if (!p) return '';
                     const line = entry.savedLine
                         ? `<div class="anthology-item-line">"${escapeHtml(entry.savedLine)}"</div>`
@@ -814,6 +910,7 @@
             document.querySelectorAll('.settings-font-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.size === currentFont);
             });
+            document.getElementById('settings-complete-toggle').checked = isCompleteMode();
             hideAll();
             document.getElementById('settings-view').style.display = 'flex';
         }
@@ -833,16 +930,30 @@
             .then(r => r.json())
             .then(data => {
                 meta = data.meta;
-                passages = data.passages;
+                allPassages = data.passages;
+                rebuildPassages();
                 document.title = `${meta.title} | spiffler.xyz`;
 
-                const saved = localStorage.getItem(KEY_POS);
-                pos = saved ? Math.min(parseInt(saved, 10), passages.length - 1) : 0;
+                // Restore position by passage ID (not index, since filtered list changes)
+                const savedPos = localStorage.getItem(KEY_POS);
+                if (savedPos !== null) {
+                    const savedIdx = parseInt(savedPos, 10);
+                    // Old format stored index into allPassages; find that passage in current list
+                    const savedPassage = allPassages[savedIdx];
+                    if (savedPassage) {
+                        const filteredIdx = passages.findIndex(p => p.id === savedPassage.id);
+                        pos = filteredIdx >= 0 ? filteredIdx : 0;
+                    } else {
+                        pos = 0;
+                    }
+                } else {
+                    pos = 0;
+                }
 
                 const history = getHistory();
-                if (history.length === 0 && saved !== null && parseInt(saved, 10) > 0) {
-                    for (let i = 0; i <= Math.min(parseInt(saved, 10), passages.length - 1); i++) {
-                        addToHistory(passages[i].id);
+                if (history.length === 0 && savedPos !== null && parseInt(savedPos, 10) > 0) {
+                    for (let i = 0; i <= Math.min(parseInt(savedPos, 10), allPassages.length - 1); i++) {
+                        addToHistory(allPassages[i].id);
                     }
                 }
 
@@ -886,10 +997,25 @@
             });
         });
 
+        document.getElementById('settings-complete-toggle').addEventListener('change', (e) => {
+            setCompleteMode(e.target.checked);
+            // Reposition: find next unread in new mode
+            const readIds = getReadIds();
+            const unread = passages.filter(p => !readIds.has(p.id));
+            if (unread.length > 0) {
+                pos = passages.findIndex(p => p.id === unread[0].id);
+            } else {
+                pos = 0;
+            }
+        });
+
         document.getElementById('settings-reset').addEventListener('click', () => {
             if (confirm('This resets your reading position. Your saved passages are kept. Start over?')) {
                 localStorage.removeItem(KEY_HISTORY);
                 localStorage.removeItem(KEY_POS);
+                localStorage.removeItem(KEY_MODE);
+                rebuildPassages();
+                pos = 0;
                 showLanding();
             }
         });
@@ -897,10 +1023,17 @@
         // --- Post-passage events ---
         document.getElementById('post-primary').addEventListener('click', (e) => {
             e.stopPropagation();
-            const next = passages[pos + 1];
-            if (next) {
-                pos++;
-                addToHistory(next.id);
+            const readIds = getReadIds();
+            // Find next unread in active list after current pos
+            let nextIdx = -1;
+            for (let i = pos + 1; i < passages.length; i++) {
+                if (!readIds.has(passages[i].id)) { nextIdx = i; break; }
+            }
+            // If none found after current, just take pos+1
+            if (nextIdx < 0 && pos + 1 < passages.length) nextIdx = pos + 1;
+            if (nextIdx >= 0) {
+                pos = nextIdx;
+                addToHistory(passages[pos].id);
                 crossfadeTo(() => renderPassage());
             }
         });
