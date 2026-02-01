@@ -1,2 +1,6 @@
 node_modules/
 .DS_Store
+
+# Library source files (EPUBs, plans)
+library/Sherwin_Nuland/
+library/plan.md
