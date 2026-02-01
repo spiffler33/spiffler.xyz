@@ -46,7 +46,7 @@
             font-size: 0.875rem;
         }
 
-        /* --- Landing (Surface Mode) --- */
+        /* --- Landing --- */
         .landing {
             height: 100%;
             display: flex;
@@ -209,7 +209,7 @@
             line-height: 1.5;
         }
 
-        /* --- Reader (Immersion Mode) --- */
+        /* --- Reader --- */
         .reader {
             height: 100%;
             display: flex;
@@ -225,9 +225,6 @@
             text-align: center;
             flex-shrink: 0;
             opacity: 0.6;
-            transition: opacity 400ms, max-height 400ms, padding 400ms;
-            max-height: 50px;
-            overflow: hidden;
         }
 
         .passage-area {
@@ -256,70 +253,7 @@
             margin-bottom: 0;
         }
 
-        /* --- Hyperfocus Mode --- */
-        .reader.hyperfocus .reader-header {
-            opacity: 0;
-            max-height: 0;
-            padding: 0;
-        }
-
-        .reader.hyperfocus .post-passage {
-            /* Simplify post-passage in hyperfocus: hide secondary/done, minimal primary */
-        }
-        .reader.hyperfocus .post-btn:not(.post-btn-primary),
-        .reader.hyperfocus .save-line-btn,
-        .reader.hyperfocus .thread-indicator,
-        .reader.hyperfocus .context-note {
-            display: none;
-        }
-        .reader.hyperfocus .post-btn-primary {
-            border-color: var(--border);
-        }
-        .reader.hyperfocus .post-btn-primary .post-btn-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        .reader.hyperfocus .post-btn-primary .post-btn-detail {
-            display: none;
-        }
-
-        .hyperfocus-exit {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-family: inherit;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            background: none;
-            border: none;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 300ms;
-            z-index: 10;
-        }
-        .hyperfocus-exit:hover { color: var(--text-secondary); }
-        .reader.hyperfocus .hyperfocus-exit {
-            display: flex;
-            opacity: 0.3;
-        }
-        .reader.hyperfocus .hyperfocus-exit:hover {
-            opacity: 1;
-        }
-
-        /* Reveal chrome on hover/tap at top */
-        .reader.hyperfocus:hover .reader-header,
-        .reader.hyperfocus.chrome-reveal .reader-header {
-            opacity: 0.6;
-            max-height: 50px;
-            padding: 16px 24px 0;
-        }
-
-        /* --- Post-passage flow (appears after text) --- */
+        /* --- Post-passage flow --- */
         .post-passage {
             max-width: 700px;
             width: 100%;
@@ -438,7 +372,7 @@
             color: var(--text-secondary);
         }
 
-        /* --- Save a line (post-passage + completion) --- */
+        /* --- Save a line --- */
         .save-line-btn {
             display: block;
             width: 100%;
@@ -464,7 +398,6 @@
             opacity: 0.5;
             pointer-events: none;
         }
-
 
         /* --- My Anthology view --- */
         .anthology-view {
@@ -535,36 +468,6 @@
         }
         .anthology-back:hover { color: var(--text-secondary); }
 
-
-        /* --- Context note (cross-passage reference) --- */
-        .context-note {
-            max-width: 700px;
-            width: 100%;
-            margin: 0 auto 16px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-style: italic;
-            line-height: 1.6;
-            border-left: 2px solid var(--border);
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: opacity 200ms;
-        }
-        .context-note.collapsed {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* --- Thread indicator --- */
-        .thread-indicator {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            opacity: 0.5;
-            text-align: center;
-            padding: 4px 0 0;
-        }
-
         @media (max-width: 600px) {
             .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
@@ -592,17 +495,15 @@
             <button class="featured-cta">Read this</button>
         </div>
         <div class="landing-secondary">
+            <button class="landing-link" id="skip-chapter-btn" style="display:none">skip to next chapter &rarr;</button>
             <button class="landing-link" id="anthology-btn">my anthology</button>
             <button class="landing-link" id="settings-btn">settings</button>
         </div>
     </div>
 
     <div class="reader" id="reader" style="display:none">
-        <button class="hyperfocus-exit" id="hyperfocus-exit" title="Exit focus mode">&times;</button>
         <div class="reader-header" id="reader-header"></div>
-        <div class="thread-indicator" id="thread-indicator" style="display:none"></div>
         <div class="passage-area" id="passage-area">
-            <div class="context-note collapsed" id="context-note" style="display:none"></div>
             <div class="passage-text" id="passage-text"></div>
             <div class="post-passage" id="post-passage">
                 <div class="post-divider"></div>
@@ -666,39 +567,6 @@
         let meta = {};
         let pos = 0;
         let featuredPassage = null;
-        let currentRec = null;
-        let sessionPassages = [];
-        let sessionTimestamps = [];
-        let hyperfocusActive = false;
-
-        const HYPERFOCUS_GAP_MS = 90000;
-        const HYPERFOCUS_MIN_STREAK = 3;
-
-        // Theme classification for the Story→Science→Meaning loop
-        function themeClass(theme) {
-            if (theme === 'science') return 'science';
-            if (theme === 'philosophy') return 'meaning';
-            return 'story';
-        }
-
-        function nextThemeClass(tc) {
-            if (tc === 'story') return 'science';
-            if (tc === 'science') return 'meaning';
-            return 'story';
-        }
-
-        function themeClassToThemes(tc) {
-            if (tc === 'science') return ['science'];
-            if (tc === 'meaning') return ['philosophy'];
-            return ['narrative', 'personal', 'history'];
-        }
-
-        function primaryLabel(currentTheme) {
-            const tc = themeClass(currentTheme);
-            if (tc === 'story') return 'The science behind this \u2192';
-            if (tc === 'science') return 'What this means \u2192';
-            return 'Another story \u2192';
-        }
 
         // --- Read History ---
         function getHistory() {
@@ -729,7 +597,7 @@
             return getSavedPassages().some(e => e.passageId === passageId);
         }
 
-        // --- Migrate bookmarks → savedPassages ---
+        // --- Migrate bookmarks ---
         function migrateBookmarks() {
             let bm;
             try { bm = JSON.parse(localStorage.getItem(KEY_BM) || '{}'); } catch { bm = {}; }
@@ -749,113 +617,31 @@
             localStorage.removeItem(KEY_BM);
         }
 
-        // --- Pick next unread passage (deterministic: the app decides) ---
+        // --- Pick next unread passage (always sequential) ---
         function pickNextUnread() {
             const readIds = getReadIds();
-            // If nothing read, start at passage 1
             if (readIds.size === 0) return passages[0];
 
-            // Find the next unread passage in sequence
             const unread = passages.filter(p => !readIds.has(p.id));
-            if (unread.length === 0) {
-                // All read — just serve the first passage again
-                return passages[0];
-            }
+            if (unread.length === 0) return passages[0];
 
-            // Always follow the book's natural order
             return unread[0];
         }
 
-        // --- Story→Science→Meaning recommendation engine ---
-        function pickRecommended(current) {
-            const readIds = getReadIds();
-            const sessionIds = new Set(sessionPassages.map(p => p.id));
-            const wantClass = nextThemeClass(themeClass(current.theme));
-            const wantThemes = themeClassToThemes(wantClass);
-
-            function isCandidate(p) {
-                return p.id !== current.id && !sessionIds.has(p.id);
+        // --- Find first passage of the next chapter ---
+        function findNextChapterStart(currentPassage) {
+            const currentChapter = currentPassage.chapter;
+            for (let i = 0; i < passages.length; i++) {
+                if (passages[i].chapter !== currentChapter && passages[i].id > currentPassage.id) {
+                    return passages[i];
+                }
             }
-
-            // Priority 0: same thread_id
-            if (current.thread_id) {
-                let threadCandidates = passages.filter(p =>
-                    isCandidate(p) && p.thread_id === current.thread_id);
-                if (threadCandidates.length > 0) return pickWeighted(threadCandidates, readIds);
-            }
-
-            // Priority 1: same chapter, complementary theme
-            let candidates = passages.filter(p =>
-                isCandidate(p) && p.chapter === current.chapter && wantThemes.includes(p.theme));
-            if (candidates.length > 0) return pickWeighted(candidates, readIds);
-
-            // Priority 2: same body_system, complementary theme
-            candidates = passages.filter(p =>
-                isCandidate(p) && p.body_system === current.body_system && wantThemes.includes(p.theme));
-            if (candidates.length > 0) return pickWeighted(candidates, readIds);
-
-            // Priority 3: different body_system, narrative (fresh hook)
-            if (wantClass === 'story') {
-                candidates = passages.filter(p =>
-                    isCandidate(p) && p.body_system !== current.body_system && themeClass(p.theme) === 'story');
-                if (candidates.length > 0) return pickWeighted(candidates, readIds);
-            }
-
-            // Priority 4: any complementary theme
-            candidates = passages.filter(p =>
-                isCandidate(p) && wantThemes.includes(p.theme));
-            if (candidates.length > 0) return pickWeighted(candidates, readIds);
-
-            // Fallback: any unread narrative
-            candidates = passages.filter(p =>
-                isCandidate(p) && !readIds.has(p.id) && themeClass(p.theme) === 'story');
-            if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
-
-            // Last resort: any passage not current
-            candidates = passages.filter(p => isCandidate(p));
-            if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
-
             return null;
-        }
-
-        function pickWeighted(candidates, readIds) {
-            const scored = candidates.map(p => ({
-                passage: p,
-                score: readIds.has(p.id) ? 0.2 : 1
-            }));
-            const total = scored.reduce((s, e) => s + e.score, 0);
-            let r = Math.random() * total;
-            for (const e of scored) {
-                r -= e.score;
-                if (r <= 0) return e.passage;
-            }
-            return scored[scored.length - 1].passage;
         }
 
         function estimateMinutes(passage) {
             const words = passage.content.split(/\s+/).length;
             return Math.max(1, Math.round(words / 200));
-        }
-
-        // --- Hyperfocus detection ---
-        function checkHyperfocus() {
-            if (sessionTimestamps.length < HYPERFOCUS_MIN_STREAK) {
-                setHyperfocus(false);
-                return;
-            }
-            let streak = 1;
-            for (let i = sessionTimestamps.length - 1; i > 0; i--) {
-                const gap = sessionTimestamps[i] - sessionTimestamps[i - 1];
-                if (gap <= HYPERFOCUS_GAP_MS) { streak++; } else { break; }
-            }
-            setHyperfocus(streak >= HYPERFOCUS_MIN_STREAK);
-        }
-
-        function setHyperfocus(on) {
-            hyperfocusActive = on;
-            const readerEl = document.getElementById('reader');
-            if (on) readerEl.classList.add('hyperfocus');
-            else readerEl.classList.remove('hyperfocus');
         }
 
         function crossfadeTo(renderFn) {
@@ -872,7 +658,6 @@
         function applyFontSize() {
             const size = localStorage.getItem(KEY_FONT) || 'medium';
             const map = { small: '0.85rem', medium: '0.95rem', large: '1.1rem' };
-            document.documentElement.style.setProperty('--reader-font-size', map[size] || map.medium);
             document.querySelectorAll('.passage-text').forEach(el => {
                 el.style.fontSize = map[size] || map.medium;
             });
@@ -889,7 +674,6 @@
         }
 
         // --- Show Landing ---
-        // The featured card IS the resume point — always shows the next passage to read
         function showLanding() {
             featuredPassage = pickNextUnread();
             const p = featuredPassage;
@@ -897,7 +681,25 @@
             document.getElementById('featured-title').textContent = p.title;
             document.getElementById('featured-summary').textContent = p.summary;
             document.getElementById('featured-tags').textContent =
-                `${p.chapter} \xb7 ~${estimateMinutes(p)} min`;
+                `~${estimateMinutes(p)} min`;
+
+            // Show "skip to next chapter" if current passage isn't the start of a main chapter
+            const skipBtn = document.getElementById('skip-chapter-btn');
+            const nextChapter = findNextChapterStart(p);
+            if (nextChapter) {
+                skipBtn.style.display = '';
+                skipBtn.textContent = `skip to ${nextChapter.chapter} \u2192`;
+                skipBtn.onclick = () => {
+                    // Mark all passages in current chapter as read
+                    const currentChapter = p.chapter;
+                    passages.forEach(pp => {
+                        if (pp.chapter === currentChapter) addToHistory(pp.id);
+                    });
+                    enterReader(nextChapter.id);
+                };
+            } else {
+                skipBtn.style.display = 'none';
+            }
 
             hideAll();
             document.getElementById('landing').style.display = 'flex';
@@ -911,9 +713,6 @@
             hideAll();
             document.getElementById('reader').style.display = 'flex';
             addToHistory(passageId);
-            sessionPassages.push(passages[pos]);
-            sessionTimestamps.push(Date.now());
-            checkHyperfocus();
             renderPassage();
         }
 
@@ -922,7 +721,6 @@
             const p = passages[pos];
             if (!p) return;
 
-            // Header: chapter name only
             document.getElementById('reader-header').textContent = p.chapter;
 
             const textEl = document.getElementById('passage-text');
@@ -930,26 +728,23 @@
                 .map(para => `<p>${escapeHtml(para)}</p>`).join('');
             textEl.innerHTML = html;
 
-            // Compute recommendation (one path only)
-            currentRec = pickRecommended(p);
-
-            // Post-passage: primary button
+            // Post-passage: sequential next
+            const next = passages[pos + 1];
             const postEl = document.getElementById('post-passage');
             postEl.classList.add('visible');
 
-            document.getElementById('post-primary-label').textContent = primaryLabel(p.theme);
-            if (currentRec) {
+            const primaryBtn = document.getElementById('post-primary');
+            if (next) {
+                primaryBtn.style.display = '';
+                document.getElementById('post-primary-label').textContent = 'Continue \u2192';
                 document.getElementById('post-primary-detail').textContent =
-                    `${currentRec.title} \xb7 ~${estimateMinutes(currentRec)} min`;
+                    `${next.title} \xb7 ~${estimateMinutes(next)} min`;
             } else {
-                document.getElementById('post-primary-detail').textContent = '';
+                primaryBtn.style.display = 'none';
             }
 
             updateSaveBtn(document.getElementById('post-save-line'), p.id);
-            renderContextNote(p);
-            renderThreadIndicator(p);
 
-            autoAdvanceTriggered = false;
             document.getElementById('passage-area').scrollTop = 0;
             localStorage.setItem(KEY_POS, pos);
             applyFontSize();
@@ -1095,28 +890,19 @@
             if (confirm('This resets your reading position. Your saved passages are kept. Start over?')) {
                 localStorage.removeItem(KEY_HISTORY);
                 localStorage.removeItem(KEY_POS);
-                sessionPassages = [];
-                sessionTimestamps = [];
-                setHyperfocus(false);
                 showLanding();
             }
         });
 
         // --- Post-passage events ---
-        function advanceToPassage(passage) {
-            const idx = passages.findIndex(p => p.id === passage.id);
-            if (idx < 0) return;
-            pos = idx;
-            addToHistory(passage.id);
-            sessionPassages.push(passage);
-            sessionTimestamps.push(Date.now());
-            checkHyperfocus();
-            crossfadeTo(() => renderPassage());
-        }
-
         document.getElementById('post-primary').addEventListener('click', (e) => {
             e.stopPropagation();
-            if (currentRec) advanceToPassage(currentRec);
+            const next = passages[pos + 1];
+            if (next) {
+                pos++;
+                addToHistory(next.id);
+                crossfadeTo(() => renderPassage());
+            }
         });
 
         document.getElementById('post-done').addEventListener('click', (e) => {
@@ -1145,91 +931,14 @@
         });
 
         document.getElementById('completion-home').addEventListener('click', () => {
-            sessionPassages = [];
-            sessionTimestamps = [];
-            setHyperfocus(false);
             showLanding();
         });
-
-        // --- Hyperfocus exit ---
-        document.getElementById('hyperfocus-exit').addEventListener('click', () => {
-            setHyperfocus(false);
-            sessionTimestamps = [Date.now()];
-        });
-
-        // --- Auto-advance ---
-        let autoAdvanceTriggered = false;
-        document.getElementById('passage-area').addEventListener('scroll', () => {
-            if (!hyperfocusActive || !currentRec || autoAdvanceTriggered) return;
-            const area = document.getElementById('passage-area');
-            const scrollBottom = area.scrollTop + area.clientHeight;
-            const scrollMax = area.scrollHeight;
-            if (scrollMax - scrollBottom < 40) {
-                autoAdvanceTriggered = true;
-                advanceToPassage(currentRec);
-            }
-        });
-
-        // --- Context Note ---
-        function renderContextNote(passage) {
-            const noteEl = document.getElementById('context-note');
-            if (passage.context_note) {
-                noteEl.textContent = passage.context_note;
-                noteEl.style.display = 'block';
-                noteEl.classList.add('collapsed');
-            } else if (passage.context_refs && passage.context_refs.length > 0) {
-                const refs = passage.context_refs.map(refId => {
-                    const rp = passages.find(p => p.id === refId);
-                    return rp ? rp.title : null;
-                }).filter(Boolean);
-                if (refs.length > 0) {
-                    noteEl.textContent = 'Related: ' + refs.join(', ');
-                    noteEl.style.display = 'block';
-                    noteEl.classList.add('collapsed');
-                } else {
-                    noteEl.style.display = 'none';
-                }
-            } else {
-                noteEl.style.display = 'none';
-            }
-        }
-
-        document.getElementById('context-note').addEventListener('click', () => {
-            document.getElementById('context-note').classList.toggle('collapsed');
-        });
-
-        // --- Thread Indicator ---
-        function renderThreadIndicator(passage) {
-            const el = document.getElementById('thread-indicator');
-            if (passage.thread_id) {
-                const label = passage.thread_id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                el.textContent = label + ' thread';
-                el.style.display = 'block';
-            } else {
-                if (sessionPassages.length >= 2) {
-                    const prev = sessionPassages[sessionPassages.length - 2];
-                    if (prev.body_system === passage.body_system) {
-                        const sysLabel = passage.body_system.charAt(0).toUpperCase() + passage.body_system.slice(1);
-                        el.textContent = sysLabel + ' thread';
-                        el.style.display = 'block';
-                        return;
-                    }
-                }
-                el.style.display = 'none';
-            }
-        }
 
         // --- Keyboard ---
         document.addEventListener('keydown', e => {
             if (document.getElementById('reader').style.display === 'none') return;
             if (e.key === 'Escape') {
-                if (hyperfocusActive) {
-                    const readerEl = document.getElementById('reader');
-                    readerEl.classList.add('chrome-reveal');
-                    setTimeout(() => readerEl.classList.remove('chrome-reveal'), 3000);
-                } else {
-                    showCompletion();
-                }
+                showCompletion();
             }
         });
     })();
