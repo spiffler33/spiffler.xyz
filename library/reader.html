@@ -219,7 +219,9 @@
             /* Simplify post-passage in hyperfocus: hide secondary/done, minimal primary */
         }
         .reader.hyperfocus .post-btn:not(.post-btn-primary),
-        .reader.hyperfocus .save-line-btn {
+        .reader.hyperfocus .save-line-btn,
+        .reader.hyperfocus .thread-indicator,
+        .reader.hyperfocus .context-note {
             display: none;
         }
         .reader.hyperfocus .post-btn-primary {
@@ -696,6 +698,45 @@
         }
         .browse-show-more:hover { color: var(--text-secondary); }
 
+        /* --- Context note (cross-passage reference) --- */
+        .context-note {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.6;
+            border-left: 2px solid var(--border);
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: opacity 200ms;
+        }
+        .context-note.collapsed {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- Thread indicator --- */
+        .thread-indicator {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+            text-align: center;
+            padding: 4px 0 0;
+        }
+
+        /* --- Constellation Map --- */
+        .constellation-canvas {
+            width: 100%;
+            height: 260px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+        }
+
         @media (max-width: 600px) {
             .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
@@ -739,7 +780,9 @@
     <div class="reader" id="reader" style="display:none">
         <button class="hyperfocus-exit" id="hyperfocus-exit" title="Exit focus mode">&times;</button>
         <div class="reader-header" id="reader-header"></div>
+        <div class="thread-indicator" id="thread-indicator" style="display:none"></div>
         <div class="passage-area" id="passage-area">
+            <div class="context-note collapsed" id="context-note" style="display:none"></div>
             <div class="passage-text" id="passage-text"></div>
             <div class="post-passage" id="post-passage">
                 <div class="post-divider"></div>
@@ -770,6 +813,7 @@
     <div class="map-view" id="map-view" style="display:none">
         <button class="map-back" id="map-back">&larr; back</button>
         <div class="map-heading">Where you've been</div>
+        <canvas class="constellation-canvas" id="constellation-canvas"></canvas>
         <div class="map-section">
             <div class="map-section-label">By topic</div>
             <div id="map-bars"></div>
@@ -804,7 +848,6 @@
         const KEY_HISTORY = `library-${slug}-history`;
         const KEY_LAST_OPEN = `library-${slug}-lastOpen`;
         const KEY_SAVED = `library-${slug}-saved`;
-
         let passages = [];
         let meta = {};
         let pos = 0;
@@ -982,6 +1025,13 @@
             // Exclude current + already read this session
             function isCandidate(p) {
                 return p.id !== current.id && !sessionIds.has(p.id);
+            }
+
+            // Priority 0: same thread_id (explicit thread continuation)
+            if (current.thread_id) {
+                let threadCandidates = passages.filter(p =>
+                    isCandidate(p) && p.thread_id === current.thread_id);
+                if (threadCandidates.length > 0) return pickWeighted(threadCandidates, readIds);
             }
 
             // Priority 1: same chapter, complementary theme
@@ -1202,6 +1252,12 @@
             // Update save button state
             updateSaveBtn(document.getElementById('post-save-line'), p.id);
 
+            // Context note
+            renderContextNote(p);
+
+            // Thread indicator
+            renderThreadIndicator(p);
+
             // Reset auto-advance flag and scroll to top
             autoAdvanceTriggered = false;
             document.getElementById('passage-area').scrollTop = 0;
@@ -1289,6 +1345,8 @@
 
             hideAll();
             document.getElementById('map-view').style.display = 'flex';
+            // Render constellation after display so canvas has dimensions
+            requestAnimationFrame(() => renderConstellation());
         }
 
         // --- Show Anthology ---
@@ -1583,6 +1641,155 @@
                 advanceToPassage(currentRec);
             }
         });
+
+        // --- Context Note / Context Refs ---
+        function renderContextNote(passage) {
+            const noteEl = document.getElementById('context-note');
+            if (passage.context_note) {
+                noteEl.textContent = passage.context_note;
+                noteEl.style.display = 'block';
+                noteEl.classList.add('collapsed');
+            } else if (passage.context_refs && passage.context_refs.length > 0) {
+                // Build a brief note from referenced passages
+                const refs = passage.context_refs.map(refId => {
+                    const rp = passages.find(p => p.id === refId);
+                    return rp ? rp.title : null;
+                }).filter(Boolean);
+                if (refs.length > 0) {
+                    noteEl.textContent = 'Related: ' + refs.join(', ');
+                    noteEl.style.display = 'block';
+                    noteEl.classList.add('collapsed');
+                } else {
+                    noteEl.style.display = 'none';
+                }
+            } else {
+                noteEl.style.display = 'none';
+            }
+        }
+
+        document.getElementById('context-note').addEventListener('click', () => {
+            document.getElementById('context-note').classList.toggle('collapsed');
+        });
+
+        // --- Thread Indicator ---
+        function renderThreadIndicator(passage) {
+            const el = document.getElementById('thread-indicator');
+            if (passage.thread_id) {
+                // Find thread label: use thread_id as label, capitalize
+                const label = passage.thread_id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                el.textContent = label + ' thread';
+                el.style.display = 'block';
+            } else {
+                // Implicit thread: if continuing same body_system as previous passage
+                if (sessionPassages.length >= 2) {
+                    const prev = sessionPassages[sessionPassages.length - 2];
+                    if (prev.body_system === passage.body_system) {
+                        const sysLabel = passage.body_system.charAt(0).toUpperCase() + passage.body_system.slice(1);
+                        el.textContent = sysLabel + ' thread';
+                        el.style.display = 'block';
+                        return;
+                    }
+                }
+                el.style.display = 'none';
+            }
+        }
+
+        // --- Constellation Visualization ---
+        function renderConstellation() {
+            const canvas = document.getElementById('constellation-canvas');
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            const W = rect.width;
+            const H = rect.height;
+
+            ctx.clearRect(0, 0, W, H);
+
+            const readIds = getReadIds();
+            if (readIds.size === 0) {
+                ctx.fillStyle = '#64748b';
+                ctx.font = '12px JetBrains Mono, monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('Read passages to grow your constellation', W / 2, H / 2);
+                return;
+            }
+
+            // Cluster positions by body_system
+            const systems = [...new Set(passages.map(p => p.body_system))];
+            const systemPositions = {};
+            const padding = 40;
+            const usableW = W - padding * 2;
+            const usableH = H - padding * 2;
+
+            // Arrange systems in a loose grid
+            const cols = Math.ceil(Math.sqrt(systems.length));
+            const rows = Math.ceil(systems.length / cols);
+            systems.forEach((sys, i) => {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                systemPositions[sys] = {
+                    cx: padding + (usableW / (cols)) * (col + 0.5),
+                    cy: padding + (usableH / (rows)) * (row + 0.5)
+                };
+            });
+
+            // Assign each passage a position with jitter around its system center
+            const passagePos = {};
+            const systemCounters = {};
+            passages.forEach(p => {
+                if (!systemCounters[p.body_system]) systemCounters[p.body_system] = 0;
+                const idx = systemCounters[p.body_system]++;
+                const center = systemPositions[p.body_system];
+                // Spiral outward
+                const angle = idx * 2.4; // golden angle-ish
+                const r = 8 + Math.sqrt(idx) * 7;
+                passagePos[p.id] = {
+                    x: center.cx + Math.cos(angle) * Math.min(r, usableW / (cols * 2) - 10),
+                    y: center.cy + Math.sin(angle) * Math.min(r, usableH / (rows * 2) - 10)
+                };
+            });
+
+            // Draw connections between consecutively read passages
+            const history = getHistory();
+            ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < history.length; i++) {
+                const a = passagePos[history[i - 1].id];
+                const b = passagePos[history[i].id];
+                if (a && b) {
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw system labels
+            ctx.font = '10px JetBrains Mono, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#64748b';
+            systems.forEach(sys => {
+                const center = systemPositions[sys];
+                ctx.fillText(sys, center.cx, center.cy - (usableH / (rows * 2)) + 5);
+            });
+
+            // Draw dots
+            passages.forEach(p => {
+                const pt = passagePos[p.id];
+                const isRead = readIds.has(p.id);
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, isRead ? 3 : 1.5, 0, Math.PI * 2);
+                if (isRead) {
+                    ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
+                } else {
+                    ctx.fillStyle = 'rgba(100, 116, 139, 0.2)';
+                }
+                ctx.fill();
+            });
+        }
 
         // --- Keyboard (reader only) ---
         document.addEventListener('keydown', e => {
