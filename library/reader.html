@@ -131,35 +131,83 @@
             color: var(--text-secondary);
         }
 
-        .resume-strip {
-            width: 100%;
+        /* --- Settings View --- */
+        .settings-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             max-width: 560px;
-            margin-bottom: 20px;
-            padding: 12px 16px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .settings-back {
+            font-family: inherit;
             font-size: 0.75rem;
             color: var(--text-muted);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .resume-strip-text {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .resume-strip-btn {
-            font-family: inherit;
-            font-size: 0.7rem;
-            color: var(--accent-secondary);
             background: none;
             border: none;
             cursor: pointer;
-            white-space: nowrap;
+            margin-bottom: 24px;
+            padding: 0;
         }
-        .resume-strip-btn:hover { text-decoration: underline; }
+        .settings-back:hover { color: var(--text-secondary); }
+        .settings-heading {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        .settings-section { margin-bottom: 24px; }
+        .settings-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .settings-font-row {
+            display: flex;
+            gap: 8px;
+        }
+        .settings-font-btn {
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px 16px;
+            cursor: pointer;
+            transition: border-color 200ms, color 200ms;
+        }
+        .settings-font-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-secondary);
+        }
+        .settings-font-btn.active {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+        .settings-reset-btn {
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px 24px;
+            cursor: pointer;
+            transition: border-color 200ms, color 200ms;
+        }
+        .settings-reset-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .settings-reset-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
 
         /* --- Reader (Immersion Mode) --- */
         .reader {
@@ -417,101 +465,6 @@
             pointer-events: none;
         }
 
-        /* --- My Map view --- */
-        .map-view {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            max-width: 560px;
-            margin: 0 auto;
-            padding: 48px 24px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .map-heading {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 32px;
-        }
-
-        .map-section-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 16px;
-        }
-
-        .map-bar-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            gap: 12px;
-        }
-
-        .map-bar-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            width: 80px;
-            flex-shrink: 0;
-            text-align: right;
-        }
-
-        .map-bar-track {
-            flex: 1;
-            height: 6px;
-            background: var(--bg-tertiary);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .map-bar-fill {
-            height: 100%;
-            background: var(--accent-secondary);
-            border-radius: 3px;
-            transition: width 400ms ease;
-            opacity: 0.7;
-        }
-
-        .map-bar-count {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            width: 70px;
-            flex-shrink: 0;
-        }
-
-        .map-theme-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-top: 8px;
-            margin-bottom: 40px;
-        }
-
-        .map-theme-item {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .map-theme-count {
-            color: var(--text-secondary);
-        }
-
-        .map-section {
-            margin-bottom: 32px;
-        }
-
-        .map-back {
-            font-family: inherit;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-bottom: 24px;
-            padding: 0;
-        }
-        .map-back:hover { color: var(--text-secondary); }
 
         /* --- My Anthology view --- */
         .anthology-view {
@@ -582,121 +535,6 @@
         }
         .anthology-back:hover { color: var(--text-secondary); }
 
-        /* --- Browse Mode --- */
-        .browse-view {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 48px 24px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .browse-back {
-            font-family: inherit;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-bottom: 24px;
-            padding: 0;
-        }
-        .browse-back:hover { color: var(--text-secondary); }
-
-        .browse-heading {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-
-        .browse-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 28px;
-        }
-
-        .browse-filter-btn {
-            font-family: inherit;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            background: none;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 4px 12px;
-            cursor: pointer;
-            transition: border-color 200ms, color 200ms, background 200ms;
-        }
-        .browse-filter-btn:hover {
-            border-color: var(--border-hover);
-            color: var(--text-secondary);
-        }
-        .browse-filter-btn.active {
-            border-color: var(--accent-secondary);
-            color: var(--accent-secondary);
-            background: rgba(34, 211, 238, 0.06);
-        }
-
-        .browse-group {
-            margin-bottom: 32px;
-        }
-
-        .browse-group-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            text-transform: capitalize;
-        }
-
-        .browse-card {
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 16px 20px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: border-color 200ms, background 200ms;
-        }
-        .browse-card:hover {
-            border-color: var(--border-hover);
-            background: var(--bg-secondary);
-        }
-        .browse-card.read {
-            opacity: 0.5;
-        }
-
-        .browse-card-title {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .browse-card-summary {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 6px;
-        }
-
-        .browse-card-tags {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            opacity: 0.6;
-        }
-
-        .browse-show-more {
-            font-family: inherit;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px 0;
-            transition: color 150ms;
-        }
-        .browse-show-more:hover { color: var(--text-secondary); }
 
         /* --- Context note (cross-passage reference) --- */
         .context-note {
@@ -727,16 +565,6 @@
             padding: 4px 0 0;
         }
 
-        /* --- Constellation Map --- */
-        .constellation-canvas {
-            width: 100%;
-            height: 260px;
-            margin-bottom: 24px;
-            border-radius: 8px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-        }
-
         @media (max-width: 600px) {
             .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
@@ -744,10 +572,8 @@
             .landing { padding: 0 16px; }
             .featured-card { padding: 24px 20px; }
             .completion { padding: 0 16px; }
-            .map-view { padding: 40px 16px; }
             .anthology-view { padding: 40px 16px; }
-            .browse-view { padding: 40px 16px; }
-            .map-bar-label { width: 64px; font-size: 0.7rem; }
+            .settings-view { padding: 40px 16px; }
         }
 
         @media (max-width: 400px) {
@@ -759,10 +585,6 @@
     <div class="loading" id="loading">loading...</div>
 
     <div class="landing" id="landing" style="display:none">
-        <div class="resume-strip" id="resume-strip" style="display:none">
-            <span class="resume-strip-text" id="resume-strip-text"></span>
-            <button class="resume-strip-btn" id="resume-btn">Resume</button>
-        </div>
         <div class="featured-card" id="featured-card">
             <div class="featured-title" id="featured-title"></div>
             <div class="featured-summary" id="featured-summary"></div>
@@ -770,10 +592,8 @@
             <button class="featured-cta">Read this</button>
         </div>
         <div class="landing-secondary">
-            <button class="landing-link" id="another-btn">Another one</button>
-            <button class="landing-link" id="browse-btn">pick your own &rarr;</button>
-            <button class="landing-link" id="map-btn">my map</button>
             <button class="landing-link" id="anthology-btn">my anthology</button>
+            <button class="landing-link" id="settings-btn">settings</button>
         </div>
     </div>
 
@@ -789,10 +609,6 @@
                 <button class="post-btn post-btn-primary" id="post-primary">
                     <div class="post-btn-label" id="post-primary-label"></div>
                     <div class="post-btn-detail" id="post-primary-detail"></div>
-                </button>
-                <button class="post-btn" id="post-secondary">
-                    <div class="post-btn-label" id="post-secondary-label">Different vibe</div>
-                    <div class="post-btn-detail" id="post-secondary-detail"></div>
                 </button>
                 <button class="post-btn post-btn-done" id="post-done">
                     <div class="post-btn-label">Done for now</div>
@@ -810,17 +626,20 @@
         </div>
     </div>
 
-    <div class="map-view" id="map-view" style="display:none">
-        <button class="map-back" id="map-back">&larr; back</button>
-        <div class="map-heading">Where you've been</div>
-        <canvas class="constellation-canvas" id="constellation-canvas"></canvas>
-        <div class="map-section">
-            <div class="map-section-label">By topic</div>
-            <div id="map-bars"></div>
+    <div class="settings-view" id="settings-view" style="display:none">
+        <button class="settings-back" id="settings-back">&larr; back</button>
+        <div class="settings-heading">Settings</div>
+        <div class="settings-section">
+            <div class="settings-label">Font size</div>
+            <div class="settings-font-row" id="settings-font-row">
+                <button class="settings-font-btn" data-size="small">Small</button>
+                <button class="settings-font-btn" data-size="medium">Medium</button>
+                <button class="settings-font-btn" data-size="large">Large</button>
+            </div>
         </div>
-        <div class="map-section">
-            <div class="map-section-label">By theme</div>
-            <div class="map-theme-row" id="map-themes"></div>
+        <div class="settings-section" style="margin-top: 40px;">
+            <button class="settings-reset-btn" id="settings-reset">Start fresh</button>
+            <div class="settings-reset-note">Resets your reading position. Saved passages are kept.</div>
         </div>
     </div>
 
@@ -830,14 +649,7 @@
         <div id="anthology-list"></div>
     </div>
 
-    <div class="browse-view" id="browse-view" style="display:none">
-        <button class="browse-back" id="browse-back">&larr; back</button>
-        <div class="browse-heading">Pick your own</div>
-        <div class="browse-filters" id="browse-filters"></div>
-        <div id="browse-groups"></div>
-    </div>
 
-    <script>
     (function () {
         const params = new URLSearchParams(location.search);
         const slug = params.get('book');
@@ -848,33 +660,30 @@
         const KEY_HISTORY = `library-${slug}-history`;
         const KEY_LAST_OPEN = `library-${slug}-lastOpen`;
         const KEY_SAVED = `library-${slug}-saved`;
+        const KEY_FONT = `library-${slug}-font`;
         let passages = [];
         let meta = {};
         let pos = 0;
         let featuredPassage = null;
-        let currentRec = null;    // recommended next passage
-        let currentAlt = null;    // "different vibe" passage
-        let sessionPassages = []; // passages read this session
-        let sessionTimestamps = []; // timestamps of each passage entry this session
+        let currentRec = null;
+        let sessionPassages = [];
+        let sessionTimestamps = [];
         let hyperfocusActive = false;
 
-        const HYPERFOCUS_GAP_MS = 90000; // 90 seconds max gap between reads
+        const HYPERFOCUS_GAP_MS = 90000;
         const HYPERFOCUS_MIN_STREAK = 3;
 
         // Theme classification for the Story→Science→Meaning loop
-        // narrative, personal, history → "story-like"
-        // science → "science"
-        // philosophy → "meaning"
         function themeClass(theme) {
             if (theme === 'science') return 'science';
             if (theme === 'philosophy') return 'meaning';
-            return 'story'; // narrative, personal, history
+            return 'story';
         }
 
         function nextThemeClass(tc) {
             if (tc === 'story') return 'science';
             if (tc === 'science') return 'meaning';
-            return 'story'; // meaning → story
+            return 'story';
         }
 
         function themeClassToThemes(tc) {
@@ -883,7 +692,6 @@
             return ['narrative', 'personal', 'history'];
         }
 
-        // Contextual label for the primary recommendation
         function primaryLabel(currentTheme) {
             const tc = themeClass(currentTheme);
             if (tc === 'story') return 'The science behind this \u2192';
@@ -904,17 +712,6 @@
             return new Set(getHistory().map(e => e.id));
         }
 
-        // --- Bookmarks ---
-        function getBookmarks() {
-            try { return JSON.parse(localStorage.getItem(KEY_BM) || '{}'); } catch { return {}; }
-        }
-        function setBookmarks(bm) { localStorage.setItem(KEY_BM, JSON.stringify(bm)); }
-        function toggleBookmark(id) {
-            const bm = getBookmarks();
-            if (bm[id]) delete bm[id]; else bm[id] = true;
-            setBookmarks(bm);
-        }
-
         // --- Saved Passages (Anthology) ---
         function getSavedPassages() {
             try { return JSON.parse(localStorage.getItem(KEY_SAVED) || '[]'); } catch { return []; }
@@ -922,7 +719,7 @@
         function setSavedPassages(sp) { localStorage.setItem(KEY_SAVED, JSON.stringify(sp)); }
         function savePassage(passageId, savedLine) {
             const sp = getSavedPassages();
-            if (sp.some(e => e.passageId === passageId)) return false; // already saved
+            if (sp.some(e => e.passageId === passageId)) return false;
             sp.push({ passageId, savedLine: savedLine || null, ts: Date.now() });
             setSavedPassages(sp);
             return true;
@@ -933,7 +730,8 @@
 
         // --- Migrate bookmarks → savedPassages ---
         function migrateBookmarks() {
-            const bm = getBookmarks();
+            let bm;
+            try { bm = JSON.parse(localStorage.getItem(KEY_BM) || '{}'); } catch { bm = {}; }
             const ids = Object.keys(bm).filter(k => bm[k]);
             if (ids.length === 0) return;
             const sp = getSavedPassages();
@@ -946,73 +744,36 @@
                     migrated = true;
                 }
             });
-            if (migrated) {
-                setSavedPassages(sp);
-            }
-            // Clear old bookmarks
+            if (migrated) setSavedPassages(sp);
             localStorage.removeItem(KEY_BM);
         }
 
-        // --- Featured Passage Algorithm ---
-        function pickFeatured() {
-            const history = getHistory();
+        // --- Pick next unread passage (deterministic: the app decides) ---
+        function pickNextUnread() {
             const readIds = getReadIds();
-            const lastOpen = parseInt(localStorage.getItem(KEY_LAST_OPEN) || '0', 10);
-            const daysSinceOpen = lastOpen ? (Date.now() - lastOpen) / (1000 * 60 * 60 * 24) : 999;
+            // If nothing read, start at passage 1
+            if (readIds.size === 0) return passages[0];
 
-            if (history.length === 0) return passages[0];
-
+            // Find the next unread passage in sequence
             const unread = passages.filter(p => !readIds.has(p.id));
             if (unread.length === 0) {
-                return passages[Math.floor(Math.random() * passages.length)];
+                // All read — just serve the first passage again
+                return passages[0];
             }
 
-            if (daysSinceOpen > 7) {
-                const systemCounts = {};
-                history.forEach(e => {
-                    const p = passages.find(pp => pp.id === e.id);
-                    if (p) systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
-                });
-                const unreadSystems = [...new Set(unread.map(p => p.body_system))];
-                unreadSystems.sort((a, b) => (systemCounts[a] || 0) - (systemCounts[b] || 0));
-                const targetSystem = unreadSystems[0];
-                const candidates = unread.filter(p => p.body_system === targetSystem && p.theme === 'narrative');
-                if (candidates.length > 0) return candidates[Math.floor(Math.random() * candidates.length)];
-                const fallback = unread.filter(p => p.body_system === targetSystem);
-                return fallback[Math.floor(Math.random() * fallback.length)];
-            }
-
-            const systemCounts = {};
-            const themeCounts = {};
-            history.forEach(e => {
-                const p = passages.find(pp => pp.id === e.id);
-                if (p) {
-                    systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
-                    themeCounts[p.theme] = (themeCounts[p.theme] || 0) + 1;
+            // Use recommendation engine from last-read passage if available
+            const history = getHistory();
+            if (history.length > 0) {
+                const lastReadId = history[history.length - 1].id;
+                const lastRead = passages.find(p => p.id === lastReadId);
+                if (lastRead) {
+                    const rec = pickRecommended(lastRead);
+                    if (rec) return rec;
                 }
-            });
-
-            const scored = unread.map(p => {
-                let score = 1;
-                score += (systemCounts[p.body_system] || 0) * 2;
-                score += (themeCounts[p.theme] || 0);
-                if (p.theme === 'narrative') score += 3;
-                const recentIds = history.slice(-5).map(e => e.id);
-                const recentChapters = recentIds.map(id => {
-                    const rp = passages.find(pp => pp.id === id);
-                    return rp ? rp.chapter : null;
-                });
-                if (recentChapters.includes(p.chapter)) score *= 0.3;
-                return { passage: p, score };
-            });
-
-            const totalScore = scored.reduce((s, e) => s + e.score, 0);
-            let r = Math.random() * totalScore;
-            for (const entry of scored) {
-                r -= entry.score;
-                if (r <= 0) return entry.passage;
             }
-            return scored[scored.length - 1].passage;
+
+            // Fallback: first unread in order
+            return unread[0];
         }
 
         // --- Story→Science→Meaning recommendation engine ---
@@ -1022,12 +783,11 @@
             const wantClass = nextThemeClass(themeClass(current.theme));
             const wantThemes = themeClassToThemes(wantClass);
 
-            // Exclude current + already read this session
             function isCandidate(p) {
                 return p.id !== current.id && !sessionIds.has(p.id);
             }
 
-            // Priority 0: same thread_id (explicit thread continuation)
+            // Priority 0: same thread_id
             if (current.thread_id) {
                 let threadCandidates = passages.filter(p =>
                     isCandidate(p) && p.thread_id === current.thread_id);
@@ -1068,7 +828,6 @@
             return null;
         }
 
-        // Prefer unread, weighted random
         function pickWeighted(candidates, readIds) {
             const scored = candidates.map(p => ({
                 passage: p,
@@ -1083,34 +842,6 @@
             return scored[scored.length - 1].passage;
         }
 
-        // "Different vibe" — contrasting theme AND/OR body_system
-        function pickDifferentVibe(current) {
-            const readIds = getReadIds();
-            const sessionIds = new Set(sessionPassages.map(p => p.id));
-            const curClass = themeClass(current.theme);
-
-            function isCandidate(p) {
-                return p.id !== current.id && !sessionIds.has(p.id);
-            }
-
-            // Different body_system AND different theme class
-            let candidates = passages.filter(p =>
-                isCandidate(p) && p.body_system !== current.body_system && themeClass(p.theme) !== curClass);
-            if (candidates.length > 0) return pickWeighted(candidates, readIds);
-
-            // Different body_system OR different theme class
-            candidates = passages.filter(p =>
-                isCandidate(p) && (p.body_system !== current.body_system || themeClass(p.theme) !== curClass));
-            if (candidates.length > 0) return pickWeighted(candidates, readIds);
-
-            // Anything else
-            candidates = passages.filter(p => isCandidate(p));
-            if (candidates.length > 0) return pickWeighted(candidates, readIds);
-
-            return null;
-        }
-
-        // --- Estimate read time ---
         function estimateMinutes(passage) {
             const words = passage.content.split(/\s+/).length;
             return Math.max(1, Math.round(words / 200));
@@ -1122,15 +853,10 @@
                 setHyperfocus(false);
                 return;
             }
-            // Check last N reads had short gaps
             let streak = 1;
             for (let i = sessionTimestamps.length - 1; i > 0; i--) {
                 const gap = sessionTimestamps[i] - sessionTimestamps[i - 1];
-                if (gap <= HYPERFOCUS_GAP_MS) {
-                    streak++;
-                } else {
-                    break;
-                }
+                if (gap <= HYPERFOCUS_GAP_MS) { streak++; } else { break; }
             }
             setHyperfocus(streak >= HYPERFOCUS_MIN_STREAK);
         }
@@ -1138,25 +864,28 @@
         function setHyperfocus(on) {
             hyperfocusActive = on;
             const readerEl = document.getElementById('reader');
-            if (on) {
-                readerEl.classList.add('hyperfocus');
-            } else {
-                readerEl.classList.remove('hyperfocus');
-            }
+            if (on) readerEl.classList.add('hyperfocus');
+            else readerEl.classList.remove('hyperfocus');
         }
 
-        // --- Crossfade transition ---
         function crossfadeTo(renderFn) {
             const textEl = document.getElementById('passage-text');
             textEl.classList.add('fading');
-            setTimeout(() => {
-                renderFn();
-                textEl.classList.remove('fading');
-            }, 300);
+            setTimeout(() => { renderFn(); textEl.classList.remove('fading'); }, 300);
         }
 
         function escapeHtml(s) {
             return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // --- Font size ---
+        function applyFontSize() {
+            const size = localStorage.getItem(KEY_FONT) || 'medium';
+            const map = { small: '0.85rem', medium: '0.95rem', large: '1.1rem' };
+            document.documentElement.style.setProperty('--reader-font-size', map[size] || map.medium);
+            document.querySelectorAll('.passage-text').forEach(el => {
+                el.style.fontSize = map[size] || map.medium;
+            });
         }
 
         // --- Show/hide views ---
@@ -1165,31 +894,20 @@
             document.getElementById('landing').style.display = 'none';
             document.getElementById('reader').style.display = 'none';
             document.getElementById('completion').style.display = 'none';
-            document.getElementById('map-view').style.display = 'none';
             document.getElementById('anthology-view').style.display = 'none';
-            document.getElementById('browse-view').style.display = 'none';
+            document.getElementById('settings-view').style.display = 'none';
         }
 
         // --- Show Landing ---
+        // The featured card IS the resume point — always shows the next passage to read
         function showLanding() {
-            featuredPassage = pickFeatured();
+            featuredPassage = pickNextUnread();
             const p = featuredPassage;
 
             document.getElementById('featured-title').textContent = p.title;
             document.getElementById('featured-summary').textContent = p.summary;
             document.getElementById('featured-tags').textContent =
-                `${p.body_system} \xb7 ${p.theme} \xb7 ~${estimateMinutes(p)} min`;
-
-            const savedPosVal = localStorage.getItem(KEY_POS);
-            const history = getHistory();
-            if (history.length > 0 && savedPosVal !== null) {
-                const resumeP = passages[parseInt(savedPosVal, 10)];
-                if (resumeP && resumeP.id !== p.id) {
-                    document.getElementById('resume-strip-text').textContent =
-                        `You were reading: \u201c${resumeP.title}\u201d`;
-                    document.getElementById('resume-strip').style.display = 'flex';
-                }
-            }
+                `${p.chapter} \xb7 ~${estimateMinutes(p)} min`;
 
             hideAll();
             document.getElementById('landing').style.display = 'flex';
@@ -1214,25 +932,21 @@
             const p = passages[pos];
             if (!p) return;
 
-            // Minimal header: body_system · theme · chapter
-            document.getElementById('reader-header').textContent =
-                `${p.body_system} \xb7 ${p.theme} \xb7 ${p.chapter}`;
+            // Header: chapter name only
+            document.getElementById('reader-header').textContent = p.chapter;
 
-            // Passage text
             const textEl = document.getElementById('passage-text');
             const html = p.content.split('\n').filter(s => s.trim())
                 .map(para => `<p>${escapeHtml(para)}</p>`).join('');
             textEl.innerHTML = html;
 
-            // Compute recommendations
+            // Compute recommendation (one path only)
             currentRec = pickRecommended(p);
-            currentAlt = pickDifferentVibe(p);
 
-            // Post-passage buttons
+            // Post-passage: primary button
             const postEl = document.getElementById('post-passage');
             postEl.classList.add('visible');
 
-            // Primary — contextual recommendation
             document.getElementById('post-primary-label').textContent = primaryLabel(p.theme);
             if (currentRec) {
                 document.getElementById('post-primary-detail').textContent =
@@ -1241,44 +955,23 @@
                 document.getElementById('post-primary-detail').textContent = '';
             }
 
-            // Secondary — different vibe
-            if (currentAlt) {
-                document.getElementById('post-secondary-detail').textContent =
-                    `${currentAlt.body_system} \xb7 ${currentAlt.theme}`;
-            } else {
-                document.getElementById('post-secondary-detail').textContent = '';
-            }
-
-            // Update save button state
             updateSaveBtn(document.getElementById('post-save-line'), p.id);
-
-            // Context note
             renderContextNote(p);
-
-            // Thread indicator
             renderThreadIndicator(p);
 
-            // Reset auto-advance flag and scroll to top
             autoAdvanceTriggered = false;
             document.getElementById('passage-area').scrollTop = 0;
-
-            // Save position
             localStorage.setItem(KEY_POS, pos);
+            applyFontSize();
         }
 
         // --- Show Completion Card ---
         function showCompletion() {
+            const readCount = getReadIds().size;
+            document.getElementById('completion-text').textContent =
+                `Nice. ${readCount} passage${readCount !== 1 ? 's' : ''} so far.`;
+
             const p = passages[pos];
-            const lines = [
-                `You read about ${p.body_system === 'general' ? 'life and death' : 'the ' + p.body_system}. That counts.`,
-            ];
-            if (sessionPassages.length > 1) {
-                lines[0] = `You read ${sessionPassages.length} passages. That counts.`;
-            }
-
-            document.getElementById('completion-text').textContent = lines[0];
-
-            // Reset save button state
             const saveBtn = document.getElementById('completion-save');
             if (isPassageSaved(p.id)) {
                 saveBtn.textContent = 'Saved';
@@ -1294,61 +987,6 @@
             document.getElementById('completion').style.display = 'flex';
         }
 
-        // --- Show Map ---
-        function showMap() {
-            const history = getHistory();
-            const readIds = getReadIds();
-
-            // Count by body_system
-            const systemCounts = {};
-            const themeCounts = {};
-            history.forEach(e => {
-                const p = passages.find(pp => pp.id === e.id);
-                if (p) {
-                    systemCounts[p.body_system] = (systemCounts[p.body_system] || 0);
-                    themeCounts[p.theme] = (themeCounts[p.theme] || 0);
-                }
-            });
-            // Use unique read passages (not repeat visits)
-            readIds.forEach(id => {
-                const p = passages.find(pp => pp.id === id);
-                if (p) {
-                    systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
-                    themeCounts[p.theme] = (themeCounts[p.theme] || 0) + 1;
-                }
-            });
-
-            const barsEl = document.getElementById('map-bars');
-            const systems = Object.entries(systemCounts).sort((a, b) => b[1] - a[1]);
-            const maxCount = systems.length > 0 ? systems[0][1] : 1;
-
-            barsEl.innerHTML = systems.map(([sys, count]) => {
-                const pct = Math.round((count / maxCount) * 100);
-                const label = count === 1 ? '1 passage' : `${count} passages`;
-                return `<div class="map-bar-row">
-                    <div class="map-bar-label">${escapeHtml(sys)}</div>
-                    <div class="map-bar-track"><div class="map-bar-fill" style="width:${pct}%"></div></div>
-                    <div class="map-bar-count">${label}</div>
-                </div>`;
-            }).join('');
-
-            const themesEl = document.getElementById('map-themes');
-            const themes = Object.entries(themeCounts).sort((a, b) => b[1] - a[1]);
-            themesEl.innerHTML = themes.map(([theme, count]) =>
-                `<span class="map-theme-item">${escapeHtml(theme)}: <span class="map-theme-count">${count}</span></span>`
-            ).join('');
-
-            if (systems.length === 0) {
-                barsEl.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted)">Nothing here yet. Read a passage to start your map.</div>';
-                themesEl.innerHTML = '';
-            }
-
-            hideAll();
-            document.getElementById('map-view').style.display = 'flex';
-            // Render constellation after display so canvas has dimensions
-            requestAnimationFrame(() => renderConstellation());
-        }
-
         // --- Show Anthology ---
         function showAnthology() {
             const saved = getSavedPassages();
@@ -1357,7 +995,6 @@
             if (saved.length === 0) {
                 listEl.innerHTML = '<div class="anthology-empty">Nothing saved yet. After reading a passage, tap "Save this passage" to add it here.</div>';
             } else {
-                // Show newest first
                 const items = [...saved].reverse();
                 listEl.innerHTML = items.map(entry => {
                     const p = passages.find(pp => pp.id === entry.passageId);
@@ -1370,11 +1007,10 @@
                     return `<div class="anthology-item" data-passage-id="${p.id}">
                         <div class="anthology-item-title">${escapeHtml(p.title)}</div>
                         ${line}
-                        <div class="anthology-item-meta">${escapeHtml(p.body_system)} · ${escapeHtml(p.theme)} · saved ${dateStr}</div>
+                        <div class="anthology-item-meta">saved ${dateStr}</div>
                     </div>`;
                 }).join('');
 
-                // Click to read
                 listEl.querySelectorAll('.anthology-item').forEach(el => {
                     el.addEventListener('click', () => {
                         const id = parseInt(el.dataset.passageId, 10);
@@ -1387,7 +1023,16 @@
             document.getElementById('anthology-view').style.display = 'flex';
         }
 
-        // --- Update save button state ---
+        // --- Show Settings ---
+        function showSettings() {
+            const currentFont = localStorage.getItem(KEY_FONT) || 'medium';
+            document.querySelectorAll('.settings-font-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.size === currentFont);
+            });
+            hideAll();
+            document.getElementById('settings-view').style.display = 'flex';
+        }
+
         function updateSaveBtn(btnEl, passageId) {
             if (isPassageSaved(passageId)) {
                 btnEl.textContent = 'Saved';
@@ -1409,7 +1054,6 @@
                 const saved = localStorage.getItem(KEY_POS);
                 pos = saved ? Math.min(parseInt(saved, 10), passages.length - 1) : 0;
 
-                // Migrate: seed history from existing position if needed
                 const history = getHistory();
                 if (history.length === 0 && saved !== null && parseInt(saved, 10) > 0) {
                     for (let i = 0; i <= Math.min(parseInt(saved, 10), passages.length - 1); i++) {
@@ -1417,9 +1061,8 @@
                     }
                 }
 
-                // Migrate bookmarks → saved passages
                 migrateBookmarks();
-
+                applyFontSize();
                 showLanding();
                 localStorage.setItem(KEY_LAST_OPEN, Date.now().toString());
             })
@@ -1432,138 +1075,41 @@
             if (featuredPassage) enterReader(featuredPassage.id);
         });
 
-        document.getElementById('another-btn').addEventListener('click', () => {
-            featuredPassage = pickFeatured();
-            const p = featuredPassage;
-            document.getElementById('featured-title').textContent = p.title;
-            document.getElementById('featured-summary').textContent = p.summary;
-            document.getElementById('featured-tags').textContent =
-                `${p.body_system} \xb7 ${p.theme} \xb7 ~${estimateMinutes(p)} min`;
-        });
-
-        document.getElementById('resume-btn').addEventListener('click', () => {
-            const savedPosVal = localStorage.getItem(KEY_POS);
-            if (savedPosVal !== null) {
-                const resumeP = passages[parseInt(savedPosVal, 10)];
-                if (resumeP) enterReader(resumeP.id);
-            }
-        });
-
-        document.getElementById('browse-btn').addEventListener('click', () => {
-            showBrowse();
-        });
-
-        document.getElementById('map-btn').addEventListener('click', () => {
-            showMap();
-        });
-
         document.getElementById('anthology-btn').addEventListener('click', () => {
             showAnthology();
         });
 
-        document.getElementById('map-back').addEventListener('click', () => {
-            showLanding();
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            showSettings();
         });
 
         document.getElementById('anthology-back').addEventListener('click', () => {
             showLanding();
         });
 
-        // --- Browse Mode ---
-        const BROWSE_PAGE_SIZE = 6;
-        let browseExpanded = {}; // body_system → true if "show more" clicked
-        let browseThemeFilter = null; // null = all, or a theme string
-
-        function showBrowse() {
-            browseExpanded = {};
-            browseThemeFilter = null;
-            renderBrowse();
-            hideAll();
-            document.getElementById('browse-view').style.display = 'flex';
-        }
-
-        function renderBrowse() {
-            const readIds = getReadIds();
-
-            // Collect all unique themes for filter chips
-            const allThemes = [...new Set(passages.map(p => p.theme))].sort();
-
-            const filtersEl = document.getElementById('browse-filters');
-            filtersEl.innerHTML = `<button class="browse-filter-btn ${browseThemeFilter === null ? 'active' : ''}" data-theme="">all</button>` +
-                allThemes.map(t =>
-                    `<button class="browse-filter-btn ${browseThemeFilter === t ? 'active' : ''}" data-theme="${escapeHtml(t)}">${escapeHtml(t)}</button>`
-                ).join('');
-
-            filtersEl.querySelectorAll('.browse-filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const t = btn.dataset.theme;
-                    browseThemeFilter = t === '' ? null : t;
-                    browseExpanded = {};
-                    renderBrowse();
-                });
-            });
-
-            // Group passages by body_system
-            const groups = {};
-            passages.forEach(p => {
-                if (browseThemeFilter && p.theme !== browseThemeFilter) return;
-                if (!groups[p.body_system]) groups[p.body_system] = [];
-                groups[p.body_system].push(p);
-            });
-
-            // Sort groups by number of passages (largest first)
-            const sortedSystems = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
-
-            const groupsEl = document.getElementById('browse-groups');
-            groupsEl.innerHTML = sortedSystems.map(sys => {
-                const all = groups[sys];
-                const expanded = browseExpanded[sys];
-                const visible = expanded ? all : all.slice(0, BROWSE_PAGE_SIZE);
-                const hasMore = all.length > BROWSE_PAGE_SIZE && !expanded;
-
-                const cards = visible.map(p => {
-                    const readClass = readIds.has(p.id) ? ' read' : '';
-                    return `<div class="browse-card${readClass}" data-passage-id="${p.id}">
-                        <div class="browse-card-title">${escapeHtml(p.title)}</div>
-                        <div class="browse-card-summary">${escapeHtml(p.summary)}</div>
-                        <div class="browse-card-tags">${escapeHtml(p.body_system)} · ${escapeHtml(p.theme)} · ~${estimateMinutes(p)} min</div>
-                    </div>`;
-                }).join('');
-
-                const showMoreBtn = hasMore
-                    ? `<button class="browse-show-more" data-system="${escapeHtml(sys)}">show more (${all.length - BROWSE_PAGE_SIZE})</button>`
-                    : '';
-
-                return `<div class="browse-group">
-                    <div class="browse-group-label">${escapeHtml(sys)}</div>
-                    ${cards}
-                    ${showMoreBtn}
-                </div>`;
-            }).join('');
-
-            if (sortedSystems.length === 0) {
-                groupsEl.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted)">No passages match this filter.</div>';
-            }
-
-            // Card click → enter reader
-            groupsEl.querySelectorAll('.browse-card').forEach(el => {
-                el.addEventListener('click', () => {
-                    const id = parseInt(el.dataset.passageId, 10);
-                    enterReader(id);
-                });
-            });
-
-            // Show more click
-            groupsEl.querySelectorAll('.browse-show-more').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    browseExpanded[btn.dataset.system] = true;
-                    renderBrowse();
-                });
-            });
-        }
-
-        document.getElementById('browse-back').addEventListener('click', () => {
+        // --- Settings events ---
+        document.getElementById('settings-back').addEventListener('click', () => {
             showLanding();
+        });
+
+        document.querySelectorAll('.settings-font-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                localStorage.setItem(KEY_FONT, btn.dataset.size);
+                document.querySelectorAll('.settings-font-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                applyFontSize();
+            });
+        });
+
+        document.getElementById('settings-reset').addEventListener('click', () => {
+            if (confirm('This resets your reading position. Your saved passages are kept. Start over?')) {
+                localStorage.removeItem(KEY_HISTORY);
+                localStorage.removeItem(KEY_POS);
+                sessionPassages = [];
+                sessionTimestamps = [];
+                setHyperfocus(false);
+                showLanding();
+            }
         });
 
         // --- Post-passage events ---
@@ -1583,17 +1129,11 @@
             if (currentRec) advanceToPassage(currentRec);
         });
 
-        document.getElementById('post-secondary').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (currentAlt) advanceToPassage(currentAlt);
-        });
-
         document.getElementById('post-done').addEventListener('click', (e) => {
             e.stopPropagation();
             showCompletion();
         });
 
-        // --- Post-passage save ---
         document.getElementById('post-save-line').addEventListener('click', (e) => {
             e.stopPropagation();
             const p = passages[pos];
@@ -1624,25 +1164,23 @@
         // --- Hyperfocus exit ---
         document.getElementById('hyperfocus-exit').addEventListener('click', () => {
             setHyperfocus(false);
-            // Reset streak so it won't immediately re-trigger
             sessionTimestamps = [Date.now()];
         });
 
-        // --- Auto-advance: in hyperfocus, scrolling past post-passage loads next ---
+        // --- Auto-advance ---
         let autoAdvanceTriggered = false;
         document.getElementById('passage-area').addEventListener('scroll', () => {
             if (!hyperfocusActive || !currentRec || autoAdvanceTriggered) return;
             const area = document.getElementById('passage-area');
             const scrollBottom = area.scrollTop + area.clientHeight;
             const scrollMax = area.scrollHeight;
-            // Trigger when within 40px of bottom
             if (scrollMax - scrollBottom < 40) {
                 autoAdvanceTriggered = true;
                 advanceToPassage(currentRec);
             }
         });
 
-        // --- Context Note / Context Refs ---
+        // --- Context Note ---
         function renderContextNote(passage) {
             const noteEl = document.getElementById('context-note');
             if (passage.context_note) {
@@ -1650,7 +1188,6 @@
                 noteEl.style.display = 'block';
                 noteEl.classList.add('collapsed');
             } else if (passage.context_refs && passage.context_refs.length > 0) {
-                // Build a brief note from referenced passages
                 const refs = passage.context_refs.map(refId => {
                     const rp = passages.find(p => p.id === refId);
                     return rp ? rp.title : null;
@@ -1675,12 +1212,10 @@
         function renderThreadIndicator(passage) {
             const el = document.getElementById('thread-indicator');
             if (passage.thread_id) {
-                // Find thread label: use thread_id as label, capitalize
                 const label = passage.thread_id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                 el.textContent = label + ' thread';
                 el.style.display = 'block';
             } else {
-                // Implicit thread: if continuing same body_system as previous passage
                 if (sessionPassages.length >= 2) {
                     const prev = sessionPassages[sessionPassages.length - 2];
                     if (prev.body_system === passage.body_system) {
@@ -1694,109 +1229,11 @@
             }
         }
 
-        // --- Constellation Visualization ---
-        function renderConstellation() {
-            const canvas = document.getElementById('constellation-canvas');
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-            const W = rect.width;
-            const H = rect.height;
-
-            ctx.clearRect(0, 0, W, H);
-
-            const readIds = getReadIds();
-            if (readIds.size === 0) {
-                ctx.fillStyle = '#64748b';
-                ctx.font = '12px JetBrains Mono, monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText('Read passages to grow your constellation', W / 2, H / 2);
-                return;
-            }
-
-            // Cluster positions by body_system
-            const systems = [...new Set(passages.map(p => p.body_system))];
-            const systemPositions = {};
-            const padding = 40;
-            const usableW = W - padding * 2;
-            const usableH = H - padding * 2;
-
-            // Arrange systems in a loose grid
-            const cols = Math.ceil(Math.sqrt(systems.length));
-            const rows = Math.ceil(systems.length / cols);
-            systems.forEach((sys, i) => {
-                const col = i % cols;
-                const row = Math.floor(i / cols);
-                systemPositions[sys] = {
-                    cx: padding + (usableW / (cols)) * (col + 0.5),
-                    cy: padding + (usableH / (rows)) * (row + 0.5)
-                };
-            });
-
-            // Assign each passage a position with jitter around its system center
-            const passagePos = {};
-            const systemCounters = {};
-            passages.forEach(p => {
-                if (!systemCounters[p.body_system]) systemCounters[p.body_system] = 0;
-                const idx = systemCounters[p.body_system]++;
-                const center = systemPositions[p.body_system];
-                // Spiral outward
-                const angle = idx * 2.4; // golden angle-ish
-                const r = 8 + Math.sqrt(idx) * 7;
-                passagePos[p.id] = {
-                    x: center.cx + Math.cos(angle) * Math.min(r, usableW / (cols * 2) - 10),
-                    y: center.cy + Math.sin(angle) * Math.min(r, usableH / (rows * 2) - 10)
-                };
-            });
-
-            // Draw connections between consecutively read passages
-            const history = getHistory();
-            ctx.strokeStyle = 'rgba(34, 211, 238, 0.08)';
-            ctx.lineWidth = 1;
-            for (let i = 1; i < history.length; i++) {
-                const a = passagePos[history[i - 1].id];
-                const b = passagePos[history[i].id];
-                if (a && b) {
-                    ctx.beginPath();
-                    ctx.moveTo(a.x, a.y);
-                    ctx.lineTo(b.x, b.y);
-                    ctx.stroke();
-                }
-            }
-
-            // Draw system labels
-            ctx.font = '10px JetBrains Mono, monospace';
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#64748b';
-            systems.forEach(sys => {
-                const center = systemPositions[sys];
-                ctx.fillText(sys, center.cx, center.cy - (usableH / (rows * 2)) + 5);
-            });
-
-            // Draw dots
-            passages.forEach(p => {
-                const pt = passagePos[p.id];
-                const isRead = readIds.has(p.id);
-                ctx.beginPath();
-                ctx.arc(pt.x, pt.y, isRead ? 3 : 1.5, 0, Math.PI * 2);
-                if (isRead) {
-                    ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
-                } else {
-                    ctx.fillStyle = 'rgba(100, 116, 139, 0.2)';
-                }
-                ctx.fill();
-            });
-        }
-
-        // --- Keyboard (reader only) ---
+        // --- Keyboard ---
         document.addEventListener('keydown', e => {
             if (document.getElementById('reader').style.display === 'none') return;
             if (e.key === 'Escape') {
                 if (hyperfocusActive) {
-                    // First ESC reveals chrome temporarily
                     const readerEl = document.getElementById('reader');
                     readerEl.classList.add('chrome-reveal');
                     setTimeout(() => readerEl.classList.remove('chrome-reveal'), 3000);
