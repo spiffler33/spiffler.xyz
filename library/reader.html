@@ -218,7 +218,8 @@
         .reader.hyperfocus .post-passage {
             /* Simplify post-passage in hyperfocus: hide secondary/done, minimal primary */
         }
-        .reader.hyperfocus .post-btn:not(.post-btn-primary) {
+        .reader.hyperfocus .post-btn:not(.post-btn-primary),
+        .reader.hyperfocus .save-line-btn {
             display: none;
         }
         .reader.hyperfocus .post-btn-primary {
@@ -387,6 +388,198 @@
             color: var(--text-secondary);
         }
 
+        /* --- Save a line (post-passage + completion) --- */
+        .save-line-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px 20px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 200ms, color 200ms;
+        }
+        .save-line-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-secondary);
+        }
+        .save-line-btn.saved {
+            color: var(--text-muted);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* --- My Map view --- */
+        .map-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .map-heading {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .map-section-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .map-bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .map-bar-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            width: 80px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .map-bar-track {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .map-bar-fill {
+            height: 100%;
+            background: var(--accent-secondary);
+            border-radius: 3px;
+            transition: width 400ms ease;
+            opacity: 0.7;
+        }
+
+        .map-bar-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .map-theme-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+            margin-bottom: 40px;
+        }
+
+        .map-theme-item {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .map-theme-count {
+            color: var(--text-secondary);
+        }
+
+        .map-section {
+            margin-bottom: 32px;
+        }
+
+        .map-back {
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 24px;
+            padding: 0;
+        }
+        .map-back:hover { color: var(--text-secondary); }
+
+        /* --- My Anthology view --- */
+        .anthology-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .anthology-heading {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .anthology-empty {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .anthology-item {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: border-color 200ms, background 200ms;
+        }
+        .anthology-item:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-secondary);
+        }
+
+        .anthology-item-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .anthology-item-line {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .anthology-item-meta {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            opacity: 0.6;
+        }
+
+        .anthology-back {
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 24px;
+            padding: 0;
+        }
+        .anthology-back:hover { color: var(--text-secondary); }
+
         @media (max-width: 600px) {
             .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
@@ -394,6 +587,9 @@
             .landing { padding: 0 16px; }
             .featured-card { padding: 24px 20px; }
             .completion { padding: 0 16px; }
+            .map-view { padding: 40px 16px; }
+            .anthology-view { padding: 40px 16px; }
+            .map-bar-label { width: 64px; font-size: 0.7rem; }
         }
 
         @media (max-width: 400px) {
@@ -418,6 +614,8 @@
         <div class="landing-secondary">
             <button class="landing-link" id="another-btn">Another one</button>
             <button class="landing-link" id="browse-btn">pick your own &rarr;</button>
+            <button class="landing-link" id="map-btn">my map</button>
+            <button class="landing-link" id="anthology-btn">my anthology</button>
         </div>
     </div>
 
@@ -439,6 +637,7 @@
                 <button class="post-btn post-btn-done" id="post-done">
                     <div class="post-btn-label">Done for now</div>
                 </button>
+                <button class="save-line-btn" id="post-save-line">Save this passage</button>
             </div>
         </div>
     </div>
@@ -451,6 +650,25 @@
         </div>
     </div>
 
+    <div class="map-view" id="map-view" style="display:none">
+        <button class="map-back" id="map-back">&larr; back</button>
+        <div class="map-heading">Where you've been</div>
+        <div class="map-section">
+            <div class="map-section-label">By topic</div>
+            <div id="map-bars"></div>
+        </div>
+        <div class="map-section">
+            <div class="map-section-label">By theme</div>
+            <div class="map-theme-row" id="map-themes"></div>
+        </div>
+    </div>
+
+    <div class="anthology-view" id="anthology-view" style="display:none">
+        <button class="anthology-back" id="anthology-back">&larr; back</button>
+        <div class="anthology-heading">Passages that stuck</div>
+        <div id="anthology-list"></div>
+    </div>
+
     <script>
     (function () {
         const params = new URLSearchParams(location.search);
@@ -461,6 +679,7 @@
         const KEY_BM = `library-${slug}-bookmarks`;
         const KEY_HISTORY = `library-${slug}-history`;
         const KEY_LAST_OPEN = `library-${slug}-lastOpen`;
+        const KEY_SAVED = `library-${slug}-saved`;
 
         let passages = [];
         let meta = {};
@@ -527,6 +746,44 @@
             const bm = getBookmarks();
             if (bm[id]) delete bm[id]; else bm[id] = true;
             setBookmarks(bm);
+        }
+
+        // --- Saved Passages (Anthology) ---
+        function getSavedPassages() {
+            try { return JSON.parse(localStorage.getItem(KEY_SAVED) || '[]'); } catch { return []; }
+        }
+        function setSavedPassages(sp) { localStorage.setItem(KEY_SAVED, JSON.stringify(sp)); }
+        function savePassage(passageId, savedLine) {
+            const sp = getSavedPassages();
+            if (sp.some(e => e.passageId === passageId)) return false; // already saved
+            sp.push({ passageId, savedLine: savedLine || null, ts: Date.now() });
+            setSavedPassages(sp);
+            return true;
+        }
+        function isPassageSaved(passageId) {
+            return getSavedPassages().some(e => e.passageId === passageId);
+        }
+
+        // --- Migrate bookmarks → savedPassages ---
+        function migrateBookmarks() {
+            const bm = getBookmarks();
+            const ids = Object.keys(bm).filter(k => bm[k]);
+            if (ids.length === 0) return;
+            const sp = getSavedPassages();
+            const existingIds = new Set(sp.map(e => e.passageId));
+            let migrated = false;
+            ids.forEach(idStr => {
+                const id = parseInt(idStr, 10);
+                if (!existingIds.has(id)) {
+                    sp.push({ passageId: id, savedLine: null, ts: Date.now() });
+                    migrated = true;
+                }
+            });
+            if (migrated) {
+                setSavedPassages(sp);
+            }
+            // Clear old bookmarks
+            localStorage.removeItem(KEY_BM);
         }
 
         // --- Featured Passage Algorithm ---
@@ -734,6 +991,8 @@
             document.getElementById('landing').style.display = 'none';
             document.getElementById('reader').style.display = 'none';
             document.getElementById('completion').style.display = 'none';
+            document.getElementById('map-view').style.display = 'none';
+            document.getElementById('anthology-view').style.display = 'none';
         }
 
         // --- Show Landing ---
@@ -815,6 +1074,9 @@
                 document.getElementById('post-secondary-detail').textContent = '';
             }
 
+            // Update save button state
+            updateSaveBtn(document.getElementById('post-save-line'), p.id);
+
             // Reset auto-advance flag and scroll to top
             autoAdvanceTriggered = false;
             document.getElementById('passage-area').scrollTop = 0;
@@ -834,8 +1096,123 @@
             }
 
             document.getElementById('completion-text').textContent = lines[0];
+
+            // Reset save button state
+            const saveBtn = document.getElementById('completion-save');
+            if (isPassageSaved(p.id)) {
+                saveBtn.textContent = 'Saved';
+                saveBtn.style.opacity = '0.5';
+                saveBtn.style.pointerEvents = 'none';
+            } else {
+                saveBtn.textContent = 'Save a line';
+                saveBtn.style.opacity = '1';
+                saveBtn.style.pointerEvents = 'auto';
+            }
+
             hideAll();
             document.getElementById('completion').style.display = 'flex';
+        }
+
+        // --- Show Map ---
+        function showMap() {
+            const history = getHistory();
+            const readIds = getReadIds();
+
+            // Count by body_system
+            const systemCounts = {};
+            const themeCounts = {};
+            history.forEach(e => {
+                const p = passages.find(pp => pp.id === e.id);
+                if (p) {
+                    systemCounts[p.body_system] = (systemCounts[p.body_system] || 0);
+                    themeCounts[p.theme] = (themeCounts[p.theme] || 0);
+                }
+            });
+            // Use unique read passages (not repeat visits)
+            readIds.forEach(id => {
+                const p = passages.find(pp => pp.id === id);
+                if (p) {
+                    systemCounts[p.body_system] = (systemCounts[p.body_system] || 0) + 1;
+                    themeCounts[p.theme] = (themeCounts[p.theme] || 0) + 1;
+                }
+            });
+
+            const barsEl = document.getElementById('map-bars');
+            const systems = Object.entries(systemCounts).sort((a, b) => b[1] - a[1]);
+            const maxCount = systems.length > 0 ? systems[0][1] : 1;
+
+            barsEl.innerHTML = systems.map(([sys, count]) => {
+                const pct = Math.round((count / maxCount) * 100);
+                const label = count === 1 ? '1 passage' : `${count} passages`;
+                return `<div class="map-bar-row">
+                    <div class="map-bar-label">${escapeHtml(sys)}</div>
+                    <div class="map-bar-track"><div class="map-bar-fill" style="width:${pct}%"></div></div>
+                    <div class="map-bar-count">${label}</div>
+                </div>`;
+            }).join('');
+
+            const themesEl = document.getElementById('map-themes');
+            const themes = Object.entries(themeCounts).sort((a, b) => b[1] - a[1]);
+            themesEl.innerHTML = themes.map(([theme, count]) =>
+                `<span class="map-theme-item">${escapeHtml(theme)}: <span class="map-theme-count">${count}</span></span>`
+            ).join('');
+
+            if (systems.length === 0) {
+                barsEl.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted)">Nothing here yet. Read a passage to start your map.</div>';
+                themesEl.innerHTML = '';
+            }
+
+            hideAll();
+            document.getElementById('map-view').style.display = 'flex';
+        }
+
+        // --- Show Anthology ---
+        function showAnthology() {
+            const saved = getSavedPassages();
+            const listEl = document.getElementById('anthology-list');
+
+            if (saved.length === 0) {
+                listEl.innerHTML = '<div class="anthology-empty">Nothing saved yet. After reading a passage, tap "Save this passage" to add it here.</div>';
+            } else {
+                // Show newest first
+                const items = [...saved].reverse();
+                listEl.innerHTML = items.map(entry => {
+                    const p = passages.find(pp => pp.id === entry.passageId);
+                    if (!p) return '';
+                    const line = entry.savedLine
+                        ? `<div class="anthology-item-line">"${escapeHtml(entry.savedLine)}"</div>`
+                        : `<div class="anthology-item-line">${escapeHtml(p.summary)}</div>`;
+                    const date = new Date(entry.ts);
+                    const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    return `<div class="anthology-item" data-passage-id="${p.id}">
+                        <div class="anthology-item-title">${escapeHtml(p.title)}</div>
+                        ${line}
+                        <div class="anthology-item-meta">${escapeHtml(p.body_system)} · ${escapeHtml(p.theme)} · saved ${dateStr}</div>
+                    </div>`;
+                }).join('');
+
+                // Click to read
+                listEl.querySelectorAll('.anthology-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const id = parseInt(el.dataset.passageId, 10);
+                        enterReader(id);
+                    });
+                });
+            }
+
+            hideAll();
+            document.getElementById('anthology-view').style.display = 'flex';
+        }
+
+        // --- Update save button state ---
+        function updateSaveBtn(btnEl, passageId) {
+            if (isPassageSaved(passageId)) {
+                btnEl.textContent = 'Saved';
+                btnEl.classList.add('saved');
+            } else {
+                btnEl.textContent = 'Save this passage';
+                btnEl.classList.remove('saved');
+            }
         }
 
         // --- Load ---
@@ -856,6 +1233,9 @@
                         addToHistory(passages[i].id);
                     }
                 }
+
+                // Migrate bookmarks → saved passages
+                migrateBookmarks();
 
                 showLanding();
                 localStorage.setItem(KEY_LAST_OPEN, Date.now().toString());
@@ -890,6 +1270,22 @@
             enterReader(passages[pos].id);
         });
 
+        document.getElementById('map-btn').addEventListener('click', () => {
+            showMap();
+        });
+
+        document.getElementById('anthology-btn').addEventListener('click', () => {
+            showAnthology();
+        });
+
+        document.getElementById('map-back').addEventListener('click', () => {
+            showLanding();
+        });
+
+        document.getElementById('anthology-back').addEventListener('click', () => {
+            showLanding();
+        });
+
         // --- Post-passage events ---
         function advanceToPassage(passage) {
             const idx = passages.findIndex(p => p.id === passage.id);
@@ -917,14 +1313,21 @@
             showCompletion();
         });
 
-        // --- Completion events ---
-        document.getElementById('completion-save').addEventListener('click', () => {
-            // Save current passage as bookmark (MVP: save whole passage)
+        // --- Post-passage save ---
+        document.getElementById('post-save-line').addEventListener('click', (e) => {
+            e.stopPropagation();
             const p = passages[pos];
             if (p) {
-                const bm = getBookmarks();
-                bm[p.id] = true;
-                setBookmarks(bm);
+                savePassage(p.id, null);
+                updateSaveBtn(document.getElementById('post-save-line'), p.id);
+            }
+        });
+
+        // --- Completion events ---
+        document.getElementById('completion-save').addEventListener('click', () => {
+            const p = passages[pos];
+            if (p) {
+                savePassage(p.id, null);
                 document.getElementById('completion-save').textContent = 'Saved';
                 document.getElementById('completion-save').style.opacity = '0.5';
                 document.getElementById('completion-save').style.pointerEvents = 'none';
