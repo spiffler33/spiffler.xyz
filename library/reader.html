@@ -282,7 +282,21 @@
             text-align: center;
             flex-shrink: 0;
             opacity: 0.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
+
+        .reader-back {
+            position: absolute;
+            left: 24px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            transition: color 150ms;
+        }
+        .reader-back:hover { color: var(--text-secondary); }
 
         .passage-area {
             flex: 1;
@@ -529,6 +543,7 @@
             .passage-area { padding: 20px 16px 0; }
             .passage-text { font-size: 0.9rem; line-height: 1.8; }
             .reader-header { padding: 14px 16px 0; }
+            .reader-back { left: 16px; }
             .landing { padding: 0 16px; }
             .featured-card { padding: 24px 20px; }
             .completion { padding: 0 16px; }
@@ -555,11 +570,15 @@
             <button class="landing-link" id="skip-chapter-btn" style="display:none">skip to next chapter &rarr;</button>
             <button class="landing-link" id="anthology-btn">my anthology</button>
             <button class="landing-link" id="settings-btn">settings</button>
+            <a class="landing-link" href="/Library/" style="text-decoration:none">&larr; all books</a>
         </div>
     </div>
 
     <div class="reader" id="reader" style="display:none">
-        <div class="reader-header" id="reader-header"></div>
+        <div class="reader-header">
+            <span class="reader-back" id="reader-back">&larr;</span>
+            <span id="reader-header-text"></span>
+        </div>
         <div class="passage-area" id="passage-area">
             <div class="passage-text" id="passage-text"></div>
             <div class="post-passage" id="post-passage">
@@ -581,6 +600,7 @@
         <div class="completion-actions">
             <button class="completion-btn completion-btn-save" id="completion-save">Save a line</button>
             <button class="completion-btn completion-btn-home" id="completion-home">Home</button>
+            <a class="completion-btn completion-btn-home" href="/Library/" style="text-decoration:none">All books</a>
         </div>
     </div>
 
@@ -808,7 +828,7 @@
             const p = passages[pos];
             if (!p) return;
 
-            document.getElementById('reader-header').textContent = p.chapter;
+            document.getElementById('reader-header-text').textContent = p.chapter;
 
             const textEl = document.getElementById('passage-text');
             const html = p.content.split('\n').filter(s => s.trim())
@@ -977,6 +997,10 @@
 
         document.getElementById('settings-btn').addEventListener('click', () => {
             showSettings();
+        });
+
+        document.getElementById('reader-back').addEventListener('click', () => {
+            showLanding();
         });
 
         document.getElementById('anthology-back').addEventListener('click', () => {
