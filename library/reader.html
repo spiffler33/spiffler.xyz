@@ -187,62 +187,6 @@
             border-color: var(--accent-secondary);
             color: var(--accent-secondary);
         }
-        /* Toggle switch */
-        .settings-toggle-row {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 16px;
-        }
-        .settings-toggle-text {
-            flex: 1;
-        }
-        .settings-toggle-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .settings-toggle-sub {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-        .toggle-switch {
-            position: relative;
-            width: 40px;
-            height: 22px;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-track {
-            position: absolute;
-            inset: 0;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 11px;
-            cursor: pointer;
-            transition: background 200ms, border-color 200ms;
-        }
-        .toggle-track::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 14px;
-            height: 14px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            transition: transform 200ms, background 200ms;
-        }
-        .toggle-switch input:checked + .toggle-track {
-            background: rgba(34, 211, 238, 0.15);
-            border-color: var(--accent-secondary);
-        }
-        .toggle-switch input:checked + .toggle-track::after {
-            transform: translateX(18px);
-            background: var(--accent-secondary);
-        }
 
         .settings-reset-btn {
             font-family: inherit;
@@ -615,18 +559,6 @@
                 <button class="settings-font-btn" data-size="large">Large</button>
             </div>
         </div>
-        <div class="settings-section">
-            <div class="settings-toggle-row">
-                <div class="settings-toggle-text">
-                    <div class="settings-toggle-label">Show all passages</div>
-                    <div class="settings-toggle-sub">Include detailed medical and historical passages</div>
-                </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="settings-complete-toggle">
-                    <span class="toggle-track"></span>
-                </label>
-            </div>
-        </div>
         <div class="settings-section" style="margin-top: 40px;">
             <button class="settings-reset-btn" id="settings-reset">Start fresh</button>
             <div class="settings-reset-note">Resets your reading position. Saved passages are kept.</div>
@@ -652,27 +584,14 @@
         const KEY_LAST_OPEN = `library-${slug}-lastOpen`;
         const KEY_SAVED = `library-${slug}-saved`;
         const KEY_FONT = `library-${slug}-font`;
-        const KEY_MODE = `library-${slug}-mode`;
         let allPassages = [];
         let passages = [];
         let meta = {};
         let pos = 0;
         let featuredPassage = null;
 
-        function isCompleteMode() {
-            return localStorage.getItem(KEY_MODE) === 'complete';
-        }
-        function setCompleteMode(on) {
-            if (on) localStorage.setItem(KEY_MODE, 'complete');
-            else localStorage.removeItem(KEY_MODE);
-            rebuildPassages();
-        }
         function rebuildPassages() {
-            if (isCompleteMode()) {
-                passages = allPassages;
-            } else {
-                passages = allPassages.filter(p => p.priority === 'essential');
-            }
+            passages = allPassages;
         }
 
         // --- Read History ---
@@ -930,7 +849,6 @@
             document.querySelectorAll('.settings-font-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.size === currentFont);
             });
-            document.getElementById('settings-complete-toggle').checked = isCompleteMode();
             hideAll();
             document.getElementById('settings-view').style.display = 'flex';
         }
@@ -1021,23 +939,10 @@
             });
         });
 
-        document.getElementById('settings-complete-toggle').addEventListener('change', (e) => {
-            setCompleteMode(e.target.checked);
-            // Reposition: find next unread in new mode
-            const readIds = getReadIds();
-            const unread = passages.filter(p => !readIds.has(p.id));
-            if (unread.length > 0) {
-                pos = passages.findIndex(p => p.id === unread[0].id);
-            } else {
-                pos = 0;
-            }
-        });
-
         document.getElementById('settings-reset').addEventListener('click', () => {
             if (confirm('This resets your reading position. Your saved passages are kept. Start over?')) {
                 localStorage.removeItem(KEY_HISTORY);
                 localStorage.removeItem(KEY_POS);
-                localStorage.removeItem(KEY_MODE);
                 rebuildPassages();
                 pos = 0;
                 showLanding();
