@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Brain's Secret Superpowers</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f0a1a; overflow-x: hidden; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const COLORS = {
+  bg: "#0f0a1a", card: "#1a1230",
+  accent1: "#ff6b9d", accent2: "#c084fc", accent3: "#60d5fa",
+  accent4: "#34d399", accent5: "#fbbf24", accent6: "#fb923c",
+  text: "#e8e0f0", textMuted: "#9a8cb8",
+  glow1: "rgba(255,107,157,0.3)", glow2: "rgba(192,132,252,0.3)", glow3: "rgba(96,213,250,0.3)",
+};
+
+const TABS = [
+  { id: "memory", label: "🧠 The Juggling Act", color: COLORS.accent1 },
+  { id: "schemas", label: "🕸️ The Web Builder", color: COLORS.accent2 },
+  { id: "dmn", label: "💭 Daydream Engine", color: COLORS.accent3 },
+  { id: "sleep", label: "🌙 Sleep Factory", color: COLORS.accent4 },
+];
+
+const MEMORY_ITEMS = ["🐙","🎸","🚀","🍕","🦋","🎨","⚡","🌺","🎪","🔮","🦊","🌈","🎯","🧊","🎵"];
+
+function WorkingMemoryTab() {
+  const [phase, setPhase] = useState("intro");
+  const [items, setItems] = useState([]);
+  const [showItems, setShowItems] = useState(true);
+  const [userInput, setUserInput] = useState([]);
+  const [results, setResults] = useState(null);
+  const [round, setRound] = useState(3);
+  const [history, setHistory] = useState([]);
+
+  const startRound = useCallback((count) => {
+    const shuffled = [...MEMORY_ITEMS].sort(() => Math.random() - 0.5);
+    setItems(shuffled.slice(0, count));
+    setShowItems(true);
+    setUserInput([]);
+    setResults(null);
+    setPhase("showing");
+    setTimeout(() => { setShowItems(false); setPhase("guessing"); }, count * 600 + 1500);
+  }, []);
+
+  const handleGuess = (emoji) => {
+    if (userInput.includes(emoji)) setUserInput(userInput.filter(e => e !== emoji));
+    else setUserInput([...userInput, emoji]);
+  };
+
+  const checkAnswer = () => {
+    const correct = userInput.filter(e => items.includes(e)).length;
+    const wrong = userInput.filter(e => !items.includes(e)).length;
+    const res = { correct, wrong, total: items.length, score: correct - wrong };
+    setResults(res); setHistory([...history, { round, ...res }]); setPhase("results");
+  };
+
+  const nextRound = () => {
+    if (results && results.correct === results.total && results.wrong === 0) { setRound(round + 1); startRound(round + 1); }
+    else startRound(round);
+  };
+
+  if (phase === "intro") {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{ fontSize: "72px", marginBottom: "16px", filter: "drop-shadow(0 0 20px rgba(255,107,157,0.5))" }}>🤹</div>
+        <h2 style={{ fontSize: "28px", color: COLORS.accent1, marginBottom: "12px", fontFamily: "'Baloo 2', cursive" }}>The Juggling Act</h2>
+        <p style={{ color: COLORS.text, fontSize: "17px", maxWidth: "500px", margin: "0 auto 8px", lineHeight: 1.6 }}>
+          Your <strong>working memory</strong> is like your brain's juggling hands. It can only hold about <strong>4 to 7 things</strong> at once!
+        </p>
+        <p style={{ color: COLORS.textMuted, fontSize: "15px", maxWidth: "480px", margin: "0 auto 24px", lineHeight: 1.5 }}>
+          Let's find YOUR limit. I'll show you some emojis, then hide them. Can you remember which ones you saw?
+        </p>
+        <button onClick={() => startRound(3)} style={{ background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent6})`, color: "white", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "18px", cursor: "pointer", fontWeight: "bold", boxShadow: `0 4px 24px ${COLORS.glow1}`, fontFamily: "'Baloo 2', cursive" }}>
+          Start Juggling!
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ textAlign: "center", padding: "16px" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+        <span style={{ background: "rgba(255,107,157,0.15)", padding: "6px 14px", borderRadius: "10px", color: COLORS.accent1, fontSize: "14px", fontWeight: 600 }}>Round: {round - 2} • Holding {round} items</span>
+        {history.length > 0 && <span style={{ background: "rgba(251,191,36,0.15)", padding: "6px 14px", borderRadius: "10px", color: COLORS.accent5, fontSize: "14px", fontWeight: 600 }}>Best: {Math.max(...history.map(h => h.correct))} correct</span>}
+      </div>
+      {phase === "showing" && (
+        <div>
+          <p style={{ color: COLORS.accent5, fontSize: "16px", marginBottom: "16px", fontWeight: 600 }}>⚡ REMEMBER THESE! ⚡</p>
+          <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap", minHeight: "80px" }}>
+            {items.map((item, i) => <div key={i} style={{ fontSize: "48px", animation: `popIn 0.4s ${i * 0.15}s both`, filter: "drop-shadow(0 0 12px rgba(255,107,157,0.4))" }}>{item}</div>)}
+          </div>
+        </div>
+      )}
+      {phase === "guessing" && (
+        <div>
+          <p style={{ color: COLORS.accent3, fontSize: "16px", marginBottom: "6px", fontWeight: 600 }}>Which ones did you see? Tap them!</p>
+          <p style={{ color: COLORS.textMuted, fontSize: "13px", marginBottom: "16px" }}>Pick exactly {items.length} • Selected: {userInput.length}</p>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", maxWidth: "420px", margin: "0 auto 20px" }}>
+            {MEMORY_ITEMS.map((emoji) => {
+              const selected = userInput.includes(emoji);
+              return <button key={emoji} onClick={() => handleGuess(emoji)} style={{ fontSize: "32px", padding: "8px 10px", borderRadius: "12px", cursor: "pointer", border: selected ? `2px solid ${COLORS.accent3}` : "2px solid rgba(255,255,255,0.1)", background: selected ? "rgba(96,213,250,0.15)" : "rgba(255,255,255,0.03)", transition: "all 0.2s", transform: selected ? "scale(1.1)" : "scale(1)" }}>{emoji}</button>;
+            })}
+          </div>
+          <button onClick={checkAnswer} disabled={userInput.length === 0} style={{ background: userInput.length === items.length ? `linear-gradient(135deg, ${COLORS.accent3}, ${COLORS.accent2})` : "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "14px", padding: "12px 32px", fontSize: "16px", cursor: userInput.length > 0 ? "pointer" : "default", fontWeight: "bold", opacity: userInput.length === 0 ? 0.4 : 1 }}>Check My Memory!</button>
+        </div>
+      )}
+      {phase === "results" && results && (
+        <div>
+          <div style={{ fontSize: "56px", marginBottom: "8px" }}>{results.correct === results.total && results.wrong === 0 ? "🎉" : results.correct > results.total / 2 ? "💪" : "🤔"}</div>
+          <p style={{ color: COLORS.text, fontSize: "20px", fontWeight: 700, marginBottom: "4px" }}>{results.correct} out of {results.total} correct!</p>
+          {results.wrong > 0 && <p style={{ color: COLORS.accent1, fontSize: "14px", marginBottom: "8px" }}>{results.wrong} wrong guess{results.wrong > 1 ? "es" : ""}</p>}
+          <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "14px", color: COLORS.textMuted }}>You saw:</span>
+            {items.map((e,i) => <span key={i} style={{ fontSize: "28px" }}>{e}</span>)}
+          </div>
+          {results.correct === results.total && results.wrong === 0 ? (
+            <div style={{ background: "rgba(52,211,153,0.1)", borderRadius: "12px", padding: "12px 16px", marginBottom: "16px", border: "1px solid rgba(52,211,153,0.3)" }}>
+              <p style={{ color: COLORS.accent4, fontSize: "15px", fontWeight: 600 }}>Perfect! Let's try {round + 1} items! 🚀</p>
+            </div>
+          ) : round >= 6 ? (
+            <div style={{ background: "rgba(192,132,252,0.1)", borderRadius: "12px", padding: "12px 16px", marginBottom: "16px", border: "1px solid rgba(192,132,252,0.3)" }}>
+              <p style={{ color: COLORS.accent2, fontSize: "15px", lineHeight: 1.5 }}>💡 <strong>See what happened?</strong> Around 5-7 items, your brain starts dropping things. That's totally normal — EVERYONE'S brain works this way! This is why you shouldn't waste this precious juggling space on stuff you can just look up.</p>
+            </div>
+          ) : null}
+          <button onClick={nextRound} style={{ background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent6})`, color: "white", border: "none", borderRadius: "14px", padding: "12px 28px", fontSize: "16px", cursor: "pointer", fontWeight: "bold" }}>
+            {results.correct === results.total && results.wrong === 0 ? `Try ${round + 1} items →` : "Try Again!"}
+          </button>
+        </div>
+      )}
+      <style dangerouslySetInnerHTML={{__html: `@keyframes popIn { from { opacity: 0; transform: scale(0.3) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }`}} />
+    </div>
+  );
+}
+
+const DOMAINS = [
+  { id: "animals", label: "🐾 Animals", color: "#34d399", topics: ["How dolphins talk","Why birds migrate","Spider web design","Ant colonies work together","Chameleons change color"] },
+  { id: "space", label: "🚀 Space", color: "#60d5fa", topics: ["Stars are born from gas clouds","Black holes bend light","Mars has the biggest volcano","Gravity pulls everything","The moon causes tides"] },
+  { id: "cooking", label: "🍳 Cooking", color: "#fb923c", topics: ["Heat changes food chemistry","Bread rises with yeast","Salt brings out flavour","Freezing preserves food","Mixing creates new textures"] },
+  { id: "music", label: "🎵 Music", color: "#c084fc", topics: ["Sound travels in waves","Rhythm follows patterns","Harmony = maths","Drums are in every culture","Silence creates tension"] },
+  { id: "sports", label: "⚽ Sports", color: "#fbbf24", topics: ["Teamwork beats solo talent","Practice builds muscle memory","Strategy wins over strength","Angles matter in every sport","Rest helps you improve"] },
+  { id: "art", label: "🎨 Art", color: "#ff6b9d", topics: ["Colours affect your mood","Perspective creates depth","Patterns repeat in nature","Light and shadow tell stories","Creativity needs constraints"] },
+];
+
+const CROSS_CONNECTIONS = [
+  { from: "animals", to: "space", insight: "🐾→🚀 Dolphins use echolocation, like how we use radar to explore space!" },
+  { from: "animals", to: "cooking", insight: "🐾→🍳 Spider silk is stronger than steel — scientists study animal designs to create new materials!" },
+  { from: "animals", to: "music", insight: "🐾→🎵 Whale songs follow musical patterns — nature invented music before humans did!" },
+  { from: "animals", to: "sports", insight: "🐾→⚽ Ant colonies work like the best sports teams — everyone has a role!" },
+  { from: "animals", to: "art", insight: "🐾→🎨 Chameleon colour changes work the same way as how colours affect our mood!" },
+  { from: "space", to: "cooking", insight: "🚀→🍳 Stars cook elements inside them — every atom in your food was made in a star!" },
+  { from: "space", to: "music", insight: "🚀→🎵 Sound can't travel in space vacuum, but planets have radio waves we can turn into music!" },
+  { from: "space", to: "sports", insight: "🚀→⚽ Gravity decides how high you can jump — on the Moon, you'd be a superstar athlete!" },
+  { from: "space", to: "art", insight: "🚀→🎨 Nebulas create the most beautiful natural art from gas and light!" },
+  { from: "cooking", to: "music", insight: "🍳→🎵 Good cooking and good music both need perfect timing and rhythm!" },
+  { from: "cooking", to: "sports", insight: "🍳→⚽ Food chemistry is what gives athletes their energy — nutrition IS sports science!" },
+  { from: "cooking", to: "art", insight: "🍳→🎨 Great chefs are artists — food plating uses the same rules as painting!" },
+  { from: "music", to: "sports", insight: "🎵→⚽ Athletes use rhythm and timing just like musicians — think about dribbling a basketball!" },
+  { from: "music", to: "art", insight: "🎵→🎨 Music and painting both use patterns, contrast, and harmony — just in different senses!" },
+  { from: "sports", to: "art", insight: "⚽→🎨 Every sport involves beautiful movement and geometry — sports ARE performance art!" },
+];
+
+function SchemaBuilderTab() {
+  const [learned, setLearned] = useState({});
+  const [discoveredConnections, setDiscoveredConnections] = useState([]);
+  const [selectedDomain, setSelectedDomain] = useState(null);
+  const [showInsight, setShowInsight] = useState(null);
+  const [phase, setPhase] = useState("intro");
+
+  const learnedDomains = Object.keys(learned).filter(k => learned[k] && learned[k].length > 0);
+  const possibleConnections = CROSS_CONNECTIONS.filter(c => learnedDomains.includes(c.from) && learnedDomains.includes(c.to));
+  const totalPossible = CROSS_CONNECTIONS.length;
+
+  useEffect(() => {
+    const newConnections = possibleConnections.filter(c => !discoveredConnections.find(d => d.from === c.from && d.to === c.to));
+    if (newConnections.length > 0) {
+      const timer = setTimeout(() => {
+        setDiscoveredConnections([...discoveredConnections, newConnections[0]]);
+        setShowInsight(newConnections[0]);
+        setTimeout(() => setShowInsight(null), 4000);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [learnedDomains.length]);
+
+  const learnTopic = (domainId, topic) => {
+    const current = learned[domainId] || [];
+    if (!current.includes(topic)) setLearned({ ...learned, [domainId]: [...current, topic] });
+  };
+
+  if (phase === "intro") {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{ fontSize: "72px", marginBottom: "16px", filter: "drop-shadow(0 0 20px rgba(192,132,252,0.5))" }}>🕸️</div>
+        <h2 style={{ fontSize: "28px", color: COLORS.accent2, marginBottom: "12px", fontFamily: "'Baloo 2', cursive" }}>The Web Builder</h2>
+        <p style={{ color: COLORS.text, fontSize: "17px", maxWidth: "520px", margin: "0 auto 8px", lineHeight: 1.6 }}>Your brain doesn't store facts in boxes — it builds a <strong>giant web of connections</strong> between everything you learn!</p>
+        <p style={{ color: COLORS.textMuted, fontSize: "15px", maxWidth: "480px", margin: "0 auto 24px", lineHeight: 1.5 }}>Learn things from different topics and watch your brain discover surprising connections between them. The MORE different things you learn, the MORE connections appear!</p>
+        <button onClick={() => setPhase("building")} style={{ background: `linear-gradient(135deg, ${COLORS.accent2}, ${COLORS.accent3})`, color: "white", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "18px", cursor: "pointer", fontWeight: "bold", boxShadow: `0 4px 24px ${COLORS.glow2}`, fontFamily: "'Baloo 2', cursive" }}>Start Building!</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: "12px" }}>
+      <div style={{ textAlign: "center", marginBottom: "12px" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "16px", background: "rgba(192,132,252,0.1)", borderRadius: "14px", padding: "8px 20px" }}>
+          <span style={{ color: COLORS.accent2, fontSize: "14px", fontWeight: 600 }}>🕸️ Connections: {discoveredConnections.length} / {totalPossible}</span>
+          <span style={{ color: COLORS.accent4, fontSize: "14px", fontWeight: 600 }}>📚 Domains: {learnedDomains.length} / {DOMAINS.length}</span>
+        </div>
+      </div>
+      {showInsight && (
+        <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: "linear-gradient(135deg, #1a1230, #2a1a40)", borderRadius: "20px", padding: "24px", maxWidth: "380px", width: "90%", zIndex: 1000, border: "2px solid rgba(192,132,252,0.5)", boxShadow: "0 0 60px rgba(192,132,252,0.3), 0 20px 40px rgba(0,0,0,0.5)", animation: "popIn2 0.4s ease-out" }}>
+          <div style={{ fontSize: "32px", textAlign: "center", marginBottom: "8px" }}>⚡ NEW CONNECTION! ⚡</div>
+          <p style={{ color: COLORS.text, fontSize: "15px", lineHeight: 1.6, textAlign: "center" }}>{showInsight.insight}</p>
+        </div>
+      )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginBottom: "12px" }}>
+        {DOMAINS.map(domain => {
+          const domainLearned = learned[domain.id] || [];
+          const isSelected = selectedDomain === domain.id;
+          const isLearned = domainLearned.length > 0;
+          return (
+            <button key={domain.id} onClick={() => setSelectedDomain(isSelected ? null : domain.id)} style={{ background: isSelected ? `${domain.color}22` : "rgba(255,255,255,0.03)", border: `2px solid ${isLearned ? domain.color : "rgba(255,255,255,0.08)"}`, borderRadius: "14px", padding: "10px 8px", cursor: "pointer", transition: "all 0.3s", boxShadow: isLearned ? `0 0 16px ${domain.color}33` : "none" }}>
+              <div style={{ fontSize: "22px" }}>{domain.label}</div>
+              <div style={{ fontSize: "11px", color: COLORS.textMuted, marginTop: "4px" }}>{domainLearned.length}/{domain.topics.length} learned</div>
+            </button>
+          );
+        })}
+      </div>
+      {selectedDomain && (
+        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "14px", padding: "12px", marginBottom: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <h4 style={{ color: DOMAINS.find(d => d.id === selectedDomain).color, fontSize: "15px", marginBottom: "8px", fontWeight: 700 }}>Learn about {DOMAINS.find(d => d.id === selectedDomain).label}:</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {DOMAINS.find(d => d.id === selectedDomain).topics.map(topic => {
+              const isLearned = (learned[selectedDomain] || []).includes(topic);
+              return <button key={topic} onClick={() => !isLearned && learnTopic(selectedDomain, topic)} style={{ background: isLearned ? "rgba(52,211,153,0.1)" : "rgba(255,255,255,0.05)", border: isLearned ? "1px solid rgba(52,211,153,0.3)" : "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "8px 12px", cursor: isLearned ? "default" : "pointer", textAlign: "left", color: COLORS.text, fontSize: "14px", transition: "all 0.3s" }}>{isLearned ? "✅" : "📖"} {topic}</button>;
+            })}
+          </div>
+        </div>
+      )}
+      {discoveredConnections.length > 0 && (
+        <div style={{ background: "rgba(192,132,252,0.05)", borderRadius: "14px", padding: "12px", border: "1px solid rgba(192,132,252,0.15)" }}>
+          <h4 style={{ color: COLORS.accent2, fontSize: "14px", marginBottom: "8px" }}>⚡ Your Brain's Connections:</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "180px", overflowY: "auto" }}>
+            {discoveredConnections.map((c, i) => <div key={i} style={{ color: COLORS.text, fontSize: "13px", lineHeight: 1.4, padding: "6px 8px", background: "rgba(255,255,255,0.02)", borderRadius: "8px" }}>{c.insight}</div>)}
+          </div>
+          {learnedDomains.length < DOMAINS.length && <p style={{ color: COLORS.accent5, fontSize: "13px", marginTop: "8px", textAlign: "center", fontStyle: "italic" }}>💡 Learn more different topics to discover even MORE connections!</p>}
+          {discoveredConnections.length === totalPossible && <p style={{ color: COLORS.accent4, fontSize: "15px", marginTop: "10px", textAlign: "center", fontWeight: 700 }}>🎉 You found ALL {totalPossible} connections! Your brain web is MASSIVE!</p>}
+        </div>
+      )}
+      <style dangerouslySetInnerHTML={{__html: `@keyframes popIn2 { from { opacity:0; transform:translate(-50%,-50%) scale(0.8); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }`}} />
+    </div>
+  );
+}
+
+const IDEA_MIXTURES = {
+  "animals+space": ["Space whale documentary 🐋🌌","Animal astronaut training programme 🐕🚀","Planet where spiders build cities 🕷️🪐"],
+  "animals+cooking": ["Restaurant run by clever octopuses 🐙👨‍🍳","Cookbook of what animals eat worldwide 🦊📖","Honey-making science experiments 🐝🔬"],
+  "animals+music": ["Orchestra of animal sounds 🦜🎵","Song that mimics whale communication 🐋🎶","Dancing animal musical 💃🐧"],
+  "animals+art": ["Paintings using spider silk canvas 🕸️🖼️","Colour-changing fashion inspired by chameleons 🦎👗","Museum of animal architecture 🐜🏛️"],
+  "space+cooking": ["Cookbook for astronauts on Mars 👨‍🚀🍕","Growing food gardens on space stations 🌱🛸","Star-powered oven design ⭐🍳"],
+  "space+music": ["Musical instruments for zero gravity 🎸🌙","Turning planet radio waves into songs 🪐🎵","Space opera performed on the Moon 🌕🎭"],
+  "space+art": ["Painting with light from nebulas 🎨✨","Sculpture garden on Mars 🗿🔴","Photography from a telescope 📸🔭"],
+  "cooking+music": ["Song that teaches recipes 🎵🧁","Kitchen percussion band 🥁🍳","Music that changes how food tastes 🎶👅"],
+  "cooking+art": ["Edible art gallery 🖼️🍰","Food arranged like famous paintings 🍕🎨","Ice sculpture restaurant ❄️🍽️"],
+  "music+art": ["Paintings that make sounds 🖼️🔊","Colours that represent musical notes 🎵🌈","Dance that paints as you move 💃🎨"],
+  "sports+animals": ["Olympics for animals 🐆🏅","Training moves learned from animals 🐒💪","Wildlife race commentary 🦁🎙️"],
+  "sports+space": ["Zero gravity basketball tournament 🏀🌙","Running a marathon on every planet ☀️🏃","Space surfing competition 🏄‍♂️🪐"],
+  "sports+cooking": ["Athletic energy food invention 🏋️🥗","Competitive cooking relay race 👨‍🍳🏃","Nutrition science experiments ⚗️💪"],
+  "sports+music": ["Rhythmic dribbling performances 🏀🎵","Exercise routines set to beats 🎶🏃","Stadium anthems composer 🎹⚽"],
+  "sports+art": ["Capturing motion in sculpture 🏃🗿","Sport photography art exhibit 📸⚽","Dance-sport hybrid performances 💃⚽"],
+};
+
+function DMNTab() {
+  const [loaded, setLoaded] = useState([]);
+  const [isDreaming, setIsDreaming] = useState(false);
+  const [ideas, setIdeas] = useState([]);
+  const [allIdeas, setAllIdeas] = useState([]);
+  const [phase, setPhase] = useState("intro");
+  const [dreamCount, setDreamCount] = useState(0);
+
+  const toggleDomain = (id) => { loaded.includes(id) ? setLoaded(loaded.filter(d => d !== id)) : setLoaded([...loaded, id]); setIdeas([]); };
+
+  const startDaydream = () => {
+    if (loaded.length < 2) return;
+    setIsDreaming(true); setIdeas([]); setDreamCount(dreamCount + 1);
+    setTimeout(() => {
+      const newIdeas = [];
+      for (let i = 0; i < loaded.length; i++) {
+        for (let j = i + 1; j < loaded.length; j++) {
+          const key1 = `${loaded[i]}+${loaded[j]}`, key2 = `${loaded[j]}+${loaded[i]}`;
+          const pool = IDEA_MIXTURES[key1] || IDEA_MIXTURES[key2] || [];
+          if (pool.length > 0) {
+            const unused = pool.filter(p => !allIdeas.includes(p));
+            newIdeas.push(unused.length > 0 ? unused[Math.floor(Math.random() * unused.length)] : pool[Math.floor(Math.random() * pool.length)]);
+          }
+        }
+      }
+      setIdeas(newIdeas); setAllIdeas([...allIdeas, ...newIdeas]); setIsDreaming(false);
+    }, 3000);
+  };
+
+  if (phase === "intro") {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{ fontSize: "72px", marginBottom: "16px", filter: "drop-shadow(0 0 20px rgba(96,213,250,0.5))" }}>💭</div>
+        <h2 style={{ fontSize: "28px", color: COLORS.accent3, marginBottom: "12px", fontFamily: "'Baloo 2', cursive" }}>The Daydream Engine</h2>
+        <p style={{ color: COLORS.text, fontSize: "17px", maxWidth: "520px", margin: "0 auto 8px", lineHeight: 1.6 }}>When you're <strong>not</strong> concentrating — in the shower, staring out the window, zoning out — your brain secretly starts <strong>mixing up everything you've learned</strong> into brand new ideas!</p>
+        <p style={{ color: COLORS.textMuted, fontSize: "15px", maxWidth: "480px", margin: "0 auto 24px", lineHeight: 1.5 }}>Scientists call this your <strong>Default Mode Network</strong>. Let's load your brain with different topics, then hit the daydream button to see what your brain invents!</p>
+        <button onClick={() => setPhase("playing")} style={{ background: `linear-gradient(135deg, ${COLORS.accent3}, ${COLORS.accent2})`, color: "white", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "18px", cursor: "pointer", fontWeight: "bold", boxShadow: `0 4px 24px ${COLORS.glow3}`, fontFamily: "'Baloo 2', cursive" }}>Let's Daydream!</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: "12px", textAlign: "center" }}>
+      <p style={{ color: COLORS.text, fontSize: "15px", marginBottom: "12px", fontWeight: 600 }}>Step 1: Load your brain with topics (pick at least 2!)</p>
+      <div style={{ display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+        {DOMAINS.map(d => {
+          const isLoaded = loaded.includes(d.id);
+          return <button key={d.id} onClick={() => toggleDomain(d.id)} style={{ padding: "8px 14px", borderRadius: "12px", cursor: "pointer", fontSize: "15px", fontWeight: 600, background: isLoaded ? `${d.color}22` : "rgba(255,255,255,0.03)", border: `2px solid ${isLoaded ? d.color : "rgba(255,255,255,0.1)"}`, color: isLoaded ? d.color : COLORS.textMuted, transition: "all 0.3s", boxShadow: isLoaded ? `0 0 12px ${d.color}33` : "none" }}>{d.label}</button>;
+        })}
+      </div>
+      <button onClick={startDaydream} disabled={loaded.length < 2 || isDreaming} style={{ background: loaded.length >= 2 && !isDreaming ? `linear-gradient(135deg, ${COLORS.accent3}, ${COLORS.accent2})` : "rgba(255,255,255,0.05)", color: "white", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "17px", cursor: loaded.length >= 2 && !isDreaming ? "pointer" : "default", fontWeight: "bold", marginBottom: "16px", opacity: loaded.length < 2 ? 0.4 : 1 }}>
+        {isDreaming ? "💭 Daydreaming..." : loaded.length < 2 ? "Pick at least 2 topics" : "💭 Start Daydreaming!"}
+      </button>
+      {isDreaming && (
+        <div style={{ padding: "20px" }}>
+          <div style={{ fontSize: "48px", animation: "float 2s ease-in-out infinite" }}>🧠</div>
+          <p style={{ color: COLORS.accent3, fontSize: "14px", marginTop: "8px", fontStyle: "italic" }}>Your brain is mixing everything together...</p>
+          <style dangerouslySetInnerHTML={{__html: `@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }`}} />
+        </div>
+      )}
+      {!isDreaming && ideas.length > 0 && (
+        <div>
+          <p style={{ color: COLORS.accent5, fontSize: "16px", fontWeight: 700, marginBottom: "10px" }}>⚡ Your brain invented {ideas.length} new idea{ideas.length > 1 ? "s" : ""}!</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxWidth: "440px", margin: "0 auto 16px" }}>
+            {ideas.map((idea, i) => <div key={i} style={{ background: "rgba(96,213,250,0.08)", border: "1px solid rgba(96,213,250,0.2)", borderRadius: "12px", padding: "10px 14px", animation: `popIn3 0.4s ${i * 0.2}s both` }}><span style={{ color: COLORS.text, fontSize: "15px" }}>{idea}</span></div>)}
+          </div>
+          <div style={{ background: "rgba(192,132,252,0.08)", borderRadius: "12px", padding: "12px", maxWidth: "440px", margin: "0 auto", border: "1px solid rgba(192,132,252,0.2)" }}>
+            <p style={{ color: COLORS.accent2, fontSize: "13px", lineHeight: 1.5 }}>
+              {loaded.length <= 2 ? "💡 Try adding MORE topics — the more different things your brain knows, the crazier and more creative the ideas get!" : loaded.length <= 4 ? `💡 Nice! ${loaded.length} topics gave you ${ideas.length} ideas. Add more topics and daydream again!` : `🎉 WOW — ${loaded.length} topics created ${ideas.length} ideas! This is why learning about LOTS of different things makes you more creative!`}
+            </p>
+          </div>
+          <button onClick={startDaydream} style={{ background: "rgba(96,213,250,0.15)", border: `1px solid ${COLORS.accent3}`, color: COLORS.accent3, borderRadius: "12px", padding: "10px 24px", fontSize: "14px", cursor: "pointer", fontWeight: "bold", marginTop: "12px" }}>Daydream Again! 💭</button>
+        </div>
+      )}
+      {allIdeas.length > 0 && !isDreaming && ideas.length > 0 && <p style={{ color: COLORS.textMuted, fontSize: "12px", marginTop: "12px" }}>Total ideas generated: {allIdeas.length}</p>}
+      <style dangerouslySetInnerHTML={{__html: `@keyframes popIn3 { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }`}} />
+    </div>
+  );
+}
+
+function SleepFactoryTab() {
+  const [phase, setPhase] = useState("intro");
+  const [sleepStage, setSleepStage] = useState(0);
+  const [dayMemories, setDayMemories] = useState([]);
+  const [consolidated, setConsolidated] = useState([]);
+  const [connections, setConnections] = useState([]);
+
+  const DAY_EVENTS = [
+    { emoji: "📐", text: "Learned about triangles in maths", domain: "maths" },
+    { emoji: "🐸", text: "Watched a frog documentary", domain: "nature" },
+    { emoji: "⚽", text: "Played football at recess", domain: "sports" },
+    { emoji: "🎨", text: "Drew a picture in art class", domain: "art" },
+    { emoji: "🍝", text: "Helped cook pasta for dinner", domain: "cooking" },
+    { emoji: "📖", text: "Read a chapter about volcanoes", domain: "science" },
+  ];
+
+  const SLEEP_STAGES = [
+    { title: "☀️ End of Day", description: "Your brain collected all these experiences today. Right now they're just floating around — not yet organized or connected.", color: COLORS.accent5 },
+    { title: "😴 Falling Asleep", description: "As you drift off, your brain starts reviewing everything from today. It's like hitting 'replay' on the whole day.", color: COLORS.accent3 },
+    { title: "🌊 Deep Sleep — Sorting", description: "In deep sleep, your brain decides what's important. It moves experiences from your temporary memory to your permanent memory — like saving files to a hard drive.", color: COLORS.accent2 },
+    { title: "💫 REM Sleep — Connecting", description: "This is the magic stage! Your brain starts finding connections between today's experiences AND everything you already knew. This is when creativity happens!", color: COLORS.accent1 },
+    { title: "🌅 Morning — Upgraded!", description: "You wake up and your brain has been rebuilt overnight! Memories are organized, connected, and stronger. Sometimes you even wake up with new ideas you didn't have yesterday!", color: COLORS.accent4 },
+  ];
+
+  const OVERNIGHT_CONNECTIONS = [
+    "📐 + ⚽ → You now understand angles in football — why bending the ball works!",
+    "🐸 + 🍝 → Frogs catch flies with sticky tongues — pasta sticks when it's ready!",
+    "🎨 + 📖 → You can now picture volcanoes in your art — vivid, detailed, real!",
+    "📐 + 🎨 → Triangles create perspective in drawing — maths IS art!",
+    "🐸 + 📖 → Frogs near volcanoes? Your brain now wonders about volcano ecosystems!",
+    "⚽ + 🍝 → Athletes need the right food — sports and cooking are connected!",
+  ];
+
+  const startSleep = () => { setDayMemories(DAY_EVENTS); setSleepStage(0); setConsolidated([]); setConnections([]); setPhase("sleeping"); };
+
+  const advanceStage = () => {
+    const next = sleepStage + 1;
+    setSleepStage(next);
+    if (next === 2) { setConsolidated(DAY_EVENTS.slice(0, 3)); setTimeout(() => setConsolidated(DAY_EVENTS), 800); }
+    if (next === 3) {
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < OVERNIGHT_CONNECTIONS.length) { setConnections(prev => [...prev, OVERNIGHT_CONNECTIONS[i]]); i++; }
+        else clearInterval(interval);
+      }, 600);
+    }
+  };
+
+  if (phase === "intro") {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{ fontSize: "72px", marginBottom: "16px", filter: "drop-shadow(0 0 20px rgba(52,211,153,0.5))" }}>🌙</div>
+        <h2 style={{ fontSize: "28px", color: COLORS.accent4, marginBottom: "12px", fontFamily: "'Baloo 2', cursive" }}>The Sleep Factory</h2>
+        <p style={{ color: COLORS.text, fontSize: "17px", maxWidth: "520px", margin: "0 auto 8px", lineHeight: 1.6 }}>When you sleep, your brain is <strong>NOT resting</strong>. It's running a <strong>secret factory</strong> that sorts your memories, throws out junk, and builds connections between everything you learned!</p>
+        <p style={{ color: COLORS.textMuted, fontSize: "15px", maxWidth: "480px", margin: "0 auto 24px", lineHeight: 1.5 }}>Let's follow a day of experiences through a full night's sleep and see what your brain builds overnight.</p>
+        <button onClick={startSleep} style={{ background: `linear-gradient(135deg, ${COLORS.accent4}, ${COLORS.accent3})`, color: "white", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "18px", cursor: "pointer", fontWeight: "bold", boxShadow: "0 4px 24px rgba(52,211,153,0.3)", fontFamily: "'Baloo 2', cursive" }}>Start the Night!</button>
+      </div>
+    );
+  }
+
+  const stage = SLEEP_STAGES[sleepStage];
+
+  return (
+    <div style={{ padding: "12px" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: "12px" }}>
+        {SLEEP_STAGES.map((s, i) => <div key={i} style={{ width: i <= sleepStage ? "40px" : "28px", height: "6px", borderRadius: "3px", transition: "all 0.5s", background: i <= sleepStage ? stage.color : "rgba(255,255,255,0.1)" }} />)}
+      </div>
+      <div style={{ background: `${stage.color}11`, border: `1px solid ${stage.color}33`, borderRadius: "16px", padding: "14px 16px", marginBottom: "12px", textAlign: "center" }}>
+        <h3 style={{ color: stage.color, fontSize: "20px", marginBottom: "6px", fontFamily: "'Baloo 2', cursive" }}>{stage.title}</h3>
+        <p style={{ color: COLORS.text, fontSize: "14px", lineHeight: 1.5 }}>{stage.description}</p>
+      </div>
+      <div style={{ marginBottom: "12px" }}>
+        <h4 style={{ color: COLORS.textMuted, fontSize: "13px", marginBottom: "8px", textAlign: "center" }}>
+          {sleepStage < 2 ? "Today's Experiences (unorganized):" : sleepStage < 4 ? "Being processed..." : "✅ Saved & Connected!"}
+        </h4>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px" }}>
+          {dayMemories.map((mem, i) => <div key={i} style={{ background: consolidated.includes(mem) ? "rgba(52,211,153,0.1)" : "rgba(255,255,255,0.03)", border: `1px solid ${consolidated.includes(mem) ? "rgba(52,211,153,0.3)" : "rgba(255,255,255,0.08)"}`, borderRadius: "10px", padding: "6px 10px", fontSize: "13px", color: COLORS.text, transition: "all 0.5s", boxShadow: consolidated.includes(mem) ? "0 0 8px rgba(52,211,153,0.2)" : "none" }}>{mem.emoji} {mem.text}</div>)}
+        </div>
+      </div>
+      {connections.length > 0 && (
+        <div style={{ background: "rgba(255,107,157,0.06)", borderRadius: "14px", padding: "12px", marginBottom: "12px", border: "1px solid rgba(255,107,157,0.15)" }}>
+          <h4 style={{ color: COLORS.accent1, fontSize: "14px", marginBottom: "8px", textAlign: "center" }}>⚡ Connections Built Overnight:</h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {connections.map((c, i) => <div key={i} style={{ color: COLORS.text, fontSize: "13px", padding: "6px 10px", background: "rgba(255,255,255,0.02)", borderRadius: "8px", animation: `fadeSlide 0.4s ${i * 0.1}s both` }}>{c}</div>)}
+          </div>
+        </div>
+      )}
+      {sleepStage === 4 ? (
+        <div style={{ textAlign: "center" }}>
+          <div style={{ background: "rgba(52,211,153,0.1)", borderRadius: "14px", padding: "14px", marginBottom: "12px", border: "1px solid rgba(52,211,153,0.3)" }}>
+            <p style={{ color: COLORS.accent4, fontSize: "15px", lineHeight: 1.6, fontWeight: 600 }}>🧠 Your brain took 6 separate experiences and built {connections.length} NEW connections overnight — without you even knowing! This is why sleep isn't lazy time. It's your brain's most powerful building time.</p>
+          </div>
+          <button onClick={startSleep} style={{ background: `linear-gradient(135deg, ${COLORS.accent4}, ${COLORS.accent3})`, color: "white", border: "none", borderRadius: "14px", padding: "12px 28px", fontSize: "15px", cursor: "pointer", fontWeight: "bold" }}>Run Another Night 🌙</button>
+        </div>
+      ) : (
+        <div style={{ textAlign: "center" }}>
+          <button onClick={advanceStage} style={{ background: `linear-gradient(135deg, ${stage.color}, ${COLORS.accent2})`, color: "white", border: "none", borderRadius: "14px", padding: "12px 28px", fontSize: "15px", cursor: "pointer", fontWeight: "bold" }}>
+            {sleepStage === 0 ? "Fall Asleep 😴" : sleepStage === 1 ? "Go Deeper 🌊" : sleepStage === 2 ? "Enter REM 💫" : "Wake Up 🌅"}
+          </button>
+        </div>
+      )}
+      <style dangerouslySetInnerHTML={{__html: `@keyframes fadeSlide { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }`}} />
+    </div>
+  );
+}
+
+function BrainExplorer() {
+  const [activeTab, setActiveTab] = useState("memory");
+  return (
+    <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, ${COLORS.bg} 0%, #150e24 50%, #0d0815 100%)`, color: COLORS.text, fontFamily: "'Baloo 2', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      <div style={{ textAlign: "center", padding: "20px 16px 8px" }}>
+        <h1 style={{ fontSize: "32px", fontWeight: 800, background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent2}, ${COLORS.accent3})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "4px", lineHeight: 1.2 }}>Your Brain's Secret Superpowers</h1>
+        <p style={{ color: COLORS.textMuted, fontSize: "14px" }}>Discover how the most amazing machine in the universe actually works</p>
+      </div>
+      <div style={{ display: "flex", gap: "4px", padding: "0 12px", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+        {TABS.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ padding: "8px 14px", borderRadius: "12px 12px 0 0", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: 700, whiteSpace: "nowrap", fontFamily: "'Baloo 2', cursive", background: activeTab === tab.id ? `${tab.color}22` : "transparent", color: activeTab === tab.id ? tab.color : COLORS.textMuted, borderBottom: activeTab === tab.id ? `3px solid ${tab.color}` : "3px solid transparent", transition: "all 0.3s" }}>{tab.label}</button>)}
+      </div>
+      <div style={{ background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.06)", minHeight: "400px" }}>
+        {activeTab === "memory" && <WorkingMemoryTab />}
+        {activeTab === "schemas" && <SchemaBuilderTab />}
+        {activeTab === "dmn" && <DMNTab />}
+        {activeTab === "sleep" && <SleepFactoryTab />}
+      </div>
+      <div style={{ textAlign: "center", padding: "16px", background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+        <p style={{ color: COLORS.textMuted, fontSize: "13px", maxWidth: "500px", margin: "0 auto", lineHeight: 1.5 }}>
+          🧠 <strong style={{ color: COLORS.text }}>The Big Secret:</strong> Your brain gets its superpowers from three things — <span style={{ color: COLORS.accent2 }}>learning about LOTS of different things</span>, <span style={{ color: COLORS.accent3 }}>giving yourself time to daydream</span>, and <span style={{ color: COLORS.accent4 }}>getting great sleep</span>.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<BrainExplorer />);
+</script>
+</body>
+</html>

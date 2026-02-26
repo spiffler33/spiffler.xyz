@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Connection Machine</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0f1e; overflow-x: hidden; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback } = React;
+
+const COLORS = {
+  bg: "#0a0f1e", card: "#111827",
+  accent1: "#f472b6", accent2: "#a78bfa", accent3: "#38bdf8",
+  accent4: "#4ade80", accent5: "#facc15", accent6: "#fb923c",
+  text: "#e2e8f0", muted: "#94a3b8", dim: "#475569",
+};
+
+const KNOWLEDGE_DOMAINS = [
+  { id: "nature", emoji: "🌿", label: "Nature", color: "#4ade80",
+    facts: ["Trees talk to each other through underground fungus networks","Octopuses can change colour and texture in milliseconds","Ants can carry 50 times their own body weight","Bees do a special dance to tell others where food is","Gecko feet have tiny hairs that stick to almost anything"] },
+  { id: "engineering", emoji: "⚙️", label: "Engineering", color: "#38bdf8",
+    facts: ["Bridges use triangles because they're the strongest shape","Aeroplanes fly because of air pressure differences on wings","Gears change speed and force — small gear = fast, big gear = strong","Dams store energy in water and release it to make electricity","Skyscrapers sway on purpose so they don't break in wind"] },
+  { id: "psychology", emoji: "🧠", label: "How People Think", color: "#a78bfa",
+    facts: ["People remember stories 22 times better than plain facts","Colour affects mood — blue calms, red energises","If you give people too many choices, they choose nothing","People trust faces they've seen before, even strangers'","Breaking a task into tiny steps makes hard things feel easy"] },
+  { id: "history", emoji: "📜", label: "History", color: "#facc15",
+    facts: ["Ancient Romans had heated floors and running water","The Silk Road connected China to Europe for 1,500 years","Vikings navigated the ocean using crystals and sun position","Ancient Egyptians invented toothpaste from crushed rock and mint","Carrier pigeons delivered messages in both World Wars"] },
+  { id: "maths", emoji: "🔢", label: "Patterns & Maths", color: "#f472b6",
+    facts: ["The Fibonacci sequence appears in sunflowers, shells, and galaxies","Probability can predict the future (kind of) — like weather forecasts","Fractals are shapes that repeat forever when you zoom in","The fastest route isn't always a straight line (the curve can be quicker!)","Exponential growth means doubling — 1, 2, 4, 8, 16, 32... gets huge FAST"] },
+  { id: "cooking", emoji: "🍳", label: "Food Science", color: "#fb923c",
+    facts: ["Bread rises because yeast eats sugar and burps CO2 gas","Caramelisation happens when sugar molecules break and recombine","Salt doesn't add flavour — it unlocks flavours already there","Fermentation uses bacteria to transform food (yoghurt, cheese, chocolate!)","Emulsification forces oil and water to mix (like in mayonnaise)"] },
+];
+
+const CHALLENGES = [
+  {
+    title: "🏗️ The Impossible Bridge",
+    scenario: "A village needs a bridge across a deep canyon, but they have no steel or concrete — only natural materials from the forest around them.",
+    requiredDomains: ["nature", "engineering"],
+    bonusDomains: ["history", "maths"],
+    solutions: {
+      base: "You know trees communicate through underground networks, and that triangles are the strongest shape. You design a bridge using woven tree roots (nature's cables!) arranged in triangular trusses. The living roots keep growing and getting stronger over time!",
+      bonus_history: "You also remember that ancient civilisations built incredible things from natural materials — the Inca rope bridges lasted 600 years! You study their braiding patterns.",
+      bonus_maths: "You use the knowledge that the fastest route isn't always straight — you design a curved arch bridge that's actually stronger than a flat one!",
+    },
+    noKnowledge: "Without knowledge of nature or engineering, you'd just try to lay a log across... and it would probably fall.",
+  },
+  {
+    title: "🎒 The School Lunch Revolution",
+    scenario: "Your school cafeteria food is terrible and nobody eats it. The principal says you have one week to fix it — but the budget can't change.",
+    requiredDomains: ["cooking", "psychology"],
+    bonusDomains: ["nature", "maths"],
+    solutions: {
+      base: "You know salt unlocks hidden flavours (food science!) and that people remember stories better than facts (psychology!). So you rename boring dishes with exciting stories — 'Volcano Pasta' with properly seasoned sauce. Same ingredients, same budget — but now kids actually eat it!",
+      bonus_nature: "You add that bees communicate through dance — you create a 'taste rating dance' where kids vote with movements, making lunch interactive and social!",
+      bonus_maths: "You use probability to survey which combinations kids prefer, and exponential thinking to start small (one great dish) and let word-of-mouth spread!",
+    },
+    noKnowledge: "Without these connections, you'd just… complain. And nothing would change.",
+  },
+  {
+    title: "🌍 The Lost City Explorer",
+    scenario: "You've discovered an ancient underground city! But it's completely dark, the map is in a code nobody can read, and there might be traps.",
+    requiredDomains: ["history", "maths"],
+    bonusDomains: ["nature", "engineering"],
+    solutions: {
+      base: "You know ancient civilisations were brilliant engineers (history!) and that patterns repeat in predictable ways (maths!). You recognise the 'code' as a fractal pattern — each small section is a mini-map of the whole city. You can navigate by zooming in and out of the pattern!",
+      bonus_nature: "You remember that geckos stick to anything — you design gecko-inspired gloves to climb the walls safely! And you use bioluminescent fungi (nature's lights) to see in the dark.",
+      bonus_engineering: "You know buildings sway to survive stress — so the 'traps' are actually safety mechanisms! The floors that wobble are designed to flex, not break. You walk confidently where others would freeze.",
+    },
+    noKnowledge: "Without cross-domain knowledge, you'd be stuck at the entrance, afraid to go in.",
+  },
+  {
+    title: "🎪 The Festival Designer",
+    scenario: "Your neighbourhood is throwing a festival but nobody's excited about it. You're put in charge of making it the most memorable event ever — with almost no money.",
+    requiredDomains: ["psychology", "cooking"],
+    bonusDomains: ["history", "engineering"],
+    solutions: {
+      base: "You know that too many choices paralyse people, and that stories are 22x more memorable than facts (psychology!). You also know fermentation can transform cheap ingredients into amazing food (food science!). So you create ONE unforgettable experience: a 'Time Travel Feast' where each food station tells a story from a different era, using fermented and caramelised foods that taste incredible but cost almost nothing.",
+      bonus_history: "You add historical details — Romans had heated floors? You create a warm 'Roman lounge' using hot water bottles under rugs. Silk Road connected cultures? You blend spices from different traditions!",
+      bonus_engineering: "You use gear principles — small efforts creating big results — to design a pedal-powered stage where the audience powers the music by cycling!",
+    },
+    noKnowledge: "Without these connections, you'd just put up some decorations and hope for the best.",
+  },
+  {
+    title: "🚀 The Mars Greenhouse",
+    scenario: "Astronauts on Mars need to grow food, but the soil is toxic, there's barely any atmosphere, and water is extremely scarce.",
+    requiredDomains: ["nature", "engineering"],
+    bonusDomains: ["cooking", "maths"],
+    solutions: {
+      base: "You know plants communicate through fungus networks and ants create complex efficient colonies (nature!). You also know about air pressure differences and energy storage (engineering!). You design a pressurised dome where plants are connected by artificial fungal networks that share nutrients, and ant-colony-inspired water recycling channels that waste nothing.",
+      bonus_cooking: "You add fermentation tanks — bacteria that transform Mars minerals into plant-friendly soil! The same process that makes yoghurt can make Martian dirt safe!",
+      bonus_maths: "You use exponential growth to plan: start with one plant, let it seed, double, double again — within months you have a forest from a single seed!",
+    },
+    noKnowledge: "Without cross-domain thinking, you'd try to plant seeds in toxic Mars dirt and watch them die.",
+  },
+];
+
+function DomainSelector({ selected, onToggle, factsLearned }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+      {KNOWLEDGE_DOMAINS.map(d => {
+        const isSelected = selected.includes(d.id);
+        const learnCount = (factsLearned[d.id] || []).length;
+        return (
+          <button key={d.id} onClick={() => onToggle(d.id)} style={{ padding: "10px 8px", borderRadius: "14px", cursor: "pointer", background: isSelected ? `${d.color}18` : "rgba(255,255,255,0.02)", border: `2px solid ${isSelected ? d.color : "rgba(255,255,255,0.06)"}`, transition: "all 0.3s", boxShadow: isSelected ? `0 0 16px ${d.color}22` : "none" }}>
+            <div style={{ fontSize: "28px", marginBottom: "2px" }}>{d.emoji}</div>
+            <div style={{ fontSize: "13px", color: isSelected ? d.color : COLORS.muted, fontWeight: 700 }}>{d.label}</div>
+            {learnCount > 0 && <div style={{ fontSize: "11px", color: COLORS.dim, marginTop: "2px" }}>{learnCount} fact{learnCount > 1 ? "s" : ""}</div>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ConnectionMachine() {
+  const [phase, setPhase] = useState("intro");
+  const [selectedDomains, setSelectedDomains] = useState([]);
+  const [factsLearned, setFactsLearned] = useState({});
+  const [currentChallenge, setCurrentChallenge] = useState(null);
+  const [showSolution, setShowSolution] = useState(false);
+  const [solvedChallenges, setSolvedChallenges] = useState([]);
+  const [learningDomain, setLearningDomain] = useState(null);
+  const [score, setScore] = useState(0);
+
+  const toggleDomain = (id) => { selectedDomains.includes(id) ? setSelectedDomains(selectedDomains.filter(d => d !== id)) : setSelectedDomains([...selectedDomains, id]); };
+  const learnFact = (domainId, fact) => { const current = factsLearned[domainId] || []; if (!current.includes(fact)) setFactsLearned({ ...factsLearned, [domainId]: [...current, fact] }); };
+  const totalFacts = Object.values(factsLearned).reduce((sum, arr) => sum + arr.length, 0);
+
+  const startChallenge = () => {
+    const available = CHALLENGES.filter(c => !solvedChallenges.includes(c.title));
+    if (available.length === 0) { setPhase("complete"); return; }
+    const challenge = available[Math.floor(Math.random() * available.length)];
+    setCurrentChallenge(challenge); setShowSolution(false); setPhase("challenge");
+  };
+
+  const revealSolution = () => {
+    setShowSolution(true);
+    const c = currentChallenge;
+    const hasRequired = c.requiredDomains.every(d => selectedDomains.includes(d));
+    const bonusCount = c.bonusDomains.filter(d => selectedDomains.includes(d)).length;
+    setScore(score + (hasRequired ? 10 + bonusCount * 5 : 2));
+    setSolvedChallenges([...solvedChallenges, c.title]);
+  };
+
+  if (phase === "intro") {
+    return (
+      <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, ${COLORS.bg}, #0f172a)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'Baloo 2', -apple-system, sans-serif" }}>
+        <div style={{ fontSize: "80px", marginBottom: "16px", filter: "drop-shadow(0 0 30px rgba(164,131,250,0.4))" }}>⚡</div>
+        <h1 style={{ fontSize: "34px", fontWeight: 800, textAlign: "center", background: `linear-gradient(135deg, ${COLORS.accent1}, ${COLORS.accent2}, ${COLORS.accent3})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "12px", lineHeight: 1.2 }}>The Connection Machine</h1>
+        <p style={{ color: COLORS.text, fontSize: "17px", maxWidth: "480px", textAlign: "center", lineHeight: 1.6, marginBottom: "8px" }}>The smartest people aren't the ones who know the most about ONE thing. They're the ones who know a little about LOTS of things — because their brains can find <strong>hidden connections</strong>.</p>
+        <p style={{ color: COLORS.muted, fontSize: "15px", maxWidth: "460px", textAlign: "center", lineHeight: 1.5, marginBottom: "24px" }}>Load your brain with knowledge from different worlds. Then face impossible challenges — and watch your brain solve them by <strong>connecting the dots</strong>.</p>
+        <button onClick={() => setPhase("learning")} style={{ background: `linear-gradient(135deg, ${COLORS.accent2}, ${COLORS.accent3})`, color: "white", border: "none", borderRadius: "16px", padding: "14px 40px", fontSize: "18px", cursor: "pointer", fontWeight: "bold", boxShadow: "0 4px 30px rgba(164,131,250,0.3)", fontFamily: "'Baloo 2', cursive" }}>Power Up My Brain!</button>
+      </div>
+    );
+  }
+
+  if (phase === "learning") {
+    return (
+      <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, ${COLORS.bg}, #0f172a)`, padding: "16px", fontFamily: "'Baloo 2', -apple-system, sans-serif" }}>
+        <div style={{ textAlign: "center", marginBottom: "12px" }}>
+          <h2 style={{ color: COLORS.text, fontSize: "22px", fontWeight: 800, marginBottom: "4px" }}>🧠 Load Your Brain</h2>
+          <p style={{ color: COLORS.muted, fontSize: "14px" }}>Tap a topic to learn facts. The more different topics you learn, the better you'll solve challenges!</p>
+          <div style={{ display: "inline-flex", gap: "12px", marginTop: "8px" }}>
+            <span style={{ background: "rgba(164,131,250,0.12)", padding: "4px 12px", borderRadius: "8px", color: COLORS.accent2, fontSize: "13px", fontWeight: 600 }}>📚 {totalFacts} facts learned</span>
+            <span style={{ background: "rgba(74,222,128,0.12)", padding: "4px 12px", borderRadius: "8px", color: COLORS.accent4, fontSize: "13px", fontWeight: 600 }}>🌐 {selectedDomains.length} domains active</span>
+          </div>
+        </div>
+
+        <DomainSelector selected={selectedDomains} onToggle={toggleDomain} factsLearned={factsLearned} />
+
+        {selectedDomains.length > 0 && (
+          <div style={{ marginTop: "12px" }}>
+            <div style={{ display: "flex", gap: "6px", overflowX: "auto", paddingBottom: "8px", marginBottom: "8px" }}>
+              {selectedDomains.map(id => {
+                const d = KNOWLEDGE_DOMAINS.find(x => x.id === id);
+                return <button key={id} onClick={() => setLearningDomain(id === learningDomain ? null : id)} style={{ padding: "6px 14px", borderRadius: "10px", border: "none", background: learningDomain === id ? `${d.color}22` : "rgba(255,255,255,0.04)", color: learningDomain === id ? d.color : COLORS.muted, fontSize: "13px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", borderBottom: learningDomain === id ? `2px solid ${d.color}` : "2px solid transparent" }}>{d.emoji} {d.label}</button>;
+              })}
+            </div>
+            {learningDomain && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {KNOWLEDGE_DOMAINS.find(d => d.id === learningDomain).facts.map((fact, i) => {
+                  const isLearned = (factsLearned[learningDomain] || []).includes(fact);
+                  return <button key={i} onClick={() => learnFact(learningDomain, fact)} style={{ textAlign: "left", padding: "10px 14px", borderRadius: "12px", background: isLearned ? "rgba(74,222,128,0.08)" : "rgba(255,255,255,0.03)", border: `1px solid ${isLearned ? "rgba(74,222,128,0.25)" : "rgba(255,255,255,0.06)"}`, color: COLORS.text, fontSize: "14px", cursor: isLearned ? "default" : "pointer", lineHeight: 1.5, transition: "all 0.3s" }}><span style={{ marginRight: "8px" }}>{isLearned ? "✅" : "💡"}</span>{fact}</button>;
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {totalFacts >= 3 && (
+          <div style={{ textAlign: "center", marginTop: "16px" }}>
+            <button onClick={startChallenge} style={{ background: `linear-gradient(135deg, ${COLORS.accent5}, ${COLORS.accent6})`, color: "#1a1a2e", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "17px", cursor: "pointer", fontWeight: "bold", boxShadow: "0 4px 24px rgba(250,204,21,0.25)", fontFamily: "'Baloo 2', cursive" }}>⚡ Face a Challenge! ({CHALLENGES.length - solvedChallenges.length} left)</button>
+            {selectedDomains.length < 4 && <p style={{ color: COLORS.accent5, fontSize: "12px", marginTop: "8px", fontStyle: "italic" }}>Tip: Learn from more different topics for higher scores!</p>}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (phase === "challenge" && currentChallenge) {
+    const c = currentChallenge;
+    const hasRequired = c.requiredDomains.every(d => selectedDomains.includes(d));
+    const bonusDomains = c.bonusDomains.filter(d => selectedDomains.includes(d));
+    const missingRequired = c.requiredDomains.filter(d => !selectedDomains.includes(d));
+
+    return (
+      <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, ${COLORS.bg}, #0f172a)`, padding: "16px", fontFamily: "'Baloo 2', -apple-system, sans-serif" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+          <span style={{ color: COLORS.accent5, fontSize: "14px", fontWeight: 700 }}>⚡ Score: {score}</span>
+          <span style={{ color: COLORS.muted, fontSize: "13px" }}>Challenge {solvedChallenges.length + 1}/{CHALLENGES.length}</span>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "18px", padding: "20px", border: "1px solid rgba(255,255,255,0.06)", marginBottom: "16px" }}>
+          <h2 style={{ color: COLORS.text, fontSize: "24px", fontWeight: 800, marginBottom: "8px" }}>{c.title}</h2>
+          <p style={{ color: COLORS.text, fontSize: "16px", lineHeight: 1.7 }}>{c.scenario}</p>
+        </div>
+        <div style={{ marginBottom: "16px" }}>
+          <h4 style={{ color: COLORS.muted, fontSize: "13px", marginBottom: "8px" }}>Knowledge needed:</h4>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            {c.requiredDomains.map(id => {
+              const d = KNOWLEDGE_DOMAINS.find(x => x.id === id);
+              const has = selectedDomains.includes(id);
+              return <span key={id} style={{ padding: "5px 12px", borderRadius: "10px", fontSize: "13px", fontWeight: 600, background: has ? `${d.color}18` : "rgba(255,80,80,0.1)", color: has ? d.color : "#f87171", border: `1px solid ${has ? `${d.color}33` : "rgba(255,80,80,0.2)"}` }}>{has ? "✅" : "❌"} {d.emoji} {d.label} (required)</span>;
+            })}
+            {c.bonusDomains.map(id => {
+              const d = KNOWLEDGE_DOMAINS.find(x => x.id === id);
+              const has = selectedDomains.includes(id);
+              return <span key={id} style={{ padding: "5px 12px", borderRadius: "10px", fontSize: "13px", fontWeight: 600, background: has ? `${d.color}18` : "rgba(255,255,255,0.03)", color: has ? d.color : COLORS.dim, border: `1px solid ${has ? `${d.color}33` : "rgba(255,255,255,0.06)"}` }}>{has ? "⭐" : "○"} {d.emoji} {d.label} (bonus)</span>;
+            })}
+          </div>
+        </div>
+        {!showSolution ? (
+          <div style={{ textAlign: "center" }}>
+            <p style={{ color: COLORS.accent3, fontSize: "15px", marginBottom: "12px", fontStyle: "italic" }}>Think about it first: how would YOU solve this using what you've learned?</p>
+            <button onClick={revealSolution} style={{ background: `linear-gradient(135deg, ${COLORS.accent2}, ${COLORS.accent3})`, color: "white", border: "none", borderRadius: "14px", padding: "12px 32px", fontSize: "16px", cursor: "pointer", fontWeight: "bold" }}>Show Me The Solution! 🔓</button>
+          </div>
+        ) : (
+          <div>
+            {hasRequired ? (
+              <div style={{ background: "rgba(74,222,128,0.06)", borderRadius: "16px", padding: "16px", border: "1px solid rgba(74,222,128,0.2)", marginBottom: "12px" }}>
+                <div style={{ fontSize: "14px", color: COLORS.accent4, fontWeight: 700, marginBottom: "8px" }}>✅ YOUR BRAIN SOLVED IT! (+10 points)</div>
+                <p style={{ color: COLORS.text, fontSize: "15px", lineHeight: 1.7 }}>{c.solutions.base}</p>
+              </div>
+            ) : (
+              <div style={{ background: "rgba(248,113,113,0.06)", borderRadius: "16px", padding: "16px", border: "1px solid rgba(248,113,113,0.2)", marginBottom: "12px" }}>
+                <div style={{ fontSize: "14px", color: "#f87171", fontWeight: 700, marginBottom: "8px" }}>🤔 Missing connections! (+2 points for trying)</div>
+                <p style={{ color: COLORS.muted, fontSize: "14px", lineHeight: 1.6, marginBottom: "8px" }}>{c.noKnowledge}</p>
+                <p style={{ color: COLORS.text, fontSize: "14px", lineHeight: 1.6 }}><strong>But if you'd learned {missingRequired.map(id => KNOWLEDGE_DOMAINS.find(x => x.id === id).label).join(" and ")}:</strong> {c.solutions.base}</p>
+              </div>
+            )}
+            {bonusDomains.map(id => {
+              const d = KNOWLEDGE_DOMAINS.find(x => x.id === id);
+              const bonusKey = `bonus_${id}`;
+              if (!c.solutions[bonusKey]) return null;
+              return (
+                <div key={id} style={{ background: `${d.color}0a`, borderRadius: "14px", padding: "12px", border: `1px solid ${d.color}22`, marginBottom: "8px" }}>
+                  <div style={{ fontSize: "13px", color: d.color, fontWeight: 700, marginBottom: "4px" }}>⭐ BONUS from {d.emoji} {d.label}! (+5 points)</div>
+                  <p style={{ color: COLORS.text, fontSize: "14px", lineHeight: 1.6 }}>{c.solutions[bonusKey]}</p>
+                </div>
+              );
+            })}
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", marginTop: "16px" }}>
+              <button onClick={() => setPhase("learning")} style={{ background: "rgba(255,255,255,0.06)", color: COLORS.text, border: "1px solid rgba(255,255,255,0.1)", borderRadius: "14px", padding: "12px 24px", fontSize: "15px", cursor: "pointer", fontWeight: "bold" }}>📚 Learn More First</button>
+              {solvedChallenges.length < CHALLENGES.length && <button onClick={startChallenge} style={{ background: `linear-gradient(135deg, ${COLORS.accent5}, ${COLORS.accent6})`, color: "#1a1a2e", border: "none", borderRadius: "14px", padding: "12px 24px", fontSize: "15px", cursor: "pointer", fontWeight: "bold" }}>Next Challenge ⚡</button>}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (phase === "complete") {
+    return (
+      <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, ${COLORS.bg}, #0f172a)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'Baloo 2', -apple-system, sans-serif" }}>
+        <div style={{ fontSize: "80px", marginBottom: "16px" }}>🏆</div>
+        <h1 style={{ fontSize: "30px", fontWeight: 800, background: `linear-gradient(135deg, ${COLORS.accent5}, ${COLORS.accent6})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "12px" }}>All Challenges Complete!</h1>
+        <div style={{ background: "rgba(250,204,21,0.1)", borderRadius: "16px", padding: "16px", border: "1px solid rgba(250,204,21,0.2)", marginBottom: "16px", textAlign: "center" }}>
+          <div style={{ fontSize: "36px", color: COLORS.accent5, fontWeight: 800, marginBottom: "4px" }}>{score} points</div>
+          <p style={{ color: COLORS.muted, fontSize: "14px" }}>{totalFacts} facts learned across {selectedDomains.length} domains</p>
+        </div>
+        <div style={{ background: "rgba(164,131,250,0.08)", borderRadius: "16px", padding: "18px", border: "1px solid rgba(164,131,250,0.2)", maxWidth: "460px", textAlign: "center" }}>
+          <p style={{ color: COLORS.text, fontSize: "16px", lineHeight: 1.7 }}><strong style={{ color: COLORS.accent2 }}>Here's the secret:</strong> Every challenge needed knowledge from <em>different</em> topics mashed together. Nobody who only knows about ONE thing could solve them. Your brain's superpower is connecting dots that seem totally unrelated — and the more different things you learn, the more unstoppable you become.</p>
+        </div>
+        <button onClick={() => { setPhase("learning"); setSolvedChallenges([]); setScore(0); }} style={{ background: `linear-gradient(135deg, ${COLORS.accent2}, ${COLORS.accent3})`, color: "white", border: "none", borderRadius: "16px", padding: "14px 36px", fontSize: "17px", cursor: "pointer", fontWeight: "bold", marginTop: "20px" }}>Play Again! 🔄</button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<ConnectionMachine />);
+</script>
+</body>
+</html>
