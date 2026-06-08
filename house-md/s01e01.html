@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Teacher Who Couldn't Talk · House M.D. S01E01 | spiffler.xyz</title>
+    <meta name="description" content="The real medical mystery behind the House M.D. pilot — a worm in the brain — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the worm's journey — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 1 · "Pilot"</div>
+                <h1>The Teacher Who Couldn't Talk</h1>
+                <p class="lede">A healthy 29-year-old teacher collapses, has a seizure, and suddenly can't speak — she just <strong>babbles</strong>. Every doctor says the same thing: <strong>brain tumor, she's going to die.</strong> One grumpy genius disagrees. His rule? <strong>Everybody lies.</strong></p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🚑</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Rebecca</strong>. She's 29 and teaches kindergarten — about as healthy as people get. Then one day her body betrays her. First, a <em>seizure</em>.</p>
+                <div class="wordbox"><b>seizure</b> = a sudden "electrical storm" in the brain. Your brain runs on tiny electrical signals; in a seizure they all fire at once, like every light in a house flickering at the same time. The body shakes and the mind goes haywire.</div>
+                <p>Then something stranger and scarier: she <strong>loses her words</strong>. Her mouth works fine, but what comes out is babble, like a baby. She can think — she just can't talk.</p>
+                <p>Her doctors take a look, find a spot in her brain, and deliver the worst news there is: a <strong>brain tumor</strong>. They try the standard tumor treatment — radiation — but it isn't working. And House isn't convinced it's even the right answer. The mystery: what could make a perfectly healthy young woman suddenly seize and lose her speech?</p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🧠</span>
+                    <span class="layer__title">Meet the Brain</span>
+                </div>
+                <p>Your brain isn't one blob that does everything. It's more like a <strong>city</strong>, and different neighborhoods have different jobs. One neighborhood moves your hand. One handles seeing. One stores memories. And one special neighborhood is in charge of <strong>talking and understanding words</strong>.</p>
+                <div class="wordbox"><b>speech area</b> = the part of the brain that turns your thoughts into spoken words. If it gets squeezed or damaged, you can still think clearly — but the words come out scrambled.</div>
+                <p>So the instant Rebecca could think but couldn't talk, the doctors knew exactly which part of her brain was in trouble: the "talking neighborhood." Something was messing with it.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🔍</span>
+                    <span class="layer__title">The First Clue: a spot on the map</span>
+                </div>
+                <p>Doctors took pictures of the inside of her head and found a <em>lesion</em>.</p>
+                <div class="wordbox"><b>lesion</b> = a fancy word for "a spot where something's wrong" — like a stain on a carpet. It tells you <i>where</i> the problem is, but not <i>what</i> it is.</div>
+                <p>A spot right by the talking neighborhood would explain the lost speech. But a spot could be a hundred different things. When House's team proudly announces "it's a lesion," he's unimpressed:</p>
+                <div class="house-quote">"And the big green thing in the middle of the bigger blue thing on a map is an island. I was hoping for something a bit more creative."<span>— Dr. House</span></div>
+                <p>In other words: <strong>don't tell me where it is. Tell me what it is.</strong></p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">🕵️</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>When doctors face a mystery, they write down a list of suspects — every disease that could cause the symptoms. They call it a <em>differential diagnosis</em>.</p>
+                <div class="wordbox"><b>differential diagnosis</b> = the suspect list. Start with everything that fits, then cross suspects off one by one as the tests come back.</div>
+                <p>There's a famous rule in medicine: <strong>"When you hear hoofbeats, think horses, not zebras."</strong> Meaning — guess the common, boring answer first, because common things are common. The boring guess here was a tumor. But House looks at a healthy 29-year-old and thinks: a tumor that young is rare <i>too</i>. And if the answer were obvious, the case would never have reached him.</p>
+                <div class="house-quote">"If it's not a tumor, what are the suspects? Why couldn't she talk? … Let's find out what kind of zebra we're dealing with."<span>— Dr. House</span></div>
+                <p>The suspects: a <strong>tumor</strong> (a lump of cells growing where they shouldn't), a <strong>stroke or aneurysm</strong> (a blood-vessel pipe in the brain bursting or clogging), and rarer, weirder things. To tell them apart, House needs a much better picture.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">📸</span>
+                    <span class="layer__title">Detective Work: photographing a living brain</span>
+                </div>
+                <p>You can't open someone's head just to peek inside. So doctors use machines that see through us:</p>
+                <div class="wordbox"><b>CT scan</b> (also "CAT scan") = spins X-rays around your head to build a picture. Rebecca's showed nothing useful.<br><br><b>MRI</b> = uses a giant magnet (no radiation) for a much sharper picture. To make trouble spots glow, they inject a special dye called <b>gadolinium</b> — like dropping food coloring in water to see where it flows.</div>
+                <p>House orders the contrast MRI to finally light up that spot. And that's exactly where everything goes sideways.</p>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">Wrong Turn #1: the dye disaster</span>
+                </div>
+                <p>It turns out Rebecca is <strong>allergic to the dye</strong>.</p>
+                <div class="wordbox"><b>allergic reaction</b> = when your body's defense system mistakes something harmless for an enemy and over-attacks it. A severe one can make your throat swell shut.</div>
+                <p>Hers swells so fast that doctors have to make an emergency hole in her windpipe so she can breathe — a <em>tracheotomy</em>.</p>
+                <div class="wordbox"><b>tracheotomy</b> = a small opening cut into the windpipe so air can get in when the normal route is blocked.</div>
+                <p>Now they can't finish the scan. No glowing picture. House just shrugs and changes the plan — if he can't read her brain, he'll read her <strong>life</strong>:</p>
+                <div class="house-quote">"Can't get a picture? Gonna have to get a thousand words."<span>— Dr. House</span></div>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">🔥</span>
+                    <span class="layer__title">Wrong Turn #2: the angry-pipes guess</span>
+                </div>
+                <p>House has a hunch: maybe the blood vessels in her brain are inflamed — swollen and angry. That's called <em>vasculitis</em>.</p>
+                <div class="wordbox"><b>vasculitis</b> = "vessel" + <b>-itis</b>. That ending always means "inflamed / swollen" (tonsill<i>itis</i> = swollen tonsils, appendic<i>itis</i> = swollen appendix). So vasculitis = inflamed blood-vessel pipes.</div>
+                <p>He can't prove it without cutting out a tiny piece to check (a <strong>biopsy</strong>), so he tries something sneaky: <strong>treat it and watch.</strong> He gives her <em>steroids</em>.</p>
+                <div class="wordbox"><b>steroids</b> (like prednisone) = powerful anti-swelling medicine. They tell the body's defense system to stand down and quit inflaming things.</div>
+                <p>If it's really angry pipes, the steroids should calm everything down and she'll improve. What happens is messier: the steroids clearly <strong>change</strong> her — but they don't cure her, and she keeps sliding. So it isn't simply vasculitis. Still, House can't shake one fact: medicine that calms the body's defenses <strong>visibly moved the needle</strong>. Whatever is wrong with Rebecca, her own immune system is tangled up in it. Tuck that clue away — it cracks the whole case open in a minute. (A guess that a parrot gave her a bird infection — psittacosis — also gets tossed out: none of the 20 kids in her class were sick.)</p>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": follow the ham</span>
+                </div>
+                <p>House sends his team to search Rebecca's house for anything strange. They find... <strong>ham</strong> in the fridge. Totally ordinary ham. But House lights up like a pinball machine:</p>
+                <div class="house-quote">"Where there's ham, there's pork. Where there's pork, there's neurocysticercosis."<span>— Dr. House</span></div>
+                <p>Big scary word — we'll take it apart in the next card. And here's the clue that makes it click: remember the steroids that mysteriously "did something"? Steroids tell your body's defenses to stand down. If a tiny creature had been <strong>hiding</strong> from those defenses, then calming the defenses down would change everything. Suddenly it all fits.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what's actually in her brain? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🪱 A worm. The baby form of a <strong>pork tapeworm</strong> — quietly living inside her head.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🪱</span>
+                    <span class="layer__title">The Real Culprit: a worm in the brain</span>
+                </div>
+                <p>Here's the whole story, slowly. The disease is <strong>neurocysticercosis</strong>. Let's break the monster word into pieces:</p>
+                <div class="wordbox"><b>neuro</b> = brain. &nbsp;<b>cysticercosis</b> = an infection with tapeworm cysts. &nbsp;Put together: <b>tapeworm cysts in the brain.</b></div>
+                <p>How on earth does a worm reach someone's brain? Step by step:</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">🥓</span><span class="cap">Undercooked pork carries tiny worm babies</span></div>
+                    <div class="step"><span class="ico">🐛</span><span class="cap">They grow up in the gut &amp; lay eggs</span></div>
+                    <div class="step"><span class="ico">🥚</span><span class="cap">Some eggs slip in &amp; hatch into a tiny larva</span></div>
+                    <div class="step"><span class="ico">🩸</span><span class="cap">The larva rides the blood everywhere</span></div>
+                    <div class="step"><span class="ico">🧠</span><span class="cap">A larva settles in the brain</span></div>
+                    <div class="step"><span class="ico">🛡️</span><span class="cap">It builds a hidden bubble (a cyst)</span></div>
+                </div>
+                <p>If pork isn't cooked all the way, it can carry tiny tapeworm babies (<strong>larvae</strong>). Swallow them, and they grow up in your gut, latch on with little hooks, and lay eggs — a single tapeworm can lay <strong>20,000 to 30,000 eggs a day</strong>. Most leave your body the normal way. But some eggs slip into the gut wall, where they <strong>hatch</strong> — and the tiny <strong>larva</strong> inside burrows into your <strong>bloodstream</strong>. Blood travels <i>everywhere</i>, including up to the brain, where the larva can settle and grow into a tiny fluid-filled bubble called a <em>cyst</em>.</p>
+                <div class="wordbox"><b>cyst</b> = a little sealed bubble, like a water balloon, that the worm builds around itself to hide.</div>
+                <p><em>Worth knowing:</em> House's "undercooked pork" version is real — but it's actually the rarer way in. Most people get the brain kind by accidentally swallowing the tapeworm's <strong>eggs</strong> — usually off unwashed hands, or food handled by someone already carrying the worm. So you can even catch it <strong>without ever eating pork yourself.</strong> (That's why washing hands matters every bit as much as cooking pork all the way through.)</p>
+                <p>Now the sneaky part. While you're healthy, the cyst hides <strong>perfectly</strong>. It builds a wall and sends out signals that whisper to your body's defenses, "nothing to see here." It can sit quietly for <strong>years</strong> and you'd never know.</p>
+                <p>The trouble only starts when the cyst <strong>dies</strong>. A dead cyst can't keep hiding. Your <strong>immune system</strong> — the body's security guards — finally spots the intruder and attacks. All that fighting makes the brain <strong>swell</strong>. And swelling in the brain is what causes seizures and scrambles things like speech. That's Rebecca.</p>
+                <p>And <i>now</i> the steroids make perfect sense: steroids quiet the immune system. Quieting the exact battle that was causing her symptoms is why they "did something" — the clue House couldn't let go of.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Proof &amp; The Fix</span>
+                </div>
+                <p>One last problem: House still can't <strong>see</strong> the worm. A young cyst in the brain is almost exactly as "thick" as the watery fluid around the brain — so on a scan it's nearly invisible, like a clear ice cube in a glass of water.</p>
+                <p>So Chase has a clever, safe idea and House runs with it: <strong>don't X-ray her head — X-ray her leg.</strong> Tapeworm cysts love thigh muscle — and here's the real-world reason the trick works: an old cyst in muscle turns <strong>hard</strong> (it <em>calcifies</em> — gets crusty with calcium, like a tiny pebble of bone), so it shows up clear as day on a plain X-ray, even while the one in her head stays invisible.</p>
+                <div class="wordbox"><b>calcify</b> = turn hard and bony as calcium builds up. A soft, invisible cyst becomes a solid little lump the X-ray can catch.</div>
+                <div class="house-quote">"If she's got one in her head, I guarantee you there's one in her leg."<span>— Dr. House</span></div>
+                <div class="goodnews">
+                    <p>And here's the whole reason House fought so hard. A brain <b>tumor</b> would have been a death sentence. A <b>worm</b> is <b>curable</b>. In real medicine the fix is a combination: medicine to kill the parasite, steroids to keep the brain's swelling under control as it dies, and medicine to stop the seizures.</p>
+                    <p style="margin-bottom:0;">Rebecca isn't dying. She just has to stop believing she is. The terrifying diagnosis everyone accepted was wrong — and the real answer, a worm of all things, was the <b>good news</b>.</p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: "Everybody lies"</h2>
+                <p>The episode's title is House's golden rule. He trusts <strong>evidence</strong> over what people tell him — because people, even nice ones, lie. Fittingly, this whole case began with a lie: House's friend Wilson swore the patient was his cousin, just to get House to care enough to take it.</p>
+                <p class="reality">Real-world note: neurocysticercosis is a real disease — in much of the world it's one of the most common <i>preventable</i> causes of seizures, and yes, it's treatable. Cooking pork thoroughly and washing hands handles the main risks. (The show speeds things up and makes House ruder than any real doctor — a real diagnosis takes longer and a lot more kindness.)</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
