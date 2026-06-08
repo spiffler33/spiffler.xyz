@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Young Man Whose Symptoms Didn't Add Up · House M.D. S01E03 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'Occam's Razor' — how one ordinary mix-up can look like a dozen diseases at once — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the poison's path — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 3 · "Occam's Razor"</div>
+                <h1>The Young Man Whose Symptoms Didn't Add Up</h1>
+                <p class="lede">A healthy young man named <strong>Brandon</strong> suddenly collapses — and then his body starts failing in a dozen ways at once: a cough, a rash, a fever, plunging blood pressure, then his heart and kidneys begin to quit. The team hunts for the one disease behind it all. House bets there's something <strong>simpler</strong> going on — and that the answer isn't a disease at all.</p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🤒</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Brandon</strong>. He's a healthy young guy — until, out of nowhere, he collapses and lands in the emergency room. And then it just keeps getting worse. He has a <strong>cough</strong>. A <strong>rash</strong>. A <strong>fever</strong>. Pain in his belly. His <strong>blood pressure</strong> drops dangerously low and won't come back up no matter what they pour into him.</p>
+                <div class="wordbox"><b>blood pressure</b> = how hard your blood pushes against the walls of your pipes as your heart pumps it around. Too low, and your organs stop getting enough fuel and start to shut down. Doctors can usually prop it back up with fluids — but Brandon's just won't budge, and that's the first thing that smells wrong.</div>
+                <p>Soon his heart is struggling and his kidneys are failing too. That's <strong>six or seven different things going wrong</strong> in one young, healthy body. And here's the maddening part: no single disease anyone can name explains <em>all</em> of them.</p>
+                <div class="house-quote">"No condition accounts for all these symptoms."<span>— Dr. Cameron</span></div>
+                <p>The mystery isn't "what's the disease." It's bigger and weirder than that: what could possibly cause this <strong>whole pile</strong> of unrelated problems at the same time?</p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🪒</span>
+                    <span class="layer__title">The Detective's Rule: Occam's Razor</span>
+                </div>
+                <p>This episode is named after a famous thinking tool — not a body part. It's a rule detectives, scientists, and doctors all lean on:</p>
+                <div class="wordbox"><b>Occam's Razor</b> = when you've got a messy pile of clues, the <i>simplest</i> explanation that fits them all is usually the right one. Don't invent a wild, complicated story when a plain one will do. (It "shaves away" the extra, unnecessary stuff — that's the "razor.")</div>
+                <p>So the team reaches for the simplest idea: there must be <strong>one single disease</strong> hiding underneath all these symptoms. Find that one disease, and the whole pile gets explained at once.</p>
+                <div class="house-quote">"Occam's Razor. The simplest explanation is always the best."<span>— Dr. Foreman</span></div>
+                <p>But House pokes at it. Is <i>one</i> disease really "simpler" than <i>two</i>? He argues maybe poor Brandon just got unlucky and has two ordinary problems at the same time — which can actually be likelier than one giant, super-rare disease that happens to do everything. The whole episode is really an argument about that one question:</p>
+                <div class="house-quote">"Why is one simpler than two? It's lower, lonelier&hellip; is it simpler?"<span>— Dr. House</span></div>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🔄</span>
+                    <span class="layer__title">Body Basics: how you stay "new"</span>
+                </div>
+                <p>Here's a fact about your body that will crack this whole case wide open. You are made of trillions of tiny building blocks called <strong>cells</strong>. They wear out and die <i>constantly</i> — and you survive only because your body is always making fresh ones to replace them.</p>
+                <div class="wordbox"><b>cell division</b> = how the body makes new cells: one cell copies everything inside it, then splits neatly into two. This is the body's repair-and-restock system, running quietly every second of your life.</div>
+                <p>The key twist: <strong>different body parts replace themselves at wildly different speeds.</strong> The lining of your gut is rebuilt in days. Your blood cells, constantly. Your hair, always growing. Other parts take years. House puts it his way:</p>
+                <div class="house-quote">"Every seven years it's a whole new you&hellip; cells of different organs reproduce at different rates&hellip; a new kidney every three years, a new stomach lining every week."<span>— Dr. House</span></div>
+                <p>Hold onto that idea: <strong>the fastest-rebuilding parts depend most on cell division.</strong> So if anything ever <i>jammed</i> that copy-and-split machine, those fast parts would be the first to fall apart. Remember that — it's the key to everything.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">⏱️</span>
+                    <span class="layer__title">The First Clue: it's all in the order</span>
+                </div>
+                <p>When a mystery has a hundred clues, House asks a sneaky question nobody else bothers with: not "what are <i>all</i> the symptoms?" but <strong>"which one came <i>first</i>?"</strong></p>
+                <div class="house-quote">"Of his 800 symptoms, which one hit him first?"<span>— Dr. House</span></div>
+                <p>The answer: the very first thing Brandon got was a plain old <strong>cough</strong>. Then, one after another, came the rash, the fever, the belly pain, the failing kidneys. They didn't all hit at once — they arrived in a <strong>sequence</strong>, like dominoes falling in a line.</p>
+                <p>That's a huge clue, even if it doesn't look like one yet. A disease that strikes everything at random is hard to pin down. But a problem that damages the body in a strict, predictable <em>order</em>? That order is like a <strong>fingerprint</strong> — and only one kind of culprit leaves it.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">Wrong Turn: the treatment makes it worse</span>
+                </div>
+                <p>First, the team plays the odds. The simplest dangerous guess for a crashing blood pressure is a body-wide infection, so they treat for that.</p>
+                <div class="wordbox"><b>sepsis</b> = when an infection spills into the bloodstream and the whole body reacts, often crashing the blood pressure. The standard move is <b>broad-spectrum antibiotics</b> — germ-killers that hit many kinds of bacteria at once, for when you can't yet name the exact bug.</div>
+                <p>It backfires. Brandon's kidneys start shutting down, fluid fills his lungs, and his blood pressure sinks further. At first they blame their own antibiotics — but the kidney damage turns out to be part of the <i>real</i> problem, not the medicine. Treating him for the obvious answer is somehow <strong>speeding him up toward the drain</strong>, not saving him. House is rattled but refuses to let go of his gut feeling:</p>
+                <div class="house-quote">"Reality is almost always wrong."<span>— Dr. House</span></div>
+                <p>Translation: when the textbook answer flatly doesn't fit the patient in front of you, don't force it. Keep hunting for the thing the textbook isn't telling you.</p>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": this isn't a disease at all</span>
+                </div>
+                <p>Then House flips the whole question over. What if they've been wrong from the start — not about <i>which</i> disease, but about whether it's a disease at all? What if a single <strong>substance</strong> got into Brandon and is doing every bit of this damage, in that telltale order?</p>
+                <p>He lands on one suspect. It's a real medicine — for <strong>gout</strong>, a painful joint condition. The catch: Brandon doesn't <i>have</i> gout. So why would a gout drug be wrecking him?</p>
+                <div class="house-quote">FOREMAN: "Gout? &hellip; not one of which do I see on that board." HOUSE: "Because he doesn't have gout."<span>— House M.D.</span></div>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So if it's not a disease, what's hurting him? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>☠️ <strong>Poison.</strong> A gout medicine called <strong>colchicine</strong> — quietly shutting his body down, one fast-growing part at a time.</div>
+                </div>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">🧬</span>
+                    <span class="layer__title">The Real Culprit: a medicine that freezes cells mid-split</span>
+                </div>
+                <p>Here's the whole story, slowly. The culprit is a drug called <strong>colchicine</strong>. In small, correct doses it calms the agony of a gout attack. But in too large a dose it becomes a poison — and it has one very specific, sneaky power.</p>
+                <div class="wordbox"><b>colchicine</b> = a gout medicine that works by <b>jamming cell division</b>. When a cell tries to split into two, it builds tiny internal "ropes" that pull its copied parts apart. Colchicine stops those ropes from ever forming — so the cell freezes halfway and can't finish dividing.</div>
+                <p>Now remember Body Basics: your fastest-rebuilding parts depend <i>completely</i> on cell division. Jam that machine, and the fastest-rebuilding parts fall apart <strong>first</strong> — the gut lining, the blood, the hair — while the rest of the body gets dragged down behind them, one part at a time. The damage marches in a telltale <em>order</em>. That's the fingerprint from card 4. Here's the path the poison carves:</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">⛔</span><span class="cap">Colchicine jams the cell copy-and-split machine</span></div>
+                    <div class="step"><span class="ico">🍽️</span><span class="cap">Gut lining (rebuilt fastest) breaks down → belly pain, vomiting, diarrhea</span></div>
+                    <div class="step"><span class="ico">🫘</span><span class="cap">Kidneys falter; blood pressure crashes</span></div>
+                    <div class="step"><span class="ico">🩸</span><span class="cap">Bone marrow (the blood-cell factory in your bones) can't make blood cells</span></div>
+                    <div class="step"><span class="ico">✋</span><span class="cap">Nerves misfire → tingling, painful fingers &amp; toes</span></div>
+                    <div class="step"><span class="ico">💇</span><span class="cap">Hair follicles give up → hair falls out</span></div>
+                </div>
+                <div class="house-quote">"This is why colchicine poisoning causes all of these symptoms, but not all at once."<span>— Dr. House</span></div>
+                <p>And <i>that</i> settles House's big argument. The team wanted one disease to explain everything. There <strong>was</strong> one simple cause — it just wasn't a disease. It was a single poison, doing a dozen things in a tidy line. Occam's Razor wins after all.</p>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">🕵️</span>
+                    <span class="layer__title">The Whodunit: so where did the poison come from?</span>
+                </div>
+                <p>Knowing the poison is only half the case. A young guy with no gout has no reason to own colchicine. So <strong>how did it get inside him?</strong> House chases two wrong answers first:</p>
+                <p><strong>Wrong guess #1 — or so it seems:</strong> the pharmacy handed him gout pills instead of something he was actually prescribed. House loves this idea. But on its own it can't explain why he got <i>better</i> in the hospital and then <i>worse</i> again — if the bad pills were stuck at the pharmacy, what kept re-poisoning him? He sets it aside, sure he's missing a piece. (Hold that thought — he's closer than he knows.)</p>
+                <p><strong>Wrong guess #2:</strong> House catches Brandon in a lie — he'd taken the party drug <strong>Ecstasy</strong>, which is sometimes secretly cut with cheap junk.</p>
+                <div class="house-quote">"D'you know what they cut that stuff with? Apparently colchicine&hellip;"<span>— Dr. House</span></div>
+                <p><strong>Why that's wrong too:</strong> Brandon swears he only used it twice — nowhere near enough to explain a poisoning this severe. House can't make the math work, and he won't pretend he can:</p>
+                <div class="house-quote">"Somewhere at a party, in his coffee, up his nose&hellip; this kid had some."<span>— Dr. House, still not satisfied</span></div>
+                <p>The real answer is hiding in the most boring place imaginable — and it's been right under everyone's nose since the very first symptom.</p>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Answer: one tiny pill mix-up</span>
+                </div>
+                <p>Go all the way back to card 4: Brandon's <strong>first</strong> symptom was an ordinary cough. So he did the most ordinary thing in the world — he saw a doctor, who wrote him a prescription for plain <strong>cough medicine</strong> in pill form. He went to the pharmacy. He took his pills.</p>
+                <p>Except the pharmacy made a mistake and put the <strong>wrong pills</strong> in his bottle: <strong>colchicine</strong> instead of cough medicine. The two pills looked almost identical — close enough to fool anyone.</p>
+                <div class="wordbox"><b>the giveaway</b> = the real cough-medicine pills had a tiny <b>letter stamped</b> on one side. Brandon's pills had no letter. That one missing mark is how the team finally proved his "cough medicine" was actually colchicine.</div>
+                <p>And the better-then-worse riddle? Solved. In the hospital he briefly improved — until his worried <strong>mom</strong>, seeing he still had a sore throat, gave him more of his "cough medicine" from home. More of the same poison. That's the second person who "screwed up," and the reason he relapsed.</p>
+                <div class="house-quote">"Occam's Razor. The simplest explanation is almost always somebody screwed up."<span>— Dr. House</span></div>
+                <p>This is the beautiful, infuriating punchline of the whole episode. The cough was the <strong>only real illness</strong> Brandon ever had — a nothing little cold. Everything else, the heart, the kidneys, the near-death — was caused by the <strong>medicine meant to treat it.</strong> One simple mix-up explained the entire pile.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">💊</span>
+                    <span class="layer__title">The Fix</span>
+                </div>
+                <p>Step one is the obvious one, and it's lifesaving on its own: <strong>stop the poison.</strong> No more pills. Once nobody's re-dosing him, the attack finally ends.</p>
+                <p>In the episode, the team also fights back with two more weapons:</p>
+                <div class="wordbox"><b>Fab fragments</b> = tiny antibody pieces designed to <b>grab onto the colchicine</b> molecules and haul them out of the body — an antidote that mops up the poison.<br><br><b>GCSF</b> = a signal that tells the <b>bone marrow</b> to hurry up and make fresh infection-fighting white blood cells, helping refill the ones the poison destroyed.</div>
+                <p>And then the body does what it does best: with the poison gone, the copy-and-split machine switches back on. The gut lining regrows, the blood refills, even the hair grows back. The damage colchicine does is terrifying — but if you catch it and pull the source, it's largely <strong>reversible.</strong></p>
+                <div class="goodnews">
+                    <p>Here's the hopeful part. Brandon was never dying of some unstoppable mystery disease. He was being quietly poisoned by a pill — and the moment the right person figured that out, the cure was almost embarrassingly simple: <b>take the pill away.</b> The scariest part of the case turned out to be the most fixable.</p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: the simplest answer</h2>
+                <p>Occam's Razor says the simplest explanation usually wins — and the whole episode argues about what "simple" even means. The team wanted one tidy <i>disease</i>. House insisted the real world is messier than that. In the end they were <i>both</i> right: there <strong>was</strong> one simple cause, it just wasn't a disease — it was a single human mistake at a pharmacy, made worse by a loving mom and a kid who fibbed about partying.</p>
+                <p>Like every House case, it turned on small lies and slip-ups — and on House trusting hard <strong>evidence</strong> (a missing letter on a pill) over the story everyone wanted to believe.</p>
+                <p class="reality">Real-world note: colchicine is a real, genuinely useful gout medicine — but it has a narrow safety margin, and an overdose really can poison the body in roughly the order shown here. That's exactly why pharmacies double- and triple-check prescriptions and stamp identifying marks on pills. (The instant-antidote is dramatized — in real life, colchicine poisoning is mostly treated by stopping the source and supporting the body while it heals. And real doctors are far kinder than House.)</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
