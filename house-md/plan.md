@@ -43,5 +43,9 @@ Rules: analogy-first; define every term on first use; short paragraphs; concrete
 ## Per-episode workflow
 script → reconstruct transcript → distill the medical case → write the layered page → medical-accuracy fact-check (workflow) → add card to index + tinker.
 
+## Status
+- **2026-06-08 — S01E01 (Pilot) DONE & committed** (`e3cee04`): `/house-md/s01e01.html` (the template episode) + `/house-md/index.html` (episode list) + a `house-md` card on `/tinker.html`. Distilled from the verbatim HF transcript; passed an adversarial medical fact-check workflow (3 lenses + verifier), 7 fixes applied. The page structure above is now the **locked template** — copy it per episode.
+- Known limitation: ~90% dataset coverage means runs of non-House lines can thin out, so keep cross-checking each diagnosis against documented episode facts (the fact-check workflow is how).
+
 ## Next step
-Build **S01E01 — the Pilot** end-to-end as the template (case: neurocysticercosis — a tapeworm cyst in the brain; red-herring tumor; gadolinium-allergy beat; steroids). Get this one right; the rest is repetition.
+Build **S01E02 — "Paternity"** end-to-end, copying the Pilot. Same per-episode workflow: confirm the HF file pulls → reconstruct the transcript in `~/dev/scratch` (never the repo) → distill → write `/house-md/s01e02.html` → run the fact-check workflow → add its card to `/house-md/index.html` → commit only the episode files. One episode per session, no hurry.
