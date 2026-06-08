@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Newborns Who All Got Sick at Once · House M.D. S01E04 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'Maternity' — how a virus that's nothing to a grown-up can be deadly to a newborn, and how their mothers held the answer — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the virus's path — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 4 · "Maternity"</div>
+                <h1>The Newborns Who All Got Sick at Once</h1>
+                <p class="lede">In a hospital nursery, perfectly healthy newborns — just a day or two old — suddenly start to crash, one after another. Fevers, seizures, failing hearts. Every other doctor sees a run of terrible luck. House sees something nobody wants to believe: an <strong>epidemic</strong> — one illness spreading fast through the nursery. And the secret of who lives and who dies turns out to be hiding inside their <strong>mothers</strong>.</p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🍼</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>A hospital's <strong>maternity ward</strong> — the floor where babies are born — should be the happiest place in the building. But something is going very wrong. Newborns who are only a day or two old, who were perfectly fine at birth, are suddenly getting deathly sick. One has a <strong>fever</strong>. One has a <strong>seizure</strong> (a sudden electrical "storm" in the brain that makes the body shake). Their tiny <strong>hearts</strong> start to falter.</p>
+                <p>House notices something the other doctors miss: it isn't just <i>one</i> sick baby. It's two. Then three. Then four — all within hours of each other, all in neighboring rooms. To everyone else that's a sad coincidence. To House it's a pattern, and patterns have causes.</p>
+                <div class="house-quote">"We have an infection spreading in the hospital."<span>— Dr. House</span></div>
+                <p>The boss, Dr. Cuddy, isn't convinced. Two sick babies is sad, she says — it doesn't prove anything. House asks the question that drives the whole episode:</p>
+                <div class="house-quote">CUDDY: "Two sick babies is very sad, but it doesn't prove an epidemic." HOUSE: "How many do?"<span>— House M.D.</span></div>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🛡️</span>
+                    <span class="layer__title">Body Basics: a borrowed shield</span>
+                </div>
+                <p>Here's the one fact that cracks this whole case wide open — so hold onto it. Your body has a built-in army that fights off germs. It's called your <strong>immune system</strong>, and its cleverest weapon is the <em>antibody</em>.</p>
+                <div class="wordbox"><b>antibody</b> = a tiny custom-built "wanted poster" your body makes for one specific germ. Once your immune system has met a germ and built the poster, it can spot that exact invader instantly and destroy it. That's why you usually catch chickenpox only once — your army keeps the poster forever.</div>
+                <p>But a <strong>newborn baby</strong> has a problem: its army is brand new. It hasn't met <i>any</i> germs yet, so it hasn't drawn a single wanted poster. A baby fresh out of the womb is almost defenseless.</p>
+                <p>Nature has a beautiful fix. In the months before birth, a mother quietly hands her baby a <strong>copy of her own wanted posters</strong> — her antibodies cross over into the baby and float in its blood for months after birth. It's a <strong>borrowed shield</strong>: for a little while, the baby is protected by everything its mom's immune system has already learned.</p>
+                <div class="wordbox"><b>the borrowed shield</b> (doctors call it <b>passive immunity</b>) = the mother's antibodies, passed to the baby before birth. The catch — and this is everything — a mom can only lend posters for germs <i>she herself</i> has already met. If she's never met a particular germ, she has no poster for it, so her baby gets <b>no shield against that one.</b></div>
+                <p>Tuck that away. A baby is protected only against the germs its mother already beat. <strong>Find a germ the mother never met, and you've found a hole in the shield.</strong> That hole is the answer to the entire mystery — but it takes House most of the episode to see it.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🔎</span>
+                    <span class="layer__title">The First Clue: a cluster, not a coincidence</span>
+                </div>
+                <p>Why is House so sure this is an outbreak and not just bad luck? Detective work. One baby was labeled with a "blocked intestine." House looks at the X-ray and sees ordinary <strong>gas</strong> — no blockage at all. So that diagnosis is wrong, which means nobody actually knows what's hurting these babies.</p>
+                <div class="house-quote">"They fell sick within four hours of each other. They had the same delivery rooms, maternity rooms are neighboring, so transmission's possible. They have the same symptoms."<span>— Dr. House</span></div>
+                <p>Stack those facts up — same place, same time, same symptoms — and you get a word that makes hospitals go cold:</p>
+                <div class="wordbox"><b>epidemic</b> = when the same illness spreads through a group of people faster than chance can explain. The opposite is a <b>coincidence</b> — unrelated cases that just happen to land near each other. Telling the two apart is the whole ballgame: a coincidence you treat one patient at a time; an epidemic you have to <i>stop</i>.</div>
+                <p>So House does the scary thing: he wants the maternity ward <strong>shut down</strong> and the babies <strong>isolated</strong>, before whatever this is can reach even more of them. Now the clock is running — and he still has no idea what "this" even is.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">🧫</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>Something invisible is spreading and making babies sick. There are only a few kinds of culprit it <i>could</i> be, so the team lists them — their <em>differential diagnosis</em> (the suspect list).</p>
+                <div class="wordbox"><b>parasite</b> = a creature that lives off your body, like a worm. <b>Bacteria</b> = tiny living single-celled germs (strep throat is bacteria). <b>Virus</b> = something even smaller and stranger — barely alive, it can only make copies of itself by hijacking <i>your</i> cells from the inside.</div>
+                <p>A parasite is crossed off fast — it couldn't spread this quickly. That leaves bacteria or a virus, and bacteria is the hopeful guess, because we have great weapons against bacteria: <strong>antibiotics</strong>.</p>
+                <div class="wordbox"><b>antibiotic</b> = a germ-killer that works <i>only</i> on bacteria. Penicillin is one. Here's the crucial part for later: antibiotics do <b>nothing</b> to a virus. They fight by attacking parts that only bacteria have — and a virus doesn't have those parts, so the drug has nothing to grab.</div>
+                <p>So the team hits the babies with two powerful antibiotics at once, hoping to kill whatever bacteria is to blame. House even has a theory for why a germ might be shrugging the drugs off — because, he says, doctors have handed out antibiotics so carelessly for so long that the toughest germs have learned to survive them:</p>
+                <div class="house-quote">"We bred these super bugs. They're our babies. Now they're all grown up and they've got body piercings and a lot of anger."<span>— Dr. House</span></div>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">⚖️</span>
+                    <span class="layer__title">Wrong Turn: the impossible experiment</span>
+                </div>
+                <p>The antibiotics aren't working, and babies are running out of time. There are two different antibiotics in play, and House doesn't know which one — if either — is the right weapon. Guessing wastes days they don't have. So he proposes something cold-blooded: take <strong>one</strong> baby off the first drug and <strong>another</strong> baby off the second, then watch. Whichever baby does better tells him which drug to give everyone else.</p>
+                <p>It's brutally logical and deeply wrong at the same time, because it means treating two real, scared families' babies like an experiment. His own team revolts:</p>
+                <div class="house-quote">FOREMAN: "So you're condemning one of these kids to die based on random chance." HOUSE: "I guess I am."<span>— House M.D.</span></div>
+                <p>House's grim argument: there are now <i>six</i> sick babies, maybe more coming. Risking two to save the rest is, to him, the math. It's one of the hardest, most uncomfortable things he ever does — and then it gets worse. <strong>One of the babies doesn't make it.</strong> The very first time a patient dies in House's care, and it's a newborn.</p>
+                <p>But here's the gut-punch that turns the whole case: the <i>other</i> baby, on the <i>other</i> antibiotic, keeps getting sicker too. Two different antibiotics. Neither one helps at all.</p>
+                <div class="house-quote">"Vancomycin doesn't kill it. Aztreonam doesn't kill it. What the hell is this?"<span>— Dr. House</span></div>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">🔬</span>
+                    <span class="layer__title">The Saddest Clue: it was never bacteria</span>
+                </div>
+                <p>When <i>no</i> antibiotic does anything, that itself is a clue — a loud one. Remember the rule from card 4: antibiotics only kill bacteria. So if the best antibiotics in the world are useless here, maybe there were never any bacteria to kill.</p>
+                <p>To know for sure, House does the hardest thing a doctor can do. He examines the baby who died — an <em>autopsy</em> — because sometimes the only way to save the living is to let the one you lost tell you what happened.</p>
+                <div class="wordbox"><b>autopsy</b> = a careful examination of someone after death to find out exactly what went wrong inside. Heartbreaking — but the answers it gives can save the next patient.</div>
+                <p>Under the microscope, the baby's <strong>heart muscle</strong> tells the story. It's badly <em>inflamed</em> — red, hot, and swollen, the way any body part gets when the immune army floods in to fight an invader — with its muscle cells dying off. And that pattern of damage is the unmistakable fingerprint of a <strong>virus</strong>, not bacteria.</p>
+                <div class="house-quote">"All of those clever reasons were wrong. It is a virus infecting their hearts."<span>— Dr. House</span></div>
+                <p>Everything snaps into focus. The antibiotics never had a chance, because the enemy was a virus the whole time — and antibiotics can't touch a virus. The hunt completely changes shape.</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">🩸</span>
+                    <span class="layer__title">Detective Work: a thousand suspects, a teaspoon of blood</span>
+                </div>
+                <p>"It's a virus" sounds like an answer, but it isn't — not yet. There are <strong>thousands</strong> of different viruses, and the cure depends on knowing <i>which</i> one. You find out by testing the baby's blood for each suspect. And that's where this case gets its cruelest twist:</p>
+                <div class="wordbox"><b>the blood problem</b> = a newborn's <i>entire body</i> holds only about a cupful of blood — a fraction of what you have. Every test costs a little blood. Run too many and you'd drain the very baby you're trying to save. They can safely test maybe <b>eight</b> viruses. Not a thousand. Eight.</div>
+                <p>So the team uses the autopsy clues to cross suspects off the board — no lung damage rules out a whole family of viruses; the <i>kind</i> of heart damage points at others — until they're down to a short list they can actually test. They run the tests, checking which of those viruses are <i>present</i> in each baby. And the results make no sense at all:</p>
+                <p>The sick babies turn out to be carrying <strong>three</strong> different viruses at once. Worse, when they test a perfectly <strong>healthy</strong> baby as a comparison, <i>he's</i> carrying some of the very same bugs — and he's totally fine. If the sick babies and a healthy baby all caught the same viruses, then just knowing <i>which</i> viruses are there can't tell you which one is the killer. Dead end.</p>
+                <div class="house-quote">FOREMAN: "So we just learned nothing?" HOUSE: "Uh-uh. We have half the picture."<span>— House M.D.</span></div>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">🤱</span>
+                    <span class="layer__title">The "Aha": ask the mothers</span>
+                </div>
+                <p>Then House remembers the <strong>borrowed shield</strong> from card 2. <i>Catching</i> a virus isn't the same as being <i>hurt</i> by it — what decides that is whether the baby had a shield against it. And a newborn's shield isn't its own. <strong>It's borrowed from its mother.</strong> Each baby is guarded only by the wanted posters its mom already carried.</p>
+                <p>And suddenly the "nonsense" result becomes the whole answer. Why was the healthy baby fine even though he'd caught the same bugs? Because his <strong>mother</strong> had met every one of them before — so she'd handed him a shield for each, and they all bounced off.</p>
+                <div class="house-quote">"The healthy kids survived because their mothers' antibodies saved them."<span>— Dr. House</span></div>
+                <p>So House flips the entire investigation around. Stop testing the babies — their blood just shows which bugs are going around. Test the <strong>mothers</strong>. For each baby that got sick, find the <i>one</i> virus its mother had <strong>never met</strong> — the one she had no shield to lend — because that's the gap the killer slipped through.</p>
+                <div class="house-quote">"And whichever they don't have the antibodies for, that's what's killing their kids."<span>— Dr. House</span></div>
+                <p>They test the mothers of the sick babies. Two of the three viruses get crossed off — those moms had met them, with shields to spare. But every single sick baby's mother had never met the same third one.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So which virus slipped through the shield? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🦠 <strong>Echovirus 11</strong> — an everyday bug that barely bothers a grown-up, sneaking through the one gap in a newborn's borrowed armor.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🦠</span>
+                    <span class="layer__title">The Real Culprit: a "nothing" virus in the wrong body</span>
+                </div>
+                <p>The killer is a virus called <strong>Echovirus 11</strong>. And here's the strangest, saddest part: for almost everyone on Earth, it's <strong>nothing</strong>.</p>
+                <div class="wordbox"><b>Echovirus 11</b> = a type of <b>enterovirus</b> — a big family of common germs that live in the gut. ("Entero-" means intestines.) You have almost certainly had one. Cousins in this family include the viruses behind the common cold.</div>
+                <p>In a grown-up or an older kid, an enterovirus like this is a yawn: maybe a day of the sniffles, a mild tummy upset, a faint rash, often nothing at all. Your trained immune system swats it without you even noticing. Cameron sums up the cruel double-life of this bug:</p>
+                <div class="house-quote">"Enteroviruses cause diarrhea and flu-like symptoms in adults, maybe a rash, but for newborns it can be deadly. It's damaging her heart."<span>— Dr. Cameron</span></div>
+                <p>So why does the same harmless bug nearly wipe out a nursery? Two reasons, and you already know both. <strong>One:</strong> a newborn whose mother never met this exact virus has <i>no borrowed shield</i> against it — the hole in the armor. <strong>Two:</strong> a newborn's body is so tiny and new that a virus which would lose a quick scuffle in you can run wild in a baby, spreading to the most important place of all — the <strong>heart</strong>, where it inflames the muscle until the heart can't keep up. Same virus, wildly different ending, decided entirely by <i>which body it landed in.</i></p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">🧸</span>
+                    <span class="layer__title">The Fix &amp; Patient Zero</span>
+                </div>
+                <p>Knowing the enemy's name finally lets them fight back two ways at once.</p>
+                <p><strong>Treat the sick babies.</strong> There's no easy cure for a virus — you can't just take a pill the way you can for many bacteria. But the team gets hold of an <strong>experimental antiviral</strong>, a brand-new medicine built to fight exactly this kind of virus, and races it to the babies who are still hanging on.</p>
+                <div class="wordbox"><b>antiviral</b> = a medicine that fights a virus directly (different from an antibiotic, which only fights bacteria). In the show it's described as an experimental drug from a company in Pennsylvania with promising lab results — and in real life that maps to a genuine antiviral, <b>pleconaril</b>, which really was being developed (by a Pennsylvania company) and tested for exactly this: newborns infected with an enterovirus.</div>
+                <p><strong>Stop the spread.</strong> A virus this contagious had to be coming <i>from</i> somebody — a "patient zero" quietly handing it to baby after baby. House is stumped, because the sick babies shared no doctors and no nurses in common. Then he spots her: not a doctor, not a nurse, so nobody thought to check her. A kindly elderly <strong>volunteer</strong>, with a runny nose and a little cough, pushing a cart through the ward — handing every newborn a <strong>teddy bear</strong>. Here's the chain the show actually draws for you:</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">🤧</span><span class="cap">A volunteer with a mild sniffle — the virus lives in her nose</span></div>
+                    <div class="step"><span class="ico">✋</span><span class="cap">She covers a cough; it rubs onto her hand</span></div>
+                    <div class="step"><span class="ico">🧸</span><span class="cap">...onto the fur of each teddy bear she hands out</span></div>
+                    <div class="step"><span class="ico">👶</span><span class="cap">...and onto a newborn's face. Every sick baby got a bear.</span></div>
+                </div>
+                <p>That's why no <i>staff</i> member connected them — the carrier was a volunteer, and the teddy bears were the delivery trucks. Take away the bears (and the sick volunteer), and the outbreak stops.</p>
+                <div class="goodnews">
+                    <p>Here's the hope inside a hard episode. Yes, one baby was lost — the first patient House ever loses — and the show doesn't pretend that away. But naming the real enemy is what let them <b>save the rest</b>: the right medicine for the babies still fighting, and the broken chain that stopped any new baby from catching it. A nursery full of families got to go home.</p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: why it's called "Maternity"</h2>
+                <p>The title isn't just the name of the ward. The entire case is solved by <strong>mothers</strong>. The babies who survived were saved by their mothers' antibodies — the borrowed shield. The babies who got sick were the ones whose mothers had simply never crossed paths with this one virus, and so had no shield to lend. Motherhood is the hidden hero <i>and</i> the answer to the whole mystery: to find what was killing the babies, House had to stop looking at the babies and start looking at their moms.</p>
+                <p class="reality">Real-world note: Echovirus 11 is real, and it really is mostly harmless to older kids and adults while being genuinely dangerous to newborns — which is why nurseries are so strict about handwashing and keeping sick visitors away. The borrowed-shield science is real too (it's called passive immunity). The show speeds things up and invents a near-miracle antiviral; in real life there's still no guaranteed cure for a newborn's enterovirus infection — doctors mostly support the baby's body while it fights, sometimes giving <i>donated</i> antibodies (a real-life version of lending a shield). House's "experiment" on the babies is dramatized to shock you — real doctors don't do that, and real doctors are far kinder than House.</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
