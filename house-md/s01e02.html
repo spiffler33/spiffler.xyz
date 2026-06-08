@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lacrosse Star with Night Terrors · House M.D. S01E02 | spiffler.xyz</title>
+    <meta name="description" content="The real medical mystery behind the House M.D. episode 'Paternity' — a measles time bomb in a teenager's brain — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the virus's journey — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 2 · "Paternity"</div>
+                <h1>The Lacrosse Star with Night Terrors</h1>
+                <p class="lede">A healthy 16-year-old lacrosse player named <strong>Dan</strong> starts seeing double, jolts awake from terrifying <strong>night terrors</strong>, and twitches at the wrong moments. He even wanders onto a hospital roof, calmly sure he's standing on his playing field. Two brain doctors give up. House takes the case — and finds the answer hiding somewhere nobody thought to look: Dan's <strong>family tree.</strong></p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🥍</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Dan</strong>. He's 16, a star high-school lacrosse player — fit, fast, healthy. Then his body starts glitching. First, he sees double.</p>
+                <div class="wordbox"><b>double vision</b> = your two eyes normally aim at the exact same spot, so your brain can stitch their two pictures into one. When they stop lining up, you see two of everything. (Doctors call it <i>diplopia</i>.)</div>
+                <p>Then come the <em>night terrors</em>: he bolts awake at night, heart pounding, screaming in pure panic.</p>
+                <div class="wordbox"><b>night terror</b> = not a bad dream. It's a sudden burst of fear during deep sleep — eyes open, terrified, but not really awake — and you usually don't remember it at all the next morning. Common in little kids; <i>strange</i> in a teenager.</div>
+                <p>Dan <strong>did</strong> take a hard hit to the head in a game. Case closed — a concussion, right? Except for one detail that ruins that tidy story: the double vision started <strong>before</strong> the hit. House is intrigued the moment he hears the words "night terrors":</p>
+                <div class="house-quote">"Night terrors, yeah? As in big scary monsters?"<span>— Dr. House</span></div>
+                <p>Two brain specialists have already thrown up their hands. The mystery: what makes a perfectly healthy 16-year-old's brain start misfiring like this?</p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🧠</span>
+                    <span class="layer__title">Meet the Brain (and its bridge)</span>
+                </div>
+                <p>Quick tour. Your brain comes in two halves — a left and a right — and they have to talk to each other nonstop. The cable that connects them is real, and it has a name.</p>
+                <div class="wordbox"><b>corpus callosum</b> = the bridge between the brain's two halves: about <b>200 million</b> tiny nerve "phone lines" bundled together. House calls it the <i>"George Washington Bridge between the left and right side of the brain."</i></div>
+                <p>The brain is also the control room for everything else that's going wrong with Dan: it aims his <strong>eyes</strong>, runs his <strong>sleep</strong>, and commands every <strong>muscle</strong>. So when eyes <i>and</i> sleep <i>and</i> muscles all act up at once, the problem usually isn't in any one of them. It's upstream — in the control room itself.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">⚡</span>
+                    <span class="layer__title">The First Clue: a twitch at the wrong time</span>
+                </div>
+                <p>In the waiting room, House catches Dan's leg give a sudden jump. You've felt that jump yourself — that "falling" jolt that yanks you awake just as you're dozing off.</p>
+                <div class="wordbox"><b>myoclonic jerk</b> = the quick, harmless twitch your body makes as you drift toward sleep. House's take in the show: as you fall asleep your breathing slows, the brain briefly misreads it as "uh-oh, the body is dying," and fires off a jolt to wake you up.</div>
+                <div class="house-quote">"It's called a myoclonic jerk, it's very common when you're falling asleep&hellip; the brain interprets this as the body dying, so it sends a pulse to wake it up."<span>— Dr. House</span></div>
+                <p>Here's the clue. That jolt is only supposed to happen as you <i>fall asleep</i>. Dan was wide awake. A brain firing off sleep-jolts in the middle of the day is a brain starting to <strong>lose control of the body</strong>. House admits him to the hospital on the spot.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">📸</span>
+                    <span class="layer__title">Detective Work: the backed-up drain</span>
+                </div>
+                <p>Time to look inside. The team photographs Dan's brain with a <strong>CT scan</strong> and an <strong>MRI</strong> (machines that see through the skull). There's no tumor — and at 16 his brain should look flawless, so they hunt for the <i>tiniest</i> thing out of place.</p>
+                <p>They find it: the bridge (that corpus callosum) is gently <strong>bowed upward</strong>, like a rope being pushed from underneath. Something is pressing on it. But what?</p>
+                <div class="wordbox"><b>brain fluid (CSF)</b> = your brain floats in a cushion of clear water that's always being made and drained, like a slow fountain. If the drain clogs, the water backs up and squeezes the brain from the inside.</div>
+                <div class="house-quote">"There's no tumor, just a blockage causing pressure, causing symptoms."<span>— Dr. House</span></div>
+                <p>Surgeons install a <em>shunt</em> to let the trapped fluid out.</p>
+                <div class="wordbox"><b>shunt</b> = a thin drainpipe doctors place in the brain to carry off extra fluid and take the pressure down.</div>
+                <p>The shunt eases the pressure — but that only treats a <strong>symptom</strong>. It doesn't answer the real question: what started the whole mess?</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">Wrong Turn #1: the MS scare</span>
+                </div>
+                <p>To read what's happening up in the brain, the team does a <em>spinal tap</em>.</p>
+                <div class="wordbox"><b>lumbar puncture</b> ("spinal tap") = a needle in the lower back borrows a small sample of that brain-and-spine fluid. It's a window into what's going on in the brain without opening the skull.</div>
+                <p>The fluid comes back with a worrying signature: <strong>oligoclonal bands</strong>.</p>
+                <div class="wordbox"><b>oligoclonal bands</b> = think of them as <b>fingerprints</b> the body's defense system leaves behind when it has been fighting something inside the brain. The most famous disease that leaves these prints is <b>multiple sclerosis</b>.</div>
+                <div class="wordbox"><b>multiple sclerosis (MS)</b> = a disease where the body's own defenders attack the brain by mistake, chewing the <i>insulation</i> off its electrical wiring so the signals short out. It has no cure.</div>
+                <p>For a few awful hours, the team is convinced Dan has a fast, vicious form of MS — basically a death sentence for a 16-year-old.</p>
+                <div class="house-quote">"Which means multiple sclerosis&hellip; if it is, it's gone from 0 to 60 in three weeks, which would indicate rapidly progressive MS."<span>— Dr. House</span></div>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">🚪</span>
+                    <span class="layer__title">Wrong Turn #2: it isn't MS at all</span>
+                </div>
+                <p>Then Dan does something that MS simply can't explain. He's found on the hospital <strong>roof</strong>, calmly convinced he's standing on his lacrosse field — wide awake, but totally confused about where he is.</p>
+                <div class="wordbox"><b>confusional state</b> = suddenly losing track of where you are or what's real, <i>while fully awake</i>. (MS damages the brain's wiring; it doesn't usually make you mistake a rooftop for a sports field.)</div>
+                <p>That detail flips the whole case. This isn't wiring slowly rotting away — something is <strong>actively attacking</strong> Dan's brain.</p>
+                <div class="house-quote">"He has an infection in his brain."<span>— Dr. House</span></div>
+                <p>House's next suspect is <em>neurosyphilis</em> — an infection that, left untreated, can slowly spread to the brain. They give Dan the germ-killing medicine <strong>penicillin</strong>, dripped right into his spinal fluid through a spinal tap — safe to do at full strength only because the shunt has already taken the brain pressure down. It does nothing. One by one, House crosses every ordinary category off the board — and lands right back at square one. The team is out of normal answers.</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": a lie in the family tree</span>
+                </div>
+                <p>House keeps poking at the one thing nobody else cares about — the <strong>family history</strong>. On a hunch, he makes a $50 bet with his team that Dan's dad isn't really Dan's biological father, and secretly tests the parents' DNA off their coffee cups (the cups in the show are labeled "Mommy" and "Daddy???").</p>
+                <p>He's right — and it's bigger than a bet. <strong>Dan was adopted, and his parents never told him.</strong> Which means every "family medical history" they'd carefully given the doctors was about <i>strangers'</i> genes. Useless.</p>
+                <div class="house-quote">"Did you think we were looking for a genetic clue to his condition, or did you think we were trying to ascertain who loves him the most in the whole wide world?"<span>— Dr. House</span></div>
+                <p>And that unlocks the single question that cracks the case. House turns to the parents and asks something that sounds completely out of left field: was Dan's <strong>biological mother</strong> vaccinated when <i>she</i> was a child?</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what's been hiding in Dan's brain? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🦠 <strong>Measles.</strong> A virus he caught as a baby — that quietly hid in his brain for 16 years.</div>
+                </div>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">🦠</span>
+                    <span class="layer__title">The Real Culprit: a 16-year time bomb</span>
+                </div>
+                <p>Here's the whole story, slowly. Every baby is born with <strong>borrowed</strong> protection.</p>
+                <div class="wordbox"><b>antibodies</b> = the body's trained guard dogs — each kind recognizes one specific germ and attacks it. A newborn hasn't built its own yet, so for the first months of life it <i>borrows</i> its mother's, passed across before birth.</div>
+                <p>That's the clue behind House's strange question. A baby can only borrow guard dogs its mother actually <strong>owns</strong>. If Dan's biological mom was never immune to measles — never caught it, never got the shot — then baby Dan borrowed <strong>no measles protection at all.</strong> He was wide open. And catching measles as a tiny baby is exactly when the rare, terrible thing can happen.</p>
+                <div class="wordbox"><b>measles</b> = an extremely contagious virus. Most people who catch it get a blotchy rash and a high fever, feel miserable for a week or two, and then recover — but measles isn't always harmless; on its own it can make some people dangerously sick.</div>
+                <p>Most people recover. But in a rare few, the virus does something far stranger — here's the path House lays out:</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">🤱</span><span class="cap">Birth mom isn't immune → baby Dan borrows no measles guards</span></div>
+                    <div class="step"><span class="ico">🦠</span><span class="cap">As a baby, Dan catches measles — rash &amp; high fever</span></div>
+                    <div class="step"><span class="ico">🙂</span><span class="cap">He recovers; everyone thinks it's over</span></div>
+                    <div class="step"><span class="ico">🕳️</span><span class="cap">But a few viruses slip into his brain &amp; hide, slowly changing</span></div>
+                    <div class="step"><span class="ico">🕰️</span><span class="cap">They simmer quietly for ~16 years</span></div>
+                    <div class="step"><span class="ico">🧠</span><span class="cap">The slow damage finally shows — the brain starts to break</span></div>
+                </div>
+                <div class="house-quote">"An infant picks up a regular old measles virus&hellip; he lives. Here's the kicker — once every million or so times, the virus&hellip; travels to his brain and hides like a time bomb. In this case, for 16 years."<span>— Dr. House</span></div>
+                <p>The name for this rare disaster is a monster of a word. Let's break it into pieces:</p>
+                <div class="wordbox"><b>SSPE</b> = <b>subacute sclerosing panencephalitis</b>. &nbsp;<i>subacute</i> = slow and sneaky. &nbsp;<i>sclerosing</i> = scarring. &nbsp;<i>pan-encephalitis</i> = inflammation of the <i>whole</i> brain. &nbsp;Put together: <b>a slow, scarring fire spreading across the entire brain</b> — lit by a measles infection years earlier.</div>
+                <p>It is staggeringly rare — in the show House notes only about <strong>20 cases in the United States in 30 years</strong>. But once it reaches its later stage, it is, in his words, "universally fatal." Those twitches, the night terrors, the rooftop confusion — that was Dan's brain slowly breaking down.</p>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Fix — and a hard truth</span>
+                </div>
+                <p>In the episode, the team fights back by dripping an immune-boosting medicine called <strong>interferon</strong> straight into Dan's brain, and the final scene shows him back out on the lacrosse field.</p>
+                <div class="wordbox"><b>interferon</b> = a natural alarm signal your body uses to rally its defenses against viruses. Doctors can give it as a medicine to try to help the body fight back.</div>
+                <p>Here's where we owe you the truth. Unlike the Pilot's brain-worm — which was scary but <i>curable</i> — SSPE is one of the genuinely frightening ones. In real life there is <strong>no reliable cure</strong>. Doctors can sometimes <i>slow</i> it with interferon and antiviral drugs, but most cases keep getting worse. The show hands Dan a hopeful ending; real medicine usually can't.</p>
+                <p>Which is exactly why the last card matters more than any treatment.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">💉</span>
+                    <span class="layer__title">The Real Lesson: this was preventable</span>
+                </div>
+                <p>Remember those <strong>borrowed guard dogs</strong>? In real life, mom's borrowed protection usually fades by about a baby's first <strong>6 months</strong> — but the measles shot (the <strong>vaccine</strong>) isn't given until around a child's <strong>first birthday</strong>. That in-between stretch, with no protection from either side, is the dangerous window.</p>
+                <div class="wordbox"><b>vaccine</b> = a harmless "wanted poster." It shows your body's guards a safe mugshot of a germ, so they can recognize and crush the real thing instantly — without you ever having to get sick first. It's how a child grows its <i>own</i> guard dogs.</div>
+                <p>The vaccine closes that window for good — and it's also why everyone <em>around</em> a baby getting vaccinated matters, since an infant too young for the shot is counting on the rest of us not to be spreading measles.</p>
+                <p>In the episode, House spends his clinic hours bluntly badgering a mother who won't vaccinate her baby, hammering on just how deadly measles can be for an unprotected child. The show pairs that rant with Dan's case on purpose. Dan's <strong>biological mother</strong> was apparently never immune to measles, so she had no guard dogs to lend her newborn — and baby Dan caught measles wide open, in the months when it's most dangerous. He's the rare, real-life cost of skipping the shot. Had his birth mother been protected, this story very likely never happens.</p>
+                <div class="goodnews">
+                    <p>Here's the hopeful part, and it's the whole point of the episode. Measles — and the rare, deadly <b>SSPE</b> that can trail behind it years later — is almost entirely <b>preventable</b>. The measles vaccine is one of the most tested, safest medicines we have. Dan's story is the rare, heartbreaking version of the disaster that vaccines quietly prevent millions of times over.</p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: "Everybody lies" (again)</h2>
+                <p>Just like the Pilot, this whole case turned on a lie — a gentle, well-meaning one. Dan's parents hid that he was adopted, so the family history pointed at the wrong genes and very nearly cost Dan the diagnosis. House's golden rule held up: trust the <strong>evidence</strong> (the DNA) over what even kind, loving people tell you.</p>
+                <p class="reality">Real-world note: SSPE is real, and really is rare — especially anywhere measles vaccination is common. It's most likely after measles caught in the first couple years of life, and it can hide for years before it strikes. (And real doctors are far kinder — and far less likely to swipe your coffee cup for a secret DNA test — than House.)</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
