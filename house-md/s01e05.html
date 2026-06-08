@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Nun Whose Heart Stopped Over a Rash · House M.D. S01E05 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'Damned If You Do' — how a hidden piece of copper inside a nun's body made her allergic to herself — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the copper allergy's path — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 5 · "Damned If You Do"</div>
+                <h1>The Nun Whose Heart Stopped Over a Rash</h1>
+                <p class="lede">A nun walks into the clinic with a simple rash on her hands. The doctor gives her an allergy pill — and minutes later her <strong>heart stops</strong>. Everyone blames the doctor. House is sure he did nothing wrong. To prove it, he has to answer two questions at once: <strong>what made a routine shot deadly</strong>, and <strong>what is really wrong with her</strong> — a thing so well hidden it's been with her for twenty years.</p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🚑</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Sister Augustine</strong>, a nun. She comes to the hospital clinic with the most boring problem there is: a sore, cracked <strong>rash on her hands</strong>. House takes one look, says it's just an allergy to dish soap, and hands her an everyday <strong>allergy pill</strong>. Easy. He's practically out the door.</p>
+                <p>Then it all goes wrong, fast. The nun suddenly can't breathe — an <strong>asthma attack</strong>. House grabs a syringe and gives her a shot of <em>adrenaline</em> (its medical name is <strong>epinephrine</strong>) to open her lungs, the standard rescue move. It works on her lungs... and then her <strong>heart stops beating entirely.</strong> A woman who walked in with a hand rash is now getting her chest pounded on the clinic floor.</p>
+                <div class="house-quote">CUDDY: "You diagnosed the patient with allergies, prescribed antihistamine, she went into respiratory distress, and you injected her with epinephrine." <span>— House M.D.</span></div>
+                <p>Now House has <strong>two</strong> mysteries tangled together, and his career riding on both. <strong>One:</strong> how can a tiny, standard shot of adrenaline stop a healthy heart? (His boss, Dr. Cuddy, is sure he simply gave too much — that he made a deadly mistake.) <strong>Two:</strong> what kind of "rash" nearly kills a person? Something much bigger is hiding underneath.</p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🛡️</span>
+                    <span class="layer__title">Body Basics: what an allergy really is</span>
+                </div>
+                <p>Your body has a built-in army that fights off germs — your <strong>immune system</strong>. Usually it's a hero. But sometimes it makes a terrible mistake: it looks at something completely <strong>harmless</strong> — pollen, a peanut, dish soap — screams "ENEMY!", and attacks it with everything it's got. That overreaction <i>is</i> an allergy. The damage you feel — the rash, the swelling, the wheezing — isn't from the harmless thing. It's friendly fire from your own army.</p>
+                <div class="wordbox"><b>allergy</b> = your immune army attacking something harmless as if it were a deadly invader. &nbsp;<b>allergen</b> = the harmless thing it's overreacting to (the pollen, the peanut, the soap). &nbsp;<b>antihistamine</b> = the everyday allergy pill (House's first move) that tells the army to calm down.</div>
+                <p>Now two facts to tuck away, because the whole case turns on them.</p>
+                <p><strong>Fact one:</strong> you can use something for <i>years</i> and then suddenly become allergic to it. Your body can decide a long-familiar thing is the enemy out of nowhere. House says exactly this in the clinic:</p>
+                <div class="house-quote">"A person can become allergic to substances that they've had repeated and prolonged exposure to."<span>— Dr. House</span></div>
+                <p><strong>Fact two:</strong> an allergen is almost always something <strong>outside</strong> you — something you touch, breathe, or eat. That's the rule everyone assumes. Remember it, because this case is the strange exception that breaks it.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🔍</span>
+                    <span class="layer__title">The First Clue: a rash that won't quit</span>
+                </div>
+                <p>House's first guess is the boring, sensible one: <em>contact dermatitis</em>.</p>
+                <div class="wordbox"><b>contact dermatitis</b> = a rash where something irritating <i>touches</i> the skin (think poison ivy, or the itchy red mark a cheap metal ring or earring can leave). It stays where the thing touched, and it fades once you stop touching it.</div>
+                <p>But Sister Augustine's rash doesn't behave. It <strong>doesn't fade</strong> when she stops doing dishes. And worse, it doesn't stay put — it <strong>escalates</strong>, climbing from a skin rash to real breathing trouble and dragging more and more of her body in. A normal allergy is a local nuisance; it doesn't keep marching deeper like this, getting more dangerous the longer it goes.</p>
+                <p>That escalation is the real clue. Whatever is making her sick isn't a passing brush with soap. It's something steady, something her body can't get away from — something that's <strong>still there</strong>, driving the reaction hotter and hotter. The team just has no idea what.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">⚖️</span>
+                    <span class="layer__title">Wrong Turn #1: was it the doctor's fault?</span>
+                </div>
+                <p>Back to the first mystery: the stopped heart. Cuddy's explanation is simple and damning — House gave <strong>too much</strong> adrenaline, and that's what stopped it. If she's right, he nearly killed a patient.</p>
+                <div class="wordbox"><b>adrenaline</b> (the drug name is <b>epinephrine</b>) = your body's "emergency gas pedal." A tiny shot floors it: heart faster, lungs wide open. It's a standard rescue for an asthma attack — and at the normal dose, it's safe. House swears he gave that normal, tiny dose.</div>
+                <p>So how can a safe dose stop a heart? House finds the hidden answer in something nobody thought to ask about: the nun's <strong>tea</strong>. Sister Augustine drinks a homemade herbal tea every single day — <em>figwort tea</em>.</p>
+                <div class="wordbox"><b>figwort</b> = a plant brewed into herbal tea. Here's the catch: figwort is a close cousin of <b>foxglove</b>, the plant we get powerful heart drugs from. Figwort quietly <b>revs the heart</b> too. "Natural" does not mean "gentle."</div>
+                <p>Picture her heart as an engine. The daily figwort tea had been quietly <strong>flooring the gas pedal</strong> for weeks — engine already screaming. Then House gave a standard shot of adrenaline, which <i>also</i> floors the gas pedal. Two gas pedals at once, no brakes. The engine didn't speed up — it <strong>blew</strong>. Cardiac arrest.</p>
+                <div class="house-quote">"It's figwort tea... Opens the lungs, increases the blood pressure, stimulates the heart. Unfortunately, if you then get injected with even 0.1 cc of epinephrine: instant cardiac arrest."<span>— Dr. House</span></div>
+                <p>House didn't overdose her. A secret ingredient did. Mystery one: solved. But notice — the tea explains the <i>stopped heart</i>, and nothing else. The bigger illness, the one driving the rash, is still completely open.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">🧫</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>So what's the underlying disease? The team draws up its suspect list — the <em>differential diagnosis</em> — and reaches for big, rare names: things where the immune system goes haywire and attacks the body itself.</p>
+                <div class="wordbox"><b>differential diagnosis</b> = the suspect list — every disease that could fit, crossed off one by one as tests come back. &nbsp;<b>vasculitis</b> = "vessel" + <b>-itis</b> (that ending means "inflamed / swollen"). So vasculitis = inflamed, angry blood vessels.</div>
+                <p>House floats one called <strong>Churg-Strauss vasculitis</strong> — a condition that inflames the blood vessels of the skin, lungs, and heart all at once, which would tidily explain the rash, the asthma, and the heart trouble together. It's a clever guess. It fits the picture beautifully.</p>
+                <p>It's also <strong>wrong</strong>. The blood tests that should light up for these diseases come back normal, one after another. Every fancy suspect has an alibi. The team is throwing the heaviest names in medicine at this woman and the case just keeps shrugging them off. They're missing something simpler — and much better hidden.</p>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">Wrong Turn #2: the cure that bit back</span>
+                </div>
+                <p>While they hunt, the nun is getting sicker, so House treats her overreacting immune system the usual way: with a <strong>steroid</strong> called prednisone.</p>
+                <div class="wordbox"><b>steroid</b> (like prednisone) = a powerful medicine that tells the immune army to <b>stand down</b>. Great for calming an allergy or swelling — but a stood-down army stops guarding the gates.</div>
+                <p>And that's the trap. Quiet the immune system, and the germs it was quietly holding back can break loose. A virus that had been sleeping harmlessly inside her woke up and infected her <strong>brain</strong> — <em>encephalitis</em>.</p>
+                <div class="wordbox"><b>encephalitis</b> = inflammation of the brain (there's that <b>-itis</b> again), here caused by a virus the calmed-down immune system could no longer keep in check.</div>
+                <p>This is the heart of the episode's title. Give the steroid → you risk waking a sleeping infection. Don't give it → her allergy rages on and kills her. Every door has a trap behind it. <strong>Damned if you do, damned if you don't.</strong> So House switches to a treatment that <i>doesn't</i> shut down her defenses — a <strong>high-pressure oxygen room</strong> — to buy time while he keeps hunting for the real culprit. But hold onto this, because even <i>that</i> door has a trap: breathing pure oxygen at high pressure is only safe in short bursts — run it too long and the oxygen itself starts to harm the lungs and eyes. (That trap snaps shut in the very last card.)</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">🧼</span>
+                    <span class="layer__title">Detective Work: the clean room</span>
+                </div>
+                <p>Here's the cleverest test in the whole episode, and you already have everything you need to see why it's brilliant. Remember the rule from card 2: an allergen is almost always something <strong>outside</strong> you. So the team puts Sister Augustine in a <strong>clean room</strong>.</p>
+                <div class="wordbox"><b>clean room</b> = a sealed, stripped-bare room — no soap, no latex, no dust, no perfume, nothing from the outside world that could possibly be an allergen. If your allergy is to something out there, a clean room is where it finally stops.</div>
+                <p>The logic is a trap snapping shut: take away the <i>entire outside world</i>, and if she's allergic to something out there, she has to get better. There's nothing left to react to.</p>
+                <p>Except she <strong>doesn't</strong> get better. Sealed away from everything, she keeps reacting — just as badly as before.</p>
+                <p>Sit with how strange that is. We removed every possible outside allergen, and the allergy didn't even blink. There's only one explanation left, and it's the one nobody considered: the thing she's allergic to <strong>isn't in the outside world at all.</strong> You can't take it out of the room... because it's not in the room.</p>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": look inside her</span>
+                </div>
+                <p>House says the line that flips the whole case around:</p>
+                <div class="house-quote">"We looked everywhere for an allergen that could be causing this reaction except one place: inside her."<span>— Dr. House</span></div>
+                <p>It's the rule from card 2, broken on purpose. The allergen isn't something touching her from outside — it's a physical <strong>thing inside her body</strong>, sitting there, leaking whatever it is she can't tolerate into her blood day after day. That's why the rash never quit, why no clean room helped, why the reaction kept climbing: the source was sealed in where no one could see it or take it away.</p>
+                <p>But what could be buried inside a nun? The clue was in a past she'd kept hidden — a life before the convent that included an old <strong>surgery</strong> she never mentioned to any doctor, one that never happened in a hospital and left no records. House orders a scan of her <strong>entire body</strong>, looking for something that shouldn't be there.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what did the scan find hidden inside her? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🔩 A small piece of <strong>copper</strong> — a forgotten birth-control device, buried in her body for about twenty years. She's allergic to the metal itself.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🩺</span>
+                    <span class="layer__title">The Real Culprit: allergic to a hidden piece of metal</span>
+                </div>
+                <p>The scan finds a tiny device tucked deep inside her: a <strong>copper IUD</strong>.</p>
+                <div class="wordbox"><b>IUD</b> (intrauterine device) = a small object a doctor places inside the womb to prevent pregnancy. One common kind is made of <b>copper</b> — the same metal as a penny.</div>
+                <p>Here's her hidden story. As a teenager — long before she became a nun — she'd had one of these copper devices placed. It was supposed to be removed; instead it got <strong>left behind</strong>, and over the years her body grew tissue around it until it was completely buried and forgotten. For roughly <strong>twenty years</strong>, a little piece of copper has been sitting inside her, slowly leaking microscopic amounts of the metal into her bloodstream.</p>
+                <p>And the final piece: <strong>she is allergic to copper.</strong> That sounds exotic, but metal allergy is one of the most ordinary allergies there is — think of cheap earrings or a belt buckle that leaves an itchy red mark. (That's usually <i>nickel</i>; copper is its rarer cousin, but the idea is identical.) Her immune army treats copper as an enemy — and there was an endless supply of it leaking out of the buried device, carried by her blood to every corner of her body.</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">🔩</span><span class="cap">Copper device buried in her body</span></div>
+                    <div class="step"><span class="ico">💧</span><span class="cap">It slowly leaks copper into her blood</span></div>
+                    <div class="step"><span class="ico">🩸</span><span class="cap">Blood carries the copper everywhere</span></div>
+                    <div class="step"><span class="ico">🛡️</span><span class="cap">Her immune army attacks it as an "enemy"</span></div>
+                    <div class="step"><span class="ico">🔥</span><span class="cap">A whole-body allergic reaction that never stops</span></div>
+                </div>
+                <p>Now everything fits. The clean room never helped because the allergen was <i>inside</i> her the whole time. The reaction kept getting worse because the copper never stopped leaking — it was a tiny dose of the enemy, every hour, for two decades. As House put it, an allergy left to smolder that long stops being a little rash and grows into something that breaks the whole body down.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Fix &amp; the Verdict</span>
+                </div>
+                <p>The cure is almost absurdly simple once you know the answer: <strong>take the copper out.</strong> Remove the buried device and you remove the allergen — there's nothing left for her body to fight. The doctors operate, and Sister Augustine bounces right back: kidneys working, heartbeat steady, the twenty-year storm finally over.</p>
+                <p>And the verdict on House? He was <strong>right</strong>. He gave the correct dose of adrenaline — it was the secret figwort tea, not the doctor, that stopped her heart. And the "rash" really was a deadly hidden illness no one else had spotted. He didn't screw up.</p>
+                <div class="house-quote">WILSON: "You screwed up." HOUSE: "I gave her 0.1 cc of epinephrine." WILSON: "Yeah, and if Cuddy hadn't taken you off the case, you would have killed her."<span>— House M.D.</span></div>
+                <p>That's the sting in the tail. House was right about the dose — but remember the trap from card 6: his high-pressure oxygen room, run long enough, would have <strong>poisoned her</strong> too. Being pulled off the case is part of what saved her. He was right <i>and</i> wrong at the same time. Damned if you do, damned if you don't — even when you win.</p>
+                <div class="goodnews">
+                    <p>Here's the good news buried in a thorny episode. A woman who'd nearly died of a "rash," who'd half decided to stop fighting and go home, walked out healthy — because one stubborn doctor refused to accept that there was no reason. The answer had been hiding inside her for twenty years, and naming it took everything off her at once: the allergy, the danger, the mystery. Sometimes the cure really is just <b>removing the thing that never belonged there.</b></p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: "Damned If You Do"</h2>
+                <p>It's a Christmas episode, and underneath the medicine it's a quiet argument between <strong>faith and evidence</strong>. The nun believes her illness is a test from God, and that she should accept whatever comes. House believes something else entirely:</p>
+                <p style="border-left:2px solid var(--warm); padding-left:16px; font-style:italic; color:var(--text-primary);">"Sometimes patients die against all reason." — "No, they don't. We just don't know the reason."</p>
+                <p>That's the engine of the whole show in one line. House refuses to accept "it just happened." He's sure there's always a cause, however well hidden — and his refusal to give up is exactly what dug a forgotten piece of copper out of a body where it had hidden for twenty years. The title cuts both ways: every choice in this case had a bad side, and even being <i>right</i> came tangled up with being wrong.</p>
+                <p class="reality">Real-world note: being allergic to a copper IUD is real, but rare — and in real life it's a slow, stubborn rash or hives that clears up once the device is removed, not the explosive, heart-stopping emergency the show stages for drama (that part was the figwort tea plus a lot of TV). Figwort really does contain heart-stimulating compounds, like its cousin foxglove — a good reminder that "herbal" and "natural" can still be powerful drugs that clash dangerously with medicines, so doctors really do need to know every tea you drink. The copper devices House mentions were real and really were pulled from the U.S. market in the 1980s. As always, the show speeds everything up and makes House far ruder than any real doctor — a real diagnosis takes longer, and a lot more kindness.</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
