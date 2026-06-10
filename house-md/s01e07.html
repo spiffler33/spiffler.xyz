@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Woman Who Couldn't Stay Awake · House M.D. S01E07 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'Fidelity' — how a young woman caught an African brain parasite without ever leaving the country, and why finding the answer meant uncovering a secret — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the parasite's path into her brain — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 7 · "Fidelity"</div>
+                <h1>The Woman Who Couldn't Stay Awake</h1>
+                <p class="lede">A young preschool teacher named <strong>Elise</strong> starts sleeping eighteen hours a day. She's feverish, itchy, getting strangely irritable — and slowly slipping toward a coma. A whole parade of doctors can't crack it. House recognizes the answer almost at once: it's a <strong>parasite that lives in Africa</strong> — except Elise has <strong>never left the country</strong>. So how did an African disease get inside her? The answer turns out to be the kind of secret that ends a marriage.</p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🚑</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Elise</strong>, a healthy young woman with a husband, Ed, who barely leaves her side. Then something strange starts happening: she can't stay awake. She's sleeping <strong>eighteen hours a day</strong> — not tired-after-a-long-week sleeping, but sleeping like she's being pulled under. Along with it comes a low <strong>fever</strong>, a creeping <strong>irritability</strong> that isn't like her, and a maddening <strong>itch</strong> she scratches at until her skin is raw.</p>
+                <p>By the time she reaches House's hospital, a small army has already given up on her: three ER doctors, two brain specialists, and a scan-reader, all of whom figured out what she <i>doesn't</i> have without ever landing on what she <i>does</i>. The first easy guess — that she's just depressed — falls apart fast, because of one stubborn detail.</p>
+                <div class="house-quote">"She's sick! Dammit, why didn't I think of that?"<span>— Dr. House</span></div>
+                <p>That detail is the <strong>fever</strong>. Sadness doesn't raise your body temperature; an <em>illness</em> does. So Elise isn't blue — she's <strong>sick</strong>, with something busy enough to heat her up, scramble her moods, and switch off her wakefulness. And one fact about her makes the whole thing feel impossible from the start, though nobody yet knows why it matters: <strong>Elise has never been outside the United States.</strong></p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🦠</span>
+                    <span class="layer__title">Body Basics: the third kind of invader</span>
+                </div>
+                <p>When something makes you sick, it's usually a <strong>germ</strong> — and almost everyone can name two kinds. <strong>Bacteria</strong> (tiny living cells, like the ones that cause strep throat) and <strong>viruses</strong> (even tinier, like the cold or the flu). Most illnesses you've ever had came from one of those two.</p>
+                <p>But there's a <strong>third kind</strong> of invader that people forget about, and it's the key to this whole case: a <strong>parasite</strong>.</p>
+                <div class="wordbox"><b>parasite</b> = a living thing that moves into your body and lives off you, taking what it needs to survive while you pay the price. Unlike a virus, many parasites are actual tiny <b>animals</b> — they can swim, hunt, and hide. Think less "germ," more "a creature that has set up house inside you."</div>
+                <p>That distinction matters more than it sounds. A virus is barely alive — basically a set of instructions in a shell. A parasite can be a genuine little <strong>animal</strong>, swimming through your blood, dodging your defenses, even moving from one hiding spot to another when things get dangerous. You're not just infected. You're <em>inhabited</em>. Keep that picture in mind, because the creature in Elise is very good at hiding — and where it chooses to hide is the trick of the entire episode.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🌍</span>
+                    <span class="layer__title">How it normally works: a disease that lives an ocean away</span>
+                </div>
+                <p>There's a famous parasite that does <em>exactly</em> what's happening to Elise — fever, then sleepiness, then a slide into coma. It causes a disease with an almost too-perfect name: <strong>African sleeping sickness</strong>.</p>
+                <div class="wordbox"><b>African sleeping sickness</b> (doctors call it <b>Human African Trypanosomiasis</b>) = a disease caused by a parasite that gets into the blood and eventually the brain, scrambling sleep so badly that patients sleep all day, drift off mid-sentence, and finally fall into a coma. Untreated, it's almost always fatal.</p>
+                <p>The parasite behind it is a single-celled animal called a <strong>trypanosome</strong> — a microscopic swimmer that lashes through your bloodstream like a tadpole. And here's the part that seems to slam the door on this whole idea: these parasites get from person to person almost only one way.</p>
+                <div class="wordbox"><b>trypanosome</b> = the tiny swimming parasite that causes sleeping sickness. &nbsp;<b>tsetse fly</b> = a biting fly found only in parts of sub-Saharan Africa. When it bites an infected person and then bites you, it injects the parasite into your blood. It is, by the rulebook, the <i>only</i> common way to catch this disease — which is why sleeping sickness is an African disease.</div>
+                <p>So now you can feel the wall the other doctors hit. Elise has every symptom of a parasite that lives in African flies. But the tsetse fly doesn't live in New Jersey, and <strong>Elise has never set foot in Africa</strong> — or anywhere outside the country. By every rule of how this disease spreads, she <em>cannot</em> have it. That contradiction is the mystery. The rest of the case is House refusing to accept it.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">🔎</span>
+                    <span class="layer__title">The First Clues: the brain, and the clean blood</span>
+                </div>
+                <p>Two clues point House toward the brain. First, the <strong>sleeping</strong> itself: the dial that controls when you're awake lives in your brain, so something switching it off is meddling up there. Second, the <strong>personality change</strong> — the new irritability. When a person's <i>character</i> shifts along with their body, doctors learn to look at the brain, because that's where "who you are" is wired.</p>
+                <p>So the team goes hunting for an invader in her brain. They draw blood and they take <strong>smears</strong> — smudging a drop of blood (and the fluid around her spine) onto glass and staring at it under a microscope, looking for parasites swimming in it.</p>
+                <div class="wordbox"><b>smear</b> = a drop of blood or other fluid spread thin on a glass slide and examined under a microscope. If a parasite is swimming in the blood, a smear is how you'd catch it in the act — you literally see the little creatures.</div>
+                <p>And here's the wall, in lab form: the smears come back <strong>clean</strong>. No parasites in her blood. No parasites in her spinal fluid. Nothing. By the textbook, that should cross sleeping sickness right off the list — if it were a blood parasite, it'd be <i>in the blood</i>. The clean smear is the second locked door. Brain symptoms screaming "parasite," and a blood test calmly insisting there's no parasite to be found.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">🧫</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>With the exotic answer apparently ruled out, the team builds its suspect list — the <em>differential diagnosis</em> — out of more believable culprits.</p>
+                <div class="wordbox"><b>differential diagnosis</b> = the suspect list: every disease that could fit the symptoms, written down and then crossed off one at a time as the tests come back.</div>
+                <p><strong>A brain tumor.</strong> The obvious fear — but a tumor big enough to do all this would have shown up on her scans, and the only kind that could hide would be too small to be the cause. <strong>Lyme disease</strong> (caught from ticks) can hit the brain — but it starts with a tell-tale rash, and a husband this attentive would have spotted one. Each suspect gets knocked down by a single inconvenient fact.</p>
+                <p>Then a cleverer idea: a <strong>paraneoplastic syndrome</strong> — a mouthful that means a hidden cancer somewhere in the body can trick the immune system into attacking the <i>brain</i> by mistake. Elise's mother died of breast cancer, so maybe Elise has a secret tumor and her own defenses are friendly-firing on her brain. As House puts it, the problem is "the brain, but not the brain." It's a genuinely smart guess. It's also about to send everyone down the wrong road.</p>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">The Wrong Turns (that quietly give it away)</span>
+                </div>
+                <p>To test the hidden-cancer theory, they treat Elise with <strong>IVIG</strong> — basically a flood of borrowed antibodies meant to calm an immune system that's attacking the body by mistake.</p>
+                <div class="wordbox"><b>IVIG</b> = a treatment that pours in a huge dose of protective proteins (antibodies) collected from donated blood. It can settle down an immune system that's misfiring — but it does nothing good if the real problem is a live invader.</div>
+                <p>Elise gets <strong>worse</strong>. And a treatment making a patient worse isn't just bad luck — it's a <em>clue</em>. Calming the immune system only backfires like this if there's something in there the immune system was right to fight. In other words: the worsening whispers <strong>infection</strong>. There's a living thing in her, and they just took the guards off duty.</p>
+                <p>Out of safer options, the team gambles on a different infection — <strong>tularemia</strong>, a rare bacterial disease — and starts a strong antibiotic (chloramphenicol). Elise responds by crashing into a <strong>coma</strong>. House reads it instantly:</p>
+                <div class="house-quote">"There's only one way a Tularemia patient goes into a coma while on IV-Chloramphenicol... the patient doesn't have Tularemia."<span>— Dr. House &amp; Dr. Cameron</span></div>
+                <p>Every wrong turn has been quietly crossing names off the list. Not cancer. Not tularemia. What's left is the one answer everybody threw out in the first five minutes — the African parasite that supposedly can't be here. House circles back to it. He just has to explain two impossible things: why her blood is clean, and how she caught Africa without leaving home.</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">🔍</span>
+                    <span class="layer__title">Detective Work: where the parasite is hiding</span>
+                </div>
+                <p>The first locked door — the clean blood — turns out to have a simple, chilling answer. Sleeping sickness happens in <strong>two stages</strong>, and Elise is in the late one.</p>
+                <p>In the <strong>early stage</strong>, the parasites swim in the blood, multiplying — and <i>that's</i> when a smear would catch them red-handed. But if it goes untreated, the parasites do something terrible: they <strong>cross into the brain</strong> and set up there, leaving the bloodstream behind. So in the <strong>late stage</strong>, you can take all the blood smears you like and see nothing — because the creatures aren't in the blood anymore. They've moved into the one place the test wasn't looking.</p>
+                <div class="wordbox"><b>the two stages</b> = early on, the parasites live in the blood (a smear can find them). Later, they migrate into the brain (the blood goes quiet, but the patient gets much sicker). A clean smear in a very sick patient doesn't mean "no parasite" — it can mean "the parasite already moved upstairs."</div>
+                <p>Suddenly everything fits. Brain symptoms? The parasites are <i>in</i> her brain. Clean blood? They've already left it. The sleeping, the personality change, the slide toward coma — all of it is the late stage of sleeping sickness, hiding in plain sight behind a normal blood test. House is now sure <em>what</em> she has. Which leaves only the truly impossible part: <strong>how</strong>.</p>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": how do you catch Africa without going there?</span>
+                </div>
+                <p>This is the leap the whole episode is built on. If Elise has a parasite that only spreads through African flies, and she's never been near one, then someone must have handed it to her directly — body to body. House says the quiet part out loud:</p>
+                <div class="house-quote">"Anything that can be transmitted via the blood can be transmitted through sex."<span>— Dr. House</span></div>
+                <p>The parasite lives in the blood. Sex can pass things from one person's blood to another's. So the parasite didn't need a fly — it needed a <strong>person</strong>: someone who <i>had</i> been to Africa, carried the parasite home, and passed it to Elise. And here's the gut-punch hidden inside the diagnosis: Elise is married, and her devoted husband has never been to Africa. For House to be right, Elise must have had <strong>an affair</strong> — with someone who had.</p>
+                <p>Read that again. The diagnosis <i>is</i> the secret. You can't name her disease without naming a betrayal. That's why the episode is called "Fidelity" — faithfulness — and why House isn't just being nosy when he starts demanding a name. He needs to know <strong>who</strong>, for a coldly practical reason as well as the obvious one.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what was the disease — and how did she get it? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🪰 <strong>African sleeping sickness</strong>, in its late stage with the parasites already in her brain — caught not from a fly, but <strong>sexually, from an affair partner who had been to Africa.</strong> The diagnosis and the secret are the same fact.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🩺</span>
+                    <span class="layer__title">The Real Culprit: the parasite that steals your sleep</span>
+                </div>
+                <p>Here's the full story of what's been happening inside Elise. Somewhere far away, a <strong>tsetse fly</strong> bit an infected person and picked up the <strong>trypanosome</strong> parasite. It bit Elise's lover and passed the parasite into his blood. He carried it home — feeling fine, or nearly so — and through sex, it crossed into <strong>Elise</strong>.</p>
+                <p>For a while it swam in her blood, multiplying quietly. Then it made the jump that defines the late stage: it slipped into her <strong>brain</strong>. And once there, it went to work on the one system that gives the disease its name — the brain's <strong>sleep clock</strong>, the internal timer that decides when you're awake and when you rest. The parasite scrambles it completely, which is why Elise sleeps eighteen hours a day, can't think straight, turns irritable, and — if no one stops it — drifts into a coma she never wakes from.</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">🪰</span><span class="cap">A tsetse fly in Africa carries the parasite</span></div>
+                    <div class="step"><span class="ico">✈️</span><span class="cap">It infects a traveler, who carries it home</span></div>
+                    <div class="step"><span class="ico">❤️</span><span class="cap">Passed to Elise through the affair</span></div>
+                    <div class="step"><span class="ico">🩸</span><span class="cap">Swims in her blood (the early days, when a smear could still catch it)</span></div>
+                    <div class="step"><span class="ico">🧠</span><span class="cap">Crosses into her brain → scrambles her sleep (now the blood goes quiet, so the smear looks clean)</span></div>
+                </div>
+                <p>And there's the reason House keeps pushing so hard for the affair partner's name, even as Elise lies dying and her husband begs him to stop. It isn't only to be sure of the diagnosis. That man is <strong>infected too</strong> — walking around with the same parasite quietly climbing toward his own brain, and he doesn't know it. Finding him isn't gossip. It's the only way to save his life before he reaches the same coma.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Fix &amp; the Cost</span>
+                </div>
+                <p>The cure is almost as frightening as the disease. To kill a parasite that's dug into the brain, doctors reach for one of the harshest medicines in the cabinet: <strong>melarsoprol</strong>, a drug built around <strong>arsenic</strong> — yes, the classic poison.</p>
+                <div class="wordbox"><b>melarsoprol</b> = an arsenic-based drug strong enough to follow the parasite into the brain and kill it. It's so caustic it's given through special tubing, and patients nicknamed it "fire in the veins." It can <i>kill the patient on its own</i> — the show puts the odds at about one in ten. You only accept that gamble because untreated sleeping sickness kills almost everyone.</div>
+                <p>So they take the gamble — and Elise <strong>survives</strong> it. When she crashes into a coma, House has her husband Ed do the one thing that might reach her: stand at her bedside and beg her not to die. She comes back. The poison-cure works. The parasite loses.</p>
+                <p>And then the other bill comes due. Awake and alive, Elise tells Ed the truth she'd been hiding — there <i>was</i> an affair. And Ed, who never left her side through all of it, <strong>walks out.</strong> "She couldn't have done what she did if she loved him," is how he sees it. The cruelest twist lands last: the man Elise slept with was Ed's own friend — his running partner — who has a wife and a young son of his own. The parasite, and the betrayal, both quietly spreading outward.</p>
+                <div class="goodnews">
+                    <p>So this one doesn't end with a hug — but the medicine still wins. Elise was hours from a coma she'd never have woken from, and she <b>lived.</b> The deeper lesson is the one House lives by: a patient's secret isn't his business for fun — sometimes the hidden truth <i>is</i> the diagnosis, and dragging it into the light is the only thing that saves a life. Here it saved two: Elise's, and the unsuspecting man who'd have died next.</p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: "Fidelity"</h2>
+                <p>Most House episodes lean on his favorite motto — <strong>everybody lies</strong> — as a quirk. This one makes it the whole machine. The lie isn't a detail that slows the diagnosis down; the lie <i>is</i> the diagnosis. You genuinely cannot name what's killing Elise without uncovering who she was unfaithful with. Truth and cure are the same act.</p>
+                <div class="house-quote">"I don't ask why patients lie. I just assume they all do."<span>— Dr. House</span></div>
+                <p>And the title quietly rhymes all the way through the hour. Elise's affair is the obvious one. But Wilson spends the episode having lunch with a nurse he insists is "just a friend" while House needles him about his wandering eye; Cameron breaks down because, years ago, she married a man she knew was dying and stayed faithful to him to the end; and even the comic side-story — a husband secretly stirring his blood-pressure pills into his wife's morning oatmeal so he won't have to be intimate with her — is one more marriage running on a quiet deception. Four couples, four very different tests of faithfulness, all in one episode named for it.</p>
+                <p class="reality">Real-world note: African sleeping sickness is real, and as nasty as the show says — a parasite called a trypanosome, normally spread by the bite of the tsetse fly in sub-Saharan Africa, that invades the brain and is nearly 100% fatal if untreated. The two-stage story (blood first, brain later, so a late blood smear can look clean) is real, and so is melarsoprol — a genuinely arsenic-based drug so toxic it kills a small share of the patients it's trying to cure (in reality more like a few in a hundred than the show's one in ten, but horrifying either way). The big dramatic liberty is the <i>sexual</i> transmission: in real life the fly is overwhelmingly the route, and person-to-person spread through sex is vanishingly rare — only a handful of cases have ever been documented. Strikingly, the episode is built on a true one: in 2003 doctors reported a woman in the West who'd never been to Africa, infected through a partner who had served in Angola — and her toddler caught it too. One last bit of good news the show couldn't include: since this episode aired in 2004, medicine has found far gentler cures, including a pill (fexinidazole, 2019) — so the arsenic gamble is no longer the only way to win.</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
