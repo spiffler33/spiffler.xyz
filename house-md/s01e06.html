@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Woman Everyone Called Crazy · House M.D. S01E06 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'The Socratic Method' — how copper her body couldn't get rid of poisoned a woman everyone called crazy, and how pulling it out gave her mind back — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the copper's path through her body — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 6 · "The Socratic Method"</div>
+                <h1>The Woman Everyone Called Crazy</h1>
+                <p class="lede">For years, doctors looked at Lucy and saw one word on her chart: <strong>schizophrenic</strong>. Crazy. Case closed. Then she shows up with a <strong>blood clot</strong> in her leg — and she's twenty years too young to have one. House notices something nobody else will even consider: maybe the thing wrong with her <strong>body</strong> and the thing "wrong with her mind" are the <strong>same hidden thing</strong> — and maybe it can be fixed.</p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🚑</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Lucy</strong>, 38 years old. She's a mom, and for years she's been treated as a <strong>schizophrenic</strong> — someone whose mind plays tricks on her. Her teenage son, Luke, has basically been taking care of her. Everyone who meets Lucy files her under the same label: <em>crazy</em>. And once that label is on you, people stop really looking.</p>
+                <p>Then Lucy turns up at the hospital with a hard, painful lump in her leg. It's a <strong>blood clot</strong> — a plug of blood that's formed where it shouldn't, deep inside a vein. That alone is scary (a clot like this can break loose and shoot up to the lungs). But here's what catches House's eye: people her age, with her clean health history, <strong>don't just get these clots.</strong> She's about twenty years too young, with none of the usual reasons.</p>
+                <div class="house-quote">"Thirty-eight-year-old woman with no previous symptoms or history presents with deep vein thrombosis — how did she get it?"<span>— Dr. House</span></div>
+                <p>And there's a second strange thing, the opposite of the first: Lucy is also <strong>bleeding too easily</strong>. So her blood is clotting where it shouldn't <i>and</i> failing to clot where it should — both at once. That shouldn't be possible. House gets hooked on a bigger question than anyone else is asking: could her clot, her bleeding, and her "madness" all be <strong>one</strong> thing nobody's spotted?</p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🩸</span>
+                    <span class="layer__title">Body Basics: blood's balancing act</span>
+                </div>
+                <p>Your blood has to do two <strong>opposite</strong> jobs at the exact same time, forever. Job one: when you get a cut, clot fast and plug the hole so you don't bleed out. Job two: the rest of the time, stay perfectly liquid and flowing, so it never clumps up inside a healthy vein and blocks it. Clot when you must, flow when you must. It's a tightrope.</p>
+                <div class="wordbox"><b>clot</b> = blood turning from liquid into a sticky plug, like a scab forming. Lifesaving in a cut — dangerous inside a healthy vein. &nbsp;<b>deep vein thrombosis (DVT)</b> = a clot that forms inside a deep vein (usually the leg). The danger: a chunk can break off, ride the bloodstream to the lungs, and get stuck — which is exactly what nearly happened to Lucy.</p>
+                <p>The body walks this tightrope with two opposing teams. One team makes the <strong>"glue"</strong> — the stuff that builds a clot. The other team works the <strong>brakes</strong> — chemicals that stop clots from forming and keep blood flowing. As long as the two teams are evenly matched, you're fine: cuts seal, veins stay clear.</p>
+                <p>Now picture what happens if the referee in the middle goes down. The two teams stop matching up. In one corner of the body the glue wins and a clot forms where it shouldn't (Lucy's leg). Somewhere else the brakes win and she bleeds too easily. Clotting <i>and</i> bleeding, at the same time — the signature of a balance that's broken. So the real question is: <strong>who's the referee?</strong></p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🏭</span>
+                    <span class="layer__title">How it normally works: the liver runs the balance</span>
+                </div>
+                <p>The referee is an organ you rarely think about: the <strong>liver</strong>.</p>
+                <div class="wordbox"><b>liver</b> = a big organ on your right side, under the ribs. Think of it as the body's <b>factory and recycling plant</b>: it builds chemicals you need, and it cleans junk out of your blood. Quiet, unglamorous, absolutely essential.</div>
+                <p>Here's the key fact for this whole case: the liver builds <strong>both teams</strong>. It makes the "glue" that forms clots, <i>and</i> it makes the "brakes" that stop them. One factory, both sides of the balance. That's a brilliant design when the factory is healthy — and a disaster when it isn't, because if the liver gets sick, <strong>both</strong> teams go haywire at once.</p>
+                <p>That's the secret behind Lucy's impossible clot-and-bleed. You don't need two separate diseases — one for the clot, one for the bleed. You need <strong>one sick liver</strong>, throwing the whole balance off in both directions. So House's team stops chasing the clot by itself and starts asking a sharper question: <strong>what is wrong with this woman's liver?</strong></p>
+                <p>And tuck away one more thing the liver does, because the whole mystery turns on it: the liver is the body's <strong>cleanup crew</strong>. Tiny bits of metal and waste ride into your body in everyday food, and the liver's job is to grab the leftovers and throw them out. Remember that. It matters more than anyone in the room realizes yet.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">🔎</span>
+                    <span class="layer__title">The First Clues: a clue hiding in her legs</span>
+                </div>
+                <p>House does something his team doesn't expect: he actually goes and <strong>talks</strong> to Lucy. And just by listening, he finds the first real clue. For the last couple of months, Lucy has stopped shaving her legs — because her hands tremble, she nicks herself, and lately when she nicks herself she <strong>bleeds far more than she used to.</strong></p>
+                <p>That's the tell. The tremor isn't new — she's always had shaky hands. What's new is how much she <strong>bleeds</strong> from a tiny cut. Something changed inside her in just the last two months, and it changed her blood.</p>
+                <p>So the team runs <strong>clotting tests</strong> — lab checks that measure how fast and how well her blood clots. Almost everything comes back normal, with one exception that lights up like a flare: her <strong>PT is too long.</strong></p>
+                <div class="wordbox"><b>clotting test (PT)</b> = a lab test that times how many seconds blood takes to clot. A <b>long</b> PT means the blood is clotting too <i>slowly</i> — a bleeding problem. Lucy's was long, which fits the bleeding... but she also had a clot. Two opposite signs, pointing back at one broken referee: the liver.</div>
+                <p>Now both halves of the paradox point the same way. The clot says the balance is off. The slow, bleedy PT says the balance is off. The factory that runs the balance — the liver — is the prime suspect. The team just has to figure out <strong>why</strong> it's failing.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">🧫</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>What hurts a liver? The team draws up its suspect list — the <em>differential diagnosis</em> — starting, sensibly, with the boring, common answers.</p>
+                <div class="wordbox"><b>differential diagnosis</b> = the suspect list: every disease that could fit, crossed off one by one as tests come back.</div>
+                <p><strong>Suspect one — a missing vitamin.</strong> It turns out Luke, trying his best, has been feeding his mom almost nothing but microwave burgers. House spots the gap: that diet is short on <strong>vitamin K</strong>, a nutrient the body needs to build several of those clotting chemicals. Starve the body of vitamin K and the blood-balance wobbles. It's real, and it explains some of the bleeding — but it's too small to explain a sick liver and a lifetime of being called crazy.</p>
+                <div class="wordbox"><b>vitamin K</b> = a nutrient (it's in leafy greens) that the body uses to make some of its clotting "glue" <i>and</i> some of its "brakes." Run low and the whole balance gets shaky — but a diet fix alone won't explain everything wrong with Lucy.</div>
+                <p><strong>Suspect two — alcohol.</strong> Lucy drinks, and heavy drinking can scar the liver. The very first doctor blamed everything on booze and tried to send her home. It's a tidy story... and tidy stories are exactly what House distrusts. Alcohol could damage a liver, sure. But it doesn't explain why a 38-year-old's blood went haywire, and it has nothing to say about the biggest mystery of all — the one everyone keeps stepping around.</p>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">The Big Wrong Turn: "she's just crazy"</span>
+                </div>
+                <p>Here's the wrong turn that matters most — and it isn't a wrong disease. It's a <strong>word</strong>. For years, every doctor who met Lucy saw <strong>"schizophrenic"</strong> written on her chart, decided that explained her, and stopped digging.</p>
+                <div class="wordbox"><b>schizophrenia</b> = a serious mental illness where the brain misfires — a person may hear voices, believe things that aren't real, or struggle to think clearly. It's real and it's hard. But it is also a label that, once written down, can make doctors stop asking <i>why</i>.</div>
+                <p>That's the trap. Label someone "crazy" and a kind of blindness sets in: every strange thing about them gets shrugged off as part of being crazy. Nobody stops to ask the obvious-once-you-say-it question — <strong>what if something is physically poisoning her brain, and it just <i>looks</i> like madness?</strong> A broken body can imitate a broken mind. But you'll never check for that if you've already closed the file.</p>
+                <p>(There's a tense detour here, too: an ultrasound of Lucy's liver turns up scarring <i>and</i> a <strong>tumor</strong>, and House bends a few rules to make sure a reluctant surgeon will operate. Real drama — but it's still a clue about the liver, not the answer. The answer is hiding behind that one lazy word on her chart.)</p>
+                <p>House refuses to accept the label. And the way he breaks it open is the thing the whole episode is named after.</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">🔍</span>
+                    <span class="layer__title">Detective Work: the Socratic Method</span>
+                </div>
+                <p>The title of this episode is a clue to how House cracks it.</p>
+                <div class="wordbox"><b>the Socratic method</b> = a way of finding the truth by <b>asking questions</b> instead of accepting answers — named after Socrates, an ancient Greek teacher who taught by questioning everything, especially the things everyone "already knew." House's version: never trust a label; keep asking <i>why</i> until it cracks.</div>
+                <p>House does two things nobody else bothered to do. First, he <strong>talks to Lucy like a person</strong> — and even takes her off her psychiatric medicines for a bit to see what she's really like underneath them. The surprise: off the drugs, she gets a little <strong>clearer</strong>, not worse. That's backwards. If those drugs were treating a real mental illness, stopping them should make her worse. A quiet alarm bell rings.</p>
+                <div class="house-quote">"Going to see the patient. That all-important human connection. Thought I'd give it a whirl."<span>— Dr. House</span></div>
+                <p>Second, he digs through her old records and finds an <strong>appointment everyone ignored.</strong> A year and a half ago, Lucy saw a "Dr. Carne." Everyone assumed: another shrink, another mental-health visit. House actually looks the doctor up — and Carne isn't a shrink at all. He's an <strong>eye doctor</strong>.</p>
+                <p>That single fact breaks the case open. <i>Why would a woman written off as crazy quietly go get her eyes checked?</i> Healthy people don't, and "crazy" doesn't explain it either. There's only one kind of answer left: her eyes, her liver, and her mind must all be connected by something physical — one disease touching all three. House asks the question that flips everything:</p>
+                <div class="house-quote">"If it's not schizophrenia, what else presents with psych symptoms?"<span>— Dr. House</span></div>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": maybe it was never in her mind</span>
+                </div>
+                <p>Here's the leap. Everyone had treated Lucy's "madness" as a <strong>mind</strong> problem. House asks whether it could be a <strong>body</strong> problem wearing a mind's mask. Because a handful of rare physical diseases can quietly poison the brain — and when they do, the person looks, for all the world, exactly like they're going crazy.</p>
+                <p>If that's what's happening to Lucy, then it's not really three mysteries (the clot, the sick liver, the "madness"). It's <strong>one</strong> hidden thing, leaking through her whole body — showing up in her blood, in her liver, in her eyes, and in her mind. One cause, many disguises. And crucially: a poison can be <strong>removed</strong>. A label can't be cured — but a poisoning can.</p>
+                <p>One of House's doctors blurts out the name of a rare disease that fits every single clue — the bad liver, the weird blood, the psychiatric symptoms, even the trip to the eye doctor.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what one disease ties it all together? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🟤 <strong>Wilson's disease</strong> — her body can't get rid of <strong>copper</strong>, so it's been quietly piling up inside her for years, poisoning her liver <em>and</em> her brain. She isn't crazy. She's copper-poisoned — and that can be fixed.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🩺</span>
+                    <span class="layer__title">The Real Culprit: copper she couldn't throw away</span>
+                </div>
+                <p>The disease is called <strong>Wilson's disease</strong>, and it's all about a metal you'd never suspect: <strong>copper</strong> — the same stuff a penny is made of.</p>
+                <div class="wordbox"><b>Wilson's disease</b> = a rare problem you're <b>born with</b>. We all swallow tiny traces of copper in ordinary food, and a healthy liver simply throws the leftovers away. In Wilson's, the liver <i>can't</i> take out that trash. So copper has nowhere to go — and slowly, year after year, it piles up inside the body.</p>
+                <p>Now watch how one buried problem explains <strong>everything</strong>. The copper builds up <strong>first in the liver</strong> — the very factory that runs the blood-balance. Poison that factory and you get exactly Lucy's impossible mix: a clot in one place, bleeding in another, plus the scarring and even the tumor they found. Mystery of the blood: solved.</p>
+                <p>Then, when the liver is too clogged to hold any more, the copper <strong>spills into her blood and floods into her brain</strong> — where it poisons the delicate wiring and makes her hear voices, lose track of reality, seem "crazy." It was never a broken mind. It was a brain marinating in metal. Mystery of the madness: solved. <strong>Same poison, two organs, one hidden cause.</strong></p>
+                <p>And the proof is sitting right there in her eyes — which is why that old eye-doctor visit mattered so much. Copper also drifts to the eyes, where it leaves a faint, tell-tale <strong>ring of color around the iris.</strong></p>
+                <div class="wordbox"><b>Kayser-Fleischer rings</b> = thin copper-colored rings that form around the colored part of the eye when too much copper builds up. A doctor can spot them with a bright light. For Wilson's disease, they're almost a smoking gun — and Lucy has them.</div>
+                <div class="journey">
+                    <div class="step"><span class="ico">🍽️</span><span class="cap">Tiny bits of copper ride in on everyday food</span></div>
+                    <div class="step"><span class="ico">🚫</span><span class="cap">Her liver can't throw the extra away (born this way)</span></div>
+                    <div class="step"><span class="ico">📈</span><span class="cap">Copper piles up for years</span></div>
+                    <div class="step"><span class="ico">🩸</span><span class="cap">Poisons the liver → the clot + the bleeding</span></div>
+                    <div class="step"><span class="ico">🧠</span><span class="cap">Spills into the brain → the "madness"</span></div>
+                </div>
+                <p>When the team shines a light in her eyes and sees the copper rings, the years of guessing are over. The woman everyone called crazy was being slowly poisoned the whole time.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Fix &amp; the Verdict</span>
+                </div>
+                <p>Once you know the villain is copper, the cure follows: <strong>get the copper out.</strong> There are medicines that work like tiny magnets — they grab onto the loose copper in her body and carry it out in her pee. (Doctors removed the liver tumor too.)</p>
+                <div class="wordbox"><b>chelation</b> (say "key-LAY-shun") = treatment with a drug that grabs a specific metal and drags it out of the body. For Wilson's disease, it slowly pulls the built-up copper out — emptying the poison drop by drop.</div>
+                <p>And then the most moving part of the whole episode happens, slowly, over the following weeks: as the copper drains out of her, Lucy's liver calms down, her blood steadies — and <strong>her mind comes back.</strong> The voices fade. She becomes essentially her old self again: clear, present, able to read again — and she leaves the hospital with her son. The woman a dozen doctors had filed away as permanently "crazy" simply... got better, because someone finally treated the real disease.</p>
+                <p>Sit with how big that is. She wasn't broken beyond repair. She'd been <strong>poisoned</strong> — and poison can be removed. Years of being dismissed, and the fix was a disease nobody bothered to look for because one lazy word had closed the file.</p>
+                <div class="goodnews">
+                    <p>Here's the hope hiding in this one. A "treatable disease pretending to be madness" isn't just a TV twist — it's a real and important idea in medicine. Wilson's disease genuinely does fool doctors into thinking it's a mental illness, and catching it means a person can get their <b>mind and their life back</b>. Lucy walked out with her son because one stubborn doctor refused to accept that "crazy" was the end of the story. Sometimes the kindest thing a doctor can do is <b>keep asking why.</b></p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: "The Socratic Method"</h2>
+                <p>The episode is named after the way House solves it. Socrates taught by relentlessly <strong>questioning</strong> — refusing to accept what "everyone knows" until it had been tested. That's House's whole method here: everyone "knew" Lucy was just a schizophrenic, and that single assumption is exactly what he attacked. Pull the thread of one unquestioned word, and a hidden, curable disease falls out.</p>
+                <p>There's a bittersweet button on it, too. The moment Lucy is cured and heading home, House admits to Wilson that what really gripped him was never the blood clot — it was the puzzle of her mind. Solved, she stops being a riddle and becomes just a healthy woman leaving the hospital:</p>
+                <p style="border-left:2px solid var(--warm); padding-left:16px; font-style:italic; color:var(--text-primary);">"You were right. It wasn't the DVT. It was the schizophrenia." — "She's not nearly as interesting any more."</p>
+                <p>It's a cold thing to say about a happy ending — but underneath it is the engine of the whole show: House cares about the <i>question</i> more than almost anything. And this time, chasing the question all the way down gave a woman back her mind.</p>
+                <p class="reality">Real-world note: Wilson's disease is real — a rare condition (about 1 in 30,000 people) where a faulty gene leaves the body unable to clear out copper, so it builds up in the liver, brain, and eyes. The copper rings in the eyes are real, and so is the cure: chelation medicines genuinely pull the copper out, and Wilson's really can be mistaken for a psychiatric illness — which makes finding it life-changing. What the show speeds up is the recovery: in real life the copper comes out over <i>months</i>, and the brain part especially may only heal partway, not snap back to "her old self" in a few weeks. The clotting-and-bleeding-at-once is a real thing a failing liver can do (it makes both the glue and the brakes), though a leg clot isn't a typical Wilson's sign — that's the show connecting the dots dramatically. And the rule-bending, ruder-than-real House is, as always, television. (Copper turns up two episodes in a row, but it's a totally different villain than the nun's copper allergy last time: there her body <i>attacked</i> the metal; here it simply couldn't take out the trash.)</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
