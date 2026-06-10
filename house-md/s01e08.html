@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Boys Whose Hearts Were Slowing Down · House M.D. S01E08 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'Poison' — how a pesticide that jams a nerve's off-switch nearly killed two teenagers, and where it was hiding — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the poison's path into the boys — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 8 · "Poison"</div>
+                <h1>The Boys Whose Hearts Were Slowing Down</h1>
+                <p class="lede">A healthy teenager named <strong>Matt</strong> collapses in the middle of his calculus exam — dizzy, confused, and with a heart that's <strong>slowing to a crawl</strong>. Then he starts to seize. Every test comes back clean: no drugs, no infection, no tumor. And then, twelve minutes later, a <strong>second teenager</strong> shows up with the exact same symptoms — a kid who's never even met the first. House is sure it's <strong>poison</strong>. But what poison strikes two strangers on the same morning… and where on earth is it hiding?</p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🚑</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>Matt</strong>, a smart high-schooler who's halfway through his advanced calculus exam when the room starts to spin. He feels sick, his thoughts go fuzzy, and he collapses. By the time he reaches House's hospital, the scary part is his heart: it's beating slower and slower — down to <strong>48 beats a minute and falling</strong>, when a healthy resting heart sits around 60–100.</p>
+                <div class="wordbox"><b>bradycardia</b> = a dangerously slow heartbeat. <b>brady-</b> means "slow," <b>-cardia</b> means "heart." A heart that slows too far can't push enough blood (and oxygen) around the body — so the brain and everything else start to starve.</div>
+                <p>The doctors run the standard checklist. Street drugs? The <strong>tox screen</strong> (a blood test for common drugs) comes back negative. Infection? None. A brain problem? The scan is clean. Diabetes? No. Every easy answer is crossed off, and the kid only gets worse — now he's <em>seizing</em> and his mind is "whacked out." House, true to form, is annoyed that anyone cares:</p>
+                <div class="house-quote">"That's the way calculus presents."<span>— Dr. House, on hearing the symptoms</span></div>
+                <p>Then the case cracks wide open. A <strong>second teenager</strong>, Chi, is wheeled in twelve minutes later with the <i>identical</i> picture — slow heart, seizures, confusion. The two boys go to the same school but don't know each other. So now it's not "what's wrong with one kid," it's "what could possibly hit <strong>two</strong> strangers the very same morning?"</p>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🔔</span>
+                    <span class="layer__title">Body Basics: how your nerves talk</span>
+                </div>
+                <p>To understand what's happening to these boys, you need one idea: <strong>everything your body does runs on nerves passing messages</strong>. Your heartbeat, your breathing, your muscles, your thoughts — all of it is nerves firing little signals, one to the next, like a relay race.</p>
+                <p>But here's the trick: nerves don't actually touch. Between one nerve and the next (or between a nerve and the muscle or organ it's bossing around) there's a tiny gap. To send a message across that gap, the nerve squirts out a chemical — a <strong>messenger</strong> — and the chemical drifts across and lands on the other side, delivering the order.</p>
+                <div class="wordbox"><b>acetylcholine</b> = the body's main "GO" messenger. Picture it as a finger pressing a doorbell: when a nerve wants to say "fire!" — squeeze, twitch, send its order — it releases acetylcholine into the gap, and the next cell hears the bell ring.</div>
+                <p>So far, so simple: press the bell, the message goes through. But a doorbell you only ever <i>press</i> would be a nightmare. You also have to <strong>let go</strong>.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">⏻</span>
+                    <span class="layer__title">How it normally works: the off-switch</span>
+                </div>
+                <p>Imagine a doorbell that, once pressed, just kept ringing forever. You'd never be able to send a <i>second</i> message, and the poor person inside would go mad. So your body has a brilliant cleanup system: the instant a nerve fires, a tiny tool rushes in and <strong>mops up the messenger</strong>, so the bell goes quiet and everything resets, ready for the next real signal.</p>
+                <div class="wordbox"><b>enzyme</b> = a tiny biological machine that does one specific job over and over, incredibly fast. &nbsp;<b>acetylcholinesterase</b> = the enzyme whose whole job is to chop up acetylcholine the moment it's done its work. It's the <b>off-switch</b> — the thing that "lets go of the doorbell."</div>
+                <p>So every single nerve signal in your body is really a quick two-step: <strong>press</strong> (release acetylcholine) → <strong>release</strong> (the off-switch enzyme clears it away). Press, clear. Press, clear. Millions of times a second, all over your body, keeping your heartbeat steady and your muscles obedient.</p>
+                <p>Hold onto that picture — the doorbell and its off-switch — because this entire case is the story of what happens when the <strong>off-switch breaks</strong>.</p>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">🔎</span>
+                    <span class="layer__title">First Clues: a body stuck "on"</span>
+                </div>
+                <p>At first the boys' symptoms look like a random grab-bag: slow heart, watery flooded lungs, a churning gut, then seizures and confusion. What could possibly tie all <i>that</i> together?</p>
+                <p>Here's the key: line them up and they're not random at all. They're what you'd see if <strong>too many nerves were firing at once and couldn't stop</strong> — every "GO" signal stuck in the on position. The nerve that gently slows the heart? Jammed on, so the heart over-slows. The nerves that make a little fluid in the lungs and gut? Jammed on, so everything floods and cramps. The brain? Stuck firing, so it seizes. It's not many different problems. It's <strong>one</strong> problem — a broken off-switch — wearing many costumes.</p>
+                <p>And that negative drug test is itself a clue. The standard tox screen hunts for the <i>usual</i> street drugs — and finds nothing. So whatever's doing this isn't on the usual list. It's something the screen never thought to look for. House's mind goes straight to one word: <strong>poison</strong>.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">🧫</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>Before landing on poison, the team writes its suspect list — the <em>differential diagnosis</em> — and knocks the names down one by one.</p>
+                <div class="wordbox"><b>differential diagnosis</b> = the suspect list: every illness that could fit the symptoms, written down and then crossed off as the clues come in.</div>
+                <p><strong>Drugs?</strong> The tox screen was clean, and besides, drugs don't make you seize hours after they wear off. <strong>Food poisoning?</strong> Cameron points at the mom's homemade tomato sauce (a classic source of nasty toxins) — so House, to prove a point, simply <i>eats a spoonful of it</i> on the spot. The seizures, he notes, aren't a food-toxin symptom anyway. <strong>A heart infection?</strong> Doesn't explain the scrambled brain. Each suspect fails to explain <i>all</i> the symptoms — and crucially, none of them explains how the same thing hit <i>two</i> kids at once.</p>
+                <p>What's left standing is a whole family of chemicals called <strong>organophosphates</strong> — and they're the perfect fit, because they attack exactly the off-switch we just met.</p>
+                <div class="wordbox"><b>organophosphate</b> = a big family of bug-killers (pesticides). Here's the chilling part: they kill insects by jamming that same nerve off-switch — locking the bug's nerves "on" until it dies. A bug's off-switch and a human's are close cousins. In a large enough dose, the very same chemical does the very same thing to a person.</div>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">🕵️</span>
+                    <span class="layer__title">Detective Work: three things to figure out</span>
+                </div>
+                <p>Knowing it's an organophosphate is only the start. House needs three answers.</p>
+                <p><strong>One — how did it get in?</strong> The boys' <strong>heart</strong> symptoms are getting worse faster than all the others — a pattern the doctors read as poison <strong>soaking in through the skin</strong> (it can seep right through), rather than something the boys ate. And working backward from how sick they already were when they arrived, the poisoning must have started <strong>early that morning, before either boy caught the school bus.</strong> So the real question sharpens: what touched each boy's skin, at home, before school?</p>
+                <p><strong>Two — <i>which</i> organophosphate?</strong> This isn't trivia. There are <strong>more than forty</strong> different organophosphates, and (as we'll see in the last card) the cure House reaches for in this episode has to be matched to the exact one. So here, naming the precise poison <i>is</i> the prescription.</p>
+                <p><strong>Three — what do these two boys share?</strong> This is the real puzzle. Different grades, different friends, different classroom buildings, different lunchrooms, even different homes. They barely overlap at all.</p>
+                <div class="house-quote">"They managed to get poisoned together; they must have something in common."<span>— Dr. House</span></div>
+                <p>So the hunt is on for the one thing that touched both boys' skin, at home, that morning.</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">The Wrong Turns</span>
+                </div>
+                <p>The team chases two very reasonable theories, and each one explains <i>one</i> boy beautifully — then dies on the second.</p>
+                <p><strong>Wrong turn #1: the garden.</strong> Matt has a vegetable garden at home, and they find an empty can of pesticide (<em>disulfoton</em>) there — he'd sprayed the whole thing. Case closed? Except Chi lives in an apartment with no garden and no pesticide anywhere. Whatever poisoned Chi, it wasn't Matt's garden.</p>
+                <p><strong>Wrong turn #2: the mosquito spray.</strong> Worried about West Nile virus (a disease spread by mosquitoes), the county had sprayed a different pesticide (<em>ethyl parathion</em>) right next to the school bus route. Both boys ride near there — so maybe <i>that's</i> the shared source! Except the timeline says they were already poisoned <i>before</i> they got on the bus that morning.</p>
+                <p>Two tidy theories, both wrecked by the same stubborn fact: the poison reached <strong>both</strong> boys, at <strong>home</strong>, <strong>before school</strong>. It has to be something each of them put on his own body that morning.</p>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": follow the clothes</span>
+                </div>
+                <p>So what does a teenage boy put against his skin first thing in the morning? The team runs down the list — acne cream, deodorant, shampoo, soap, even flea powder from a pet — and finally hits the obvious one: their <strong>clothes</strong>.</p>
+                <p>Both boys were wearing <strong>brand-new jeans</strong>. Not just any jeans — cheap, made-to-look-worn-out "designer" jeans they'd each bought off a guy selling them out of the back of a truck.</p>
+                <div class="house-quote">"And yet the label isn't faded in the slightest. Fake old. A hundred dollars for the homeless look."<span>— Dr. House, examining the jeans</span></div>
+                <p>And here's the thing about that truck: when its owner wasn't selling clothes, he used the very same truck for his day job — <strong>hauling pesticide</strong> to spray a cornfield. The poison spilled in the truck, soaked into the stacks of new jeans, and waited. When the boys pulled those jeans on against bare skin, the poison soaked right back out — into <i>them</i>.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what was the poison, and where was it hiding? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🧪 An organophosphate pesticide called <strong>phosmet</strong> — soaked into cheap, brand-new jeans. Two boys were being poisoned by their own pants.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🔌</span>
+                    <span class="layer__title">The Real Culprit: a jammed off-switch</span>
+                </div>
+                <p>Now the whole story, start to finish. The poison is <strong>phosmet</strong>, an organophosphate pesticide. Once it crossed the boys' skin and got into their blood, it went hunting for one specific target: that cleanup enzyme, the off-switch — <strong>acetylcholinesterase</strong>. And it did something simple and devastating. It <strong>glued itself onto the enzyme and broke it.</strong></p>
+                <p>With the off-switch jammed, the "GO" messenger — acetylcholine — never gets mopped up. Every doorbell it presses just <strong>keeps ringing</strong>. And because that one messenger runs nerves all over the body, the boys' symptoms were really one broken switch showing up everywhere at once:</p>
+                <div class="journey">
+                    <div class="step"><span class="ico">🚛</span><span class="cap">A truck hauls pesticide by day, sells cheap jeans on the side</span></div>
+                    <div class="step"><span class="ico">👖</span><span class="cap">The poison soaks into the new "fake-old" jeans</span></div>
+                    <div class="step"><span class="ico">🧑</span><span class="cap">A boy buys them and wears them against his skin</span></div>
+                    <div class="step"><span class="ico">🩸</span><span class="cap">It soaks through the skin into his blood</span></div>
+                    <div class="step"><span class="ico">🔌</span><span class="cap">It reaches the nerves and glues the off-switch shut</span></div>
+                    <div class="step"><span class="ico">🔔</span><span class="cap">Every nerve it touches gets stuck "on"</span></div>
+                </div>
+                <p>The nerve that calms the <strong>heart</strong>, stuck on → the heart slows toward a stop (the bradycardia). The nerves of the <strong>lungs</strong>, stuck on → the airways flood with fluid. The <strong>gut</strong>, stuck on → cramping and nausea. The <strong>brain</strong>, stuck on → seizures and confusion. To the first doctors it looked like a dozen unrelated failures. It was one: a single broken switch, ringing every bell in the house at once.</p>
+                <p>That's also exactly how phosmet kills the insects it was made for — it jams <i>their</i> nerve off-switch until they can't breathe. The boys got a slow, accidental dose of a bug's death, just because of what they wore.</p>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Fix</span>
+                </div>
+                <p>Saving the boys takes two moves at once: <strong>fight the flood</strong> while you <strong>fix the switch</strong>.</p>
+                <p><strong>Fight the flood.</strong> First, get the poison off their skin (the nurses wash them down) so no <i>more</i> gets in. Then a drug called <strong>atropine</strong> goes in to block the "stuck-on" signal where it's most dangerous — at the heart and the lungs — letting the heartbeat climb back up and the airways clear. (Atropine is why House keeps barking at his team to <i>raise the dose</i>; the poisoning was so strong it was overpowering the normal amount.) Extra oxygen buys the brain time while all this catches up.</p>
+                <p><strong>Fix the switch.</strong> Blocking the flood keeps you alive, but the real repair is freeing that jammed enzyme. In the show, the team sends for a <strong>hydrolase</strong> — an enzyme custom-built to chew up one specific organophosphate. <i>That's</i> why naming the exact poison mattered so much: the hydrolase for phosmet won't touch a different pesticide. Get the name wrong, get the wrong antidote.</p>
+                <div class="goodnews">
+                    <p>And it works. Matched to the right poison and pulled out of the flood, both boys come back: their hearts climb back to a normal rhythm, they wake up, and they're soon well enough to go home. <b>Both of them live.</b></p>
+                    <p style="margin-bottom:0;">The frightening part of this case is how <i>ordinary</i> the killer was — not a vial in a lab, but a pair of new jeans. The hopeful part is the flip side of the whole mechanism: once you understand that it's just a stuck switch, you know there's a way to un-stick it.</p>
+                </div>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: the two faces of poison</h2>
+                <p>The episode is called "Poison," and its scariest idea isn't the chemistry — it's the <strong>hiding place</strong>. The thing nearly killing two healthy kids wasn't a skull-and-crossbones bottle. It was a pair of jeans. (That's also the one practical takeaway here: it really is a sensible habit to <strong>wash brand-new clothes before you wear them</strong> — new fabric can carry leftover dyes and finishing chemicals, and, very rarely, worse.)</p>
+                <p>Meanwhile, down in the clinic, House meets <strong>Georgia</strong>, an 82-year-old who comes in because she feels <em>wonderful</em> — colors look brighter, music sounds richer, and she's developed a giddy crush on every handsome young man she passes. It turns out she has a kind of "poison" too: a long-buried infection called <strong>syphilis</strong>, caught and treated sixty years ago, that left a few survivors hiding in her body. Decades later they've finally reached her brain and started gently rewiring it.</p>
+                <div class="wordbox"><b>neurosyphilis</b> = syphilis (an infection caused by corkscrew-shaped bacteria called <b>spirochetes</b>) that has, after many years, reached the brain. It can quietly change a person's mood and personality. Penicillin kills the bacteria — but it can't rebuild the brain cells they've already destroyed.</div>
+                <p>So House can cure the infection, but he can't undo the change. As he tells her, she's now "doomed to feeling good" — and the funny, sad twist is that Georgia isn't sure she even <i>wants</i> the cure. Here's the lovely real-world part: the writers didn't invent her. Her story is lifted almost beat-for-beat from a real and famous case the neurologist <strong>Oliver Sacks</strong> wrote up — he called it "Cupid's Disease" — about an elderly woman whose decades-old syphilis finally reached her brain, made her feel young and alive again, and who, like Georgia, half-wished to keep it.</p>
+                <p class="reality">Real-world note: organophosphate poisoning is real and serious — these pesticides jam the very same nerve off-switch (the enzyme acetylcholinesterase) in people that they jam in insects. The real-life antidote is a pair of drugs given fast: <i>atropine</i> (to block the flood of stuck-on signals) and <i>pralidoxime</i>, nicknamed "2-PAM" (which pries the poison back off the enzyme — but only if it's given before that bond turns permanent). And unlike the show's per-poison enzyme, that same pair works for <i>every</i> organophosphate — doctors recognize this kind of poisoning from the symptoms and start treatment right away, without having to identify exactly which pesticide it was. The show's idea of a custom "hydrolase" for each specific pesticide is based on genuine laboratory research into enzymes that break poisons apart in the blood, but that's still mostly a research tool, not the standard treatment. And, as always, the show speeds everything up: a real recovery from a poisoning this severe is slower and far less tidy than one TV hour.</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
