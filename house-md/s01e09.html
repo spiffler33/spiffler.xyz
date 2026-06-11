@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Musician Who Didn't Want to Be Saved · House M.D. S01E09 | spiffler.xyz</title>
+    <meta name="description" content="The real medicine behind the House M.D. episode 'DNR' — how a treatable tangle of blood vessels squeezing the spinal cord was mistaken for fatal ALS, and the do-not-resuscitate knot at the center of it — explained from zero, for anyone who watches House for fun.">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm: #fbbf24;      /* amber — hooks & curiosity */
+            --coral: #fb7185;      /* coral — danger / wrong turns */
+            --good: #34d399;       /* green — answers & good news */
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* scroll progress cue */
+        .progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--good));
+            z-index: 50;
+            transition: width 100ms linear;
+        }
+
+        .episode-hero {
+            margin-bottom: 40px;
+        }
+        .episode-tag {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .episode-hero h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+        .episode-hero .lede {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .episode-hero .lede strong { color: var(--warm); font-weight: 600; }
+
+        .how-to-read {
+            margin: 24px 0 8px;
+            padding: 12px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* layer cards */
+        .layer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 24px 22px;
+            margin-bottom: 20px;
+        }
+        .layer__head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .layer__num {
+            flex: 0 0 auto;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .layer__emoji { font-size: 1.4rem; line-height: 1; }
+        .layer__title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .layer p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+        }
+        .layer p:last-child { margin-bottom: 0; }
+        .layer strong { color: var(--text-primary); font-weight: 600; }
+        .layer em { color: var(--warm); font-style: normal; }
+
+        /* accent borders to color-code the wrong turns vs the answer */
+        .layer.is-warn { border-left-color: var(--coral); }
+        .layer.is-answer { border-left-color: var(--good); }
+        .layer.is-aha { border-left-color: var(--warm); }
+
+        /* "big word" definition boxes — every term defined on first use */
+        .wordbox {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .wordbox b {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* House's lines — wit as the hook */
+        .house-quote {
+            border-left: 2px solid var(--warm);
+            padding: 4px 0 4px 16px;
+            margin: 16px 0;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        .house-quote span {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* the hidden tangle's discovery — pure HTML/CSS, can't break like an SVG */
+        .journey {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: stretch;
+            margin: 18px 0;
+        }
+        .journey .step {
+            flex: 1 1 90px;
+            min-width: 90px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .journey .step .ico { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+        .journey .step .cap { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
+
+        /* tap-to-reveal the diagnosis */
+        .reveal { margin: 16px 0 4px; }
+        .reveal button {
+            font-family: inherit;
+            background: var(--bg-tertiary);
+            color: var(--warm);
+            border: 1px solid var(--warm);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .reveal button:hover { background: rgba(251,191,36,0.12); }
+        .reveal .answer {
+            margin-top: 12px;
+            color: var(--good);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .reveal .answer[hidden] { display: none; }
+
+        /* good-news callout for the hopeful ending */
+        .goodnews {
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        .goodnews b { color: var(--good); }
+
+        /* closing note */
+        .closing {
+            margin-top: 40px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .closing h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-transform: none;
+            margin-bottom: 14px;
+        }
+        .closing p {
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+        }
+        .reality {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* gentle reveal-on-scroll; only active once JS opts in, so no-JS shows everything */
+        body.reveal-ready .layer {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 500ms ease, transform 500ms ease;
+        }
+        body.reveal-ready .layer.shown {
+            opacity: 1;
+            transform: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            body.reveal-ready .layer { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress" id="progress"></div>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="/" class="logo">~/spiffler</a>
+                <div class="nav-links">
+                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
+                    <a href="/tinker.html">tinker</a>
+                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="https://github.com/spiffler33" target="_blank">github</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <a href="/house-md/" class="back-link">← all episodes</a>
+
+            <div class="episode-hero">
+                <div class="episode-tag">House M.D. · Season 1, Episode 9 · "DNR"</div>
+                <h1>The Musician Who Didn't Want to Be Saved</h1>
+                <p class="lede">A famous jazz trumpeter, <strong>John Henry Giles</strong>, has been <strong>unable to walk for two years</strong>. His doctors gave the paralysis a name: <strong>ALS</strong> — a disease with no test, no cure, and no hope. He's so certain it's the end that he's signed a legal form ordering the hospital to <strong>let him die</strong> if things go wrong. Then House looks at the death sentence and asks the dangerous question nobody else will: <em>what if the diagnosis is simply wrong — and the real problem is something we can fix?</em></p>
+                <div class="how-to-read">No medical knowledge needed. We start at zero and build to the answer, one card at a time. Every big word gets explained the moment it shows up.</div>
+            </div>
+
+            <!-- 1 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">1</span><span class="layer__emoji">🎺</span>
+                    <span class="layer__title">The Mystery</span>
+                </div>
+                <p>Meet <strong>John Henry Giles</strong>, a legendary jazz trumpet player. Two years ago his legs stopped working, and they've never come back — he gets around in a wheelchair. This week he's rushed into House's hospital for a separate, more urgent problem: <strong>pneumonia</strong> (a lung infection) that's left him struggling to breathe.</p>
+                <p>But the thing that fascinates House isn't the pneumonia. It's the paralysis — and the label stuck on it. John's own doctor back in California, Dr. Hamilton, diagnosed the cause as <strong>ALS</strong>: a brutal, incurable disease that slowly shuts the body down. Believing that, John did something most of us never have to think about: he signed a piece of paper telling the doctors not to fight to keep him alive.</p>
+                <div class="wordbox"><b>DNR</b> = "Do Not Resuscitate." A legal order a patient signs that says: <i>if my heart or breathing stops, do not try to bring me back.</i> It's a person's own choice about their own body and their own death — and it's the title of this episode for a reason.</div>
+                <p>So House inherits a patient who has already decided to die — based on a diagnosis House doesn't believe for a second.</p>
+                <div class="house-quote">"That paralysis thing — guy can't walk for two years and nobody knows why. That seems mildly interesting."<span>— Dr. House, deciding he wants the case</span></div>
+            </section>
+
+            <!-- 2 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">2</span><span class="layer__emoji">🧠</span>
+                    <span class="layer__title">Body Basics: the spinal cord</span>
+                </div>
+                <p>Your brain runs the rest of your body down a single thick cable that drops from your skull and runs the length of your back, protected inside the bones of your spine. That cable is the <strong>spinal cord</strong>, and the traffic on it goes both ways: orders travel <i>down</i> ("legs, walk"), and feelings travel back <i>up</i> ("the floor is cold").</p>
+                <div class="wordbox"><b>spinal cord</b> = the thick bundle of nerves running from your brain down your back — the body's main data cable. &nbsp;<b>paralysis</b> = losing the ability to move a body part, because the signals telling it to move can't get through.</div>
+                <p>Here's the key idea for this whole case: if you damage that cable at some point, <strong>everything below the damage loses its signal</strong> — no movement, often no feeling. John's legs are dead but his arms work, which points the problem somewhere in the lower part of the cable.</p>
+                <p>And there are two completely different ways for the cable to fail. Either the <strong>wires themselves are dying</strong> (a disease of the nerve cells) — or <strong>something is pressing on the cable from outside</strong>, pinching it shut like a foot on a garden hose. Same dead legs either way. But only one of those can be fixed by simply <i>removing the thing that's pressing</i>. Hold onto that fork in the road — the entire episode lives there.</p>
+            </section>
+
+            <!-- 3 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">3</span><span class="layer__emoji">🏷️</span>
+                    <span class="layer__title">The scariest words: "It's ALS"</span>
+                </div>
+                <p><strong>ALS</strong> (you may know it as Lou Gehrig's disease) is the first kind of failure — the wires dying. The nerve cells that drive your muscles slowly wither, so the muscles they used to command go limp. It spreads, it doesn't reverse, and there is no cure. It's about as frightening as a diagnosis gets.</p>
+                <p>But here's the part almost nobody outside medicine knows, and it's the hinge of the whole episode: <strong>there is no test that proves ALS.</strong> No scan lights up, no blood test comes back positive. Doctors land on "ALS" only by ruling out everything <i>else</i> that could cause the same paralysis, until it's the last name standing.</p>
+                <div class="wordbox"><b>diagnosis of exclusion</b> = a diagnosis you reach not because a test confirmed it, but because you crossed off every other possibility until only one was left. It's only as trustworthy as your list of suspects — miss a single <i>treatable</i> cause, and you've handed someone a death sentence they didn't actually earn.</div>
+                <p>That's why John gave up. And it's exactly why House refuses to. If "ALS" is just the name doctors use when they've stopped looking, then maybe the right question isn't <i>how do we treat it</i> — it's <i>did anyone look hard enough?</i></p>
+                <div class="house-quote">"It's a lovely diagnosis. They make movies about it. No tests, no treatment. It's a disease of exclusion."<span>— Dr. House, on ALS</span></div>
+            </section>
+
+            <!-- 4 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">4</span><span class="layer__emoji">🔎</span>
+                    <span class="layer__title">First Clues: the diagnosis doesn't add up</span>
+                </div>
+                <p>House's instinct is that the ALS label is too tidy. A couple of things nag at him.</p>
+                <p>First, the timing. Real ALS is relentless — it usually creeps from the legs into the arms, the breathing, the voice. John's paralysis has sat at "just the legs" for <strong>two whole years</strong>. A disease that's supposed to keep spreading, politely staying put? That's a strange kind of ALS.</p>
+                <p>Second, the treatment story is odd. Back in California, John's doctors threw treatment after treatment at him and reported "real progress" — in House's words, they "fixed everything but the legs." But hold on: card 3 just said ALS has <i>no treatment</i> at all. So what were all those treatments busy fixing? A disease that's supposed to shrug off every medicine, yet quietly responds to treatment everywhere except the legs, is a disease worth a hard second look.</p>
+                <p>None of this proves anything. But it's enough to raise the stake that matters: <strong>if the paralysis is something else — something treatable — then the DNR means a curable man is about to be allowed to die for nothing.</strong> So House sets out to do the one thing a "diagnosis of exclusion" actually demands, and that he suspects nobody finished: properly rule out the causes you <i>can</i> fix.</p>
+            </section>
+
+            <!-- 5 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">5</span><span class="layer__emoji">🧫</span>
+                    <span class="layer__title">The Usual Suspects</span>
+                </div>
+                <p>The team writes its suspect list — the <em>differential diagnosis</em> — and stocks it with diseases that can paralyze legs <i>and</i> that, unlike ALS, can actually be treated. That last part is the whole point: every name on this list is a door marked "fixable."</p>
+                <div class="wordbox"><b>differential diagnosis</b> = the suspect list: every illness that could explain the symptoms, written down so each one can be tested and crossed off.</div>
+                <p><strong>Suspect one: the body attacking its own nerves.</strong> Sometimes the immune system — your built-in defense force — gets confused and turns its weapons on your own nerve wiring, jamming the signals. It's treatable: you can calm or distract that misfiring defense with a medicine called <strong>IVIG</strong>.</p>
+                <div class="wordbox"><b>IVIG</b> = a treatment dripped into a vein that floods the body with borrowed antibodies (immune proteins). It can talk a misbehaving immune system down — useful <i>if</i> the disease is the immune system attacking the nerves.</div>
+                <p><strong>Suspect two: inflamed blood vessels.</strong> A disease called Wegener's can set the body's small blood vessels on fire, and that inflammation can choke both nerves and lungs — which would also help explain John's bad lungs. Also treatable.</p>
+                <p>Two fixable suspects, two real chances to overturn the death sentence. House starts opening the doors.</p>
+            </section>
+
+            <!-- 6 -->
+            <section class="layer">
+                <div class="layer__head">
+                    <span class="layer__num">6</span><span class="layer__emoji">⚖️</span>
+                    <span class="layer__title">Detective Work, in a legal cage</span>
+                </div>
+                <p>House pushes the first suspect — the immune-attack theory — and the team gives John the IVIG. It goes catastrophically wrong. John's lungs suddenly give out and he stops breathing: <strong>respiratory failure</strong>, right there in the room.</p>
+                <p>In the emergency, House does the obvious life-saving thing — he pushes a breathing tube down John's throat to force air into his lungs. Except John's <strong>DNR</strong> says, in plain ink, <i>don't.</i> House does it anyway, leaning on a lawyer's-thin distinction:</p>
+                <div class="house-quote">"DNR means 'do not resuscitate,' not 'do not treat.'"<span>— Dr. House, hair-splitting his way past a signed order</span></div>
+                <p>The fallout is immediate. John's side charges House with <strong>battery</strong> (unlawfully laying hands on someone) and gets a court order keeping him 50 feet away from his own patient. House ends up in front of a judge — fighting not to stay out of jail, but to buy himself one thing: <strong>time</strong> to keep diagnosing.</p>
+                <p>And quietly, the disaster <i>teaches</i> something. The IVIG didn't help — it nearly killed him. So the immune-attack theory is wrong; cross it off. But the bigger thing it leaves behind is the knot in the episode's title: House may be the better doctor here, yet he just overruled a man's clearly-stated wish about his own body. That knot doesn't untie itself — not even if House turns out to be right.</p>
+            </section>
+
+            <!-- 7 -->
+            <section class="layer is-warn">
+                <div class="layer__head">
+                    <span class="layer__num">7</span><span class="layer__emoji">⚠️</span>
+                    <span class="layer__title">The Wrong Turns</span>
+                </div>
+                <p>Suspect two falls next. House treats John for Wegener's (the inflamed-blood-vessel disease) with a powerful drug, and sets up a grim test of the theory: if it really were Wegener's, John's ravaged lungs wouldn't survive coming off the ventilator — he'd die the moment the machine stopped. They take him off… and he keeps breathing. Not Wegener's either.</p>
+                <p>Then comes the scariest wrong turn of all. John's <strong>arm</strong> suddenly goes paralyzed too. Everyone in the room reads it the same way: <i>see — it's spreading. It really is ALS.</i> This is the moment the death sentence almost wins. But House asks the question nobody else thinks to:</p>
+                <div class="house-quote">"Why is everyone so gung-ho to connect those two conditions?"<span>— Dr. House, refusing to assume the arm and the legs are the same disease</span></div>
+                <p>He's right to push. The dead arm turns out to be a completely separate problem: a <strong>blood clot</strong>. John has been lying still for days, plugged into machines — and people who lie motionless like that can throw clots that plug an artery, choking off the blood supply (a small <strong>stroke</strong>). They dissolve the clot with a clot-busting drug, and the arm comes back to life. So the "ALS is spreading!" panic was a red herring: two different problems, wearing the same costume.</p>
+            </section>
+
+            <!-- 8 -->
+            <section class="layer is-aha">
+                <div class="layer__head">
+                    <span class="layer__num">8</span><span class="layer__emoji">💡</span>
+                    <span class="layer__title">The "Aha": he's getting better</span>
+                </div>
+                <p>Then the case cracks wide open from an angle nobody expected. Feeling starts trickling <i>back</i> into John's legs. House taps his leg — and John feels it.</p>
+                <p>Stop and sit with that, because it's the single most important fact in the whole episode: <strong>ALS never gets better.</strong> A paralysis that <i>improves</i> cannot be ALS. So something the team is doing is secretly <strong>helping</strong> him — which means the real disease is treatable, and it's been hiding in plain sight the entire time.</p>
+                <p>But John is on a whole pile of drugs at once — steroids (not the muscle-building kind athletes misuse — a different medicine that happens to share the name), antibiotics, anti-inflammatories. Which one is the secret helper? House runs a clever experiment: stop <i>everything</i> at once (John promptly gets worse, confirming one of them was doing real work), then add the drugs back <strong>one at a time</strong> and watch. Whichever one makes him improve is pointing a finger straight at the real disease.</p>
+                <div class="house-quote">"We'll know I'm right if he starts walking."<span>— Dr. House, treating the cure as the test</span></div>
+                <p>The winner is the <strong>steroids</strong> — the very medicine they'd started on day one, almost as an afterthought, for his pneumonia.</p>
+                <div class="reveal">
+                    <button id="revealBtn" aria-expanded="false">So what was really paralyzing him — if not ALS? Tap to reveal →</button>
+                    <div class="answer" id="revealAns" hidden>🪢 A <strong>spinal AVM</strong> — a hidden tangle of malformed blood vessels squeezing his spinal cord. Completely treatable. It was never ALS at all.</div>
+                </div>
+            </section>
+
+            <!-- 9 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">9</span><span class="layer__emoji">🪢</span>
+                    <span class="layer__title">The Real Culprit: a hidden tangle of blood vessels</span>
+                </div>
+                <p>Remember the fork in the road from card 2 — wires dying, versus something <i>pressing</i> on the cable? It was the second one all along. John's paralysis was caused by an <strong>AVM</strong> sitting on his spinal cord and slowly choking it.</p>
+                <div class="wordbox"><b>AVM</b> (arteriovenous malformation) = a knot of blood vessels wired up wrong. Normally blood flows artery → tiny vessels → vein, slowing down along the way. In an AVM the high-pressure arteries dump <i>straight</i> into the veins with no slow-down, creating a swollen, congested tangle. Parked on John's spinal cord, that tangle pressed and starved the cable — and his legs went dead.</div>
+                <p>So why did <i>two</i> good doctors miss it and call it ALS? Because the AVM was <strong>hiding behind its own swelling</strong>. The angry, congested tangle caused inflammation around itself, and on the MRI scan that blur of swelling smeared the AVM into something that just "looked like nothing." You can't remove a thing you can't see.</p>
+                <p>And here's the beautiful accident that cracked it. The <strong>steroids</strong> — given for the pneumonia — happen to be medicines whose whole job is to <i>calm swelling.</i> As the swelling went down, two things happened at once:</p>
+                <div class="wordbox"><b>steroids</b> = here, anti-inflammation medicines whose whole job is to bring down swelling. (The same ones from card 8 — not the muscle-building kind.)</div>
+                <div class="journey">
+                    <div class="step"><span class="ico">🪢</span><span class="cap">A tangle of blood vessels grows on the spinal cord</span></div>
+                    <div class="step"><span class="ico">🌊</span><span class="cap">It swells and presses on the cord — the legs go dead</span></div>
+                    <div class="step"><span class="ico">🙈</span><span class="cap">The swelling blurs it on the scan — looks like "nothing," called ALS</span></div>
+                    <div class="step"><span class="ico">💊</span><span class="cap">Steroids for the pneumonia shrink the swelling</span></div>
+                    <div class="step"><span class="ico">👁️</span><span class="cap">The tangle finally shows up on a fresh scan</span></div>
+                    <div class="step"><span class="ico">🔪</span><span class="cap">Surgeons remove it — the cord is freed</span></div>
+                </div>
+                <p>Less swelling meant a little less squeeze on the cord — that's the feeling creeping back into his legs (the "Aha"). And less swelling also cleared the blur, so on a fresh MRI the tangle finally stood out plain as day. The drug that was quietly <i>helping</i> John turned out to be the same drug that <i>revealed</i> what was wrong with him.</p>
+                <div class="house-quote">"…the AVM, which has always been there, hiding behind its own swelling. We remove that, he'll walk again."<span>— Dr. House, putting it together</span></div>
+            </section>
+
+            <!-- 10 -->
+            <section class="layer is-answer">
+                <div class="layer__head">
+                    <span class="layer__num">10</span><span class="layer__emoji">✅</span>
+                    <span class="layer__title">The Fix</span>
+                </div>
+                <p>Once you can see the tangle, the fix is almost startlingly direct: surgeons go in and <strong>remove the AVM</strong>. With the squeeze gone, the spinal cord — undamaged underneath, just pinched — starts carrying its signals again. The legs wake up.</p>
+                <div class="goodnews">
+                    <p>John Henry Giles walks <b>out of the hospital on his own two feet</b> — leaning on a simple cane instead of riding a wheelchair, his trumpet under his arm. The "death sentence" he'd signed away his life for was a fixable plumbing problem the entire time. He hands House the trumpet on his way out.</p>
+                    <p style="margin-bottom:0;">The hopeful lesson sits right under the scary one: a diagnosis is not the same thing as the truth. ALS would have killed him. The thing he actually had could be lifted out in an afternoon.</p>
+                </div>
+                <p>But the episode refuses to let House be a clean hero — and that's the point of the title. House was <strong>right</strong>, and to be right he <strong>trampled a man's clearly-signed wish to be left to die.</strong> Saving John's life meant overruling John's choice about John's own body. Right and wrong, packed into the very same act. The question "DNR" leaves you holding is genuinely hard: a person's decision to refuse care is only as sound as the facts they were handed — and John's facts were flat wrong. Does that make House a hero who saw through a lie… or does the wish still matter, even when it's built on a mistake? The show declines to tidy it up.</p>
+            </section>
+
+            <!-- closing -->
+            <div class="closing">
+                <h2>One last thing: a search that ended too early</h2>
+                <p>The most useful idea in this whole episode is the one hiding inside that phrase <strong>"diagnosis of exclusion."</strong> ALS gets diagnosed by <i>giving up</i> the search for anything else — and a search can be called off too soon. John's two years in a wheelchair weren't a disease at all; they were a search that quit one MRI early.</p>
+                <p>And the real-world echo is genuinely striking. There's a true, well-documented condition — a <strong>spinal dural arteriovenous fistula</strong>, the real-life cousin of the show's "AVM" — that doctors really do mistake for ALS and other hopeless nerve diseases, in real patients, all the time. It's one of the classic <i>treatable</i> impostors that neurologists are specifically taught to hunt for. The lesson the literature drills is, almost word for word, House's: before you tell someone their slow paralysis is incurable, make absolutely sure nothing is just <em>pressing on the cord</em>.</p>
+                <p class="reality">Real-world note: a spinal vascular tangle masquerading as ALS is real, and curing it with surgery (or a tiny plug threaded into the vessel) is real — that part of the episode rings true. The TV liberties are mostly in the discovery: in life these tangles are pinned down by a dye X-ray of the spine's blood vessels (an <i>angiogram</i>), not by steroids conveniently "unmasking" one on an MRI — and, awkwardly for the plot, steroids can actually make this particular kind of vessel problem <i>worse</i>, so the steroid-cure is dramatic license. ALS really is a diagnosis of exclusion, exactly as House says. And the ethics are real too: a doctor who forced treatment on a patient against a valid DNR would face precisely the battery charge the show threatens — television just lets House skate. As always, the show compresses weeks of slow, messy recovery into one tidy hour.</p>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <a href="/house-md/">← all episodes</a>
+                <span class="separator">|</span>
+                <a href="/tinker.html">tinker</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // scroll progress bar
+        var bar = document.getElementById('progress');
+        function onScroll() {
+            var h = document.documentElement;
+            var max = h.scrollHeight - h.clientHeight;
+            bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+        }
+        document.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // tap to reveal the diagnosis
+        var btn = document.getElementById('revealBtn');
+        var ans = document.getElementById('revealAns');
+        btn.addEventListener('click', function () {
+            ans.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+            btn.style.display = 'none';
+        });
+
+        // gentle reveal-on-scroll (opt in, so no-JS shows all cards)
+        document.body.classList.add('reveal-ready');
+        var layers = document.querySelectorAll('.layer');
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px' });
+            layers.forEach(function (l) { io.observe(l); });
+        } else {
+            layers.forEach(function (l) { l.classList.add('shown'); });
+        }
+    </script>
+</body>
+</html>
