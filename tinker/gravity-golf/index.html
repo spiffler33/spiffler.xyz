@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#04060d">
+<title>GRAVITY GOLF</title>
+<style>
+:root{
+  --void:#04060d;
+  --cyan:#63f2ff;
+  --mag:#ff5ad6;
+  --amber:#ffcf6b;
+  --dim:#6b8fb5;
+  --txt:#d7ecff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--txt);
+  font:500 13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+  -webkit-font-smoothing:antialiased;
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;touch-action:none;
+}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.ui{position:fixed;inset:0;pointer-events:none;z-index:2}
+
+.bar{
+  position:absolute;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  padding:calc(9px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 9px calc(12px + env(safe-area-inset-left));
+}
+.brand{
+  font-size:12px;letter-spacing:.34em;font-weight:700;color:var(--cyan);
+  text-shadow:0 0 16px rgba(99,242,255,.5);margin-right:4px;white-space:nowrap
+}
+.brand i{font-style:normal;color:var(--mag);text-shadow:0 0 16px rgba(255,90,214,.45)}
+.chip{
+  display:flex;gap:7px;align-items:center;padding:6px 11px;border-radius:999px;
+  border:1px solid rgba(99,242,255,.16);background:rgba(9,17,31,.6);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap
+}
+.chip span{color:var(--dim)}
+.chip b{color:var(--cyan);font-weight:700;font-size:12px;letter-spacing:.06em}
+.chip b.o{color:var(--mag)} .chip b.u{color:var(--amber)}
+.spacer{flex:1;min-width:0}
+button{
+  pointer-events:auto;font:inherit;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--txt);background:rgba(9,17,31,.6);border:1px solid rgba(99,242,255,.2);
+  border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color .15s,color .15s
+}
+button:hover{border-color:var(--cyan);color:#fff}
+button:active{transform:translateY(1px)}
+
+.hint{
+  position:absolute;left:50%;bottom:7%;transform:translateX(-50%);text-align:center;
+  color:var(--dim);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  transition:opacity .7s ease;white-space:nowrap
+}
+.hint.off{opacity:0}
+.toast{
+  position:absolute;left:50%;top:15%;transform:translateX(-50%);text-align:center;
+  font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:var(--mag);
+  text-shadow:0 0 22px rgba(255,90,214,.5);opacity:0;transition:opacity .3s ease;white-space:nowrap
+}
+.toast.on{opacity:1}
+
+.card{
+  position:absolute;inset:0;display:none;place-items:center;padding:20px;
+  background:rgba(4,6,13,.7);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  pointer-events:auto
+}
+.card.on{display:grid}
+.panel{
+  min-width:min(430px,88vw);max-height:88vh;overflow:auto;padding:26px 30px;text-align:center;
+  border:1px solid rgba(99,242,255,.22);border-radius:18px;
+  background:linear-gradient(180deg,rgba(13,24,43,.96),rgba(5,9,18,.96));
+  box-shadow:0 0 70px rgba(60,180,255,.1),inset 0 0 50px rgba(60,180,255,.045);
+  animation:pop .22s ease-out
+}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.panel h2{font-size:10px;letter-spacing:.42em;color:var(--dim);font-weight:600;text-transform:uppercase}
+.panel .big{
+  font-size:clamp(22px,5.4vw,32px);letter-spacing:.16em;margin:14px 0 8px;color:#fff;
+  text-shadow:0 0 26px rgba(99,242,255,.55)
+}
+.panel .big.gold{color:#fff2cc;text-shadow:0 0 30px rgba(255,207,107,.7)}
+.panel .row{
+  display:flex;justify-content:center;gap:18px;margin-top:14px;flex-wrap:wrap;
+  font-size:10px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase
+}
+.panel .row b{color:var(--txt);font-size:12px}
+.actions{margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.actions button{padding:11px 20px;font-size:11px}
+.actions button.primary{border-color:var(--cyan);color:#eaffff;background:rgba(38,116,155,.3)}
+table{border-collapse:collapse;margin:16px auto 6px;font-size:12px}
+td,th{padding:5px 8px;border-bottom:1px solid rgba(99,242,255,.1);text-align:center;letter-spacing:.06em}
+th{color:var(--dim);font-weight:600;font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+td.lbl{color:var(--dim);font-size:9px;letter-spacing:.16em;text-transform:uppercase;text-align:right}
+td.u{color:var(--amber)} td.o{color:var(--mag)} td.e{color:var(--txt)} td.tot{color:var(--cyan);font-weight:700}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div class="ui">
+  <div class="bar">
+    <div class="brand">GRAVITY<i>GOLF</i></div>
+    <div class="chip"><span>Hole</span><b id="hHole">1</b></div>
+    <div class="chip"><span>Par</span><b id="hPar">2</b></div>
+    <div class="chip"><span>Strokes</span><b id="hStr">0</b></div>
+    <div class="chip"><span>Total</span><b id="hTot">E</b></div>
+    <div class="spacer"></div>
+    <button id="bMute">Sound on</button>
+    <button id="bRestart">Restart</button>
+  </div>
+  <div class="hint" id="hint">drag from the ball &middot; release to launch</div>
+  <div class="toast" id="toast"></div>
+  <div class="card" id="card"><div class="panel" id="panel"></div></div>
+</div>
+
+<script id="core">
+/* ============================================================
+   CORE - pure math. No DOM. Shared by the live sim and by the
+   aiming preview, so a previewed path IS the flown path.
+   ============================================================ */
+var GG = (function () {
+  'use strict';
+
+  var W = 1600, H = 900;          // world units (letterboxed to the viewport)
+  var DT = 1 / 240;               // fixed physics timestep
+  var BALL_R = 7;
+  var MU_K = 7000;                // mu = MU_K * r^2  (G * M for a planet of radius r)
+  var MAX_SPEED = 920;            // world units / s at full pull
+  var MAX_DRAG = 250;             // world units of pull for full power
+  var MIN_DRAG = 12;              // below this the shot is cancelled
+  var CAPTURE_R = 26;             // black hole capture radius
+  var FLIGHT_MAX = 14;            // seconds before the shot times out
+  var OOB_PAD = 40;               // slack outside the world rect
+  var PREVIEW_STEPS = 480;        // 2 seconds at DT
+  var MAXP = 8;                   // hard cap on planets per hole
+
+  // scratch for planet positions at the current substep time
+  var PX = new Float64Array(MAXP), PY = new Float64Array(MAXP);
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  /* --- closed-form planet motion: identical math for physics and rendering --- */
+  function planetX(p, t) { return p.orbR > 0 ? p.ox + p.orbR * Math.cos(p.orbPh + p.orbW * t) : p.ox; }
+  function planetY(p, t) { return p.orbR > 0 ? p.oy + p.orbR * Math.sin(p.orbPh + p.orbW * t) : p.oy; }
+
+  function planetsAt(ps, t) {
+    for (var i = 0; i < ps.length; i++) {
+      var p = ps[i];
+      if (p.orbR > 0) {
+        var a = p.orbPh + p.orbW * t;
+        PX[i] = p.ox + p.orbR * Math.cos(a);
+        PY[i] = p.oy + p.orbR * Math.sin(a);
+      } else { PX[i] = p.ox; PY[i] = p.oy; }
+    }
+  }
+
+  /* first intersection of segment (x0,y0)->(x1,y1) with a circle, or -1 */
+  function segCircle(x0, y0, x1, y1, cx, cy, R) {
+    var fx = x0 - cx, fy = y0 - cy;
+    var c = fx * fx + fy * fy - R * R;
+    if (c <= 0) return 0;                     // already touching
+    var dx = x1 - x0, dy = y1 - y0;
+    var a = dx * dx + dy * dy;
+    if (a <= 0) return -1;
+    var b = 2 * (fx * dx + fy * dy);
+    if (b >= 0) return -1;                    // heading away
+    var disc = b * b - 4 * a * c;
+    if (disc < 0) return -1;
+    var t = (-b - Math.sqrt(disc)) / (2 * a);
+    return (t >= 0 && t <= 1) ? t : -1;
+  }
+
+  /* swept collision against the hole and every planet (no tunnelling) */
+  function hitTest(course, x0, y0, x1, y1) {
+    var ps = course.planets, best = 2, kind = -1, idx = -1, i;
+    var t = segCircle(x0, y0, x1, y1, course.hole.x, course.hole.y, CAPTURE_R);
+    if (t >= 0) { best = t; kind = 0; }
+    for (i = 0; i < ps.length; i++) {
+      var t2 = segCircle(x0, y0, x1, y1, PX[i], PY[i], ps[i].r + BALL_R);
+      if (t2 >= 0 && t2 < best) { best = t2; kind = 1; idx = i; }
+    }
+    if (kind < 0) return null;
+    return { type: kind === 0 ? 'sink' : 'crash', idx: idx,
+             x: x0 + (x1 - x0) * best, y: y0 + (y1 - y0) * best };
+  }
+
+  /* ONE semi-implicit (symplectic) Euler substep.
+     s = {x,y,vx,vy}; t = absolute hole time at the START of the step.
+     Returns null, or the event that ended the shot. */
+  function substep(course, s, t) {
+    var ps = course.planets, n = ps.length, i;
+    planetsAt(ps, t);
+    var ax = 0, ay = 0;
+    for (i = 0; i < n; i++) {
+      var dx = PX[i] - s.x, dy = PY[i] - s.y;
+      var d2 = dx * dx + dy * dy;
+      var sf = ps[i].soft2;
+      if (d2 < sf) d2 = sf;                   // softening: near-misses stay finite
+      var f = ps[i].mu / (d2 * Math.sqrt(d2));
+      ax += dx * f; ay += dy * f;
+    }
+    s.vx += ax * DT; s.vy += ay * DT;         // velocity first...
+    var x0 = s.x, y0 = s.y;
+    s.x += s.vx * DT; s.y += s.vy * DT;       // ...then position (symplectic)
+    var hit = hitTest(course, x0, y0, s.x, s.y);
+    if (hit) return hit;
+    if (s.x < -OOB_PAD || s.x > W + OOB_PAD || s.y < -OOB_PAD || s.y > H + OOB_PAD)
+      return { type: 'oob', idx: -1, x: s.x, y: s.y };
+    return null;
+  }
+
+  /* Trajectory preview. Same substep(), same DT, same absolute-time formula
+     (step index * DT) that the live loop uses, so the path is bit-identical. */
+  var PREV = new Float64Array(PREVIEW_STEPS * 2);
+  var pst = { x: 0, y: 0, vx: 0, vy: 0 };
+  function preview(course, x, y, vx, vy, step0) {
+    pst.x = x; pst.y = y; pst.vx = vx; pst.vy = vy;
+    var n = 0, end = null;
+    for (var k = 0; k < PREVIEW_STEPS; k++) {
+      var e = substep(course, pst, (step0 + k) * DT);
+      PREV[n << 1] = pst.x; PREV[(n << 1) + 1] = pst.y; n++;
+      if (e) { PREV[(n - 1) << 1] = e.x; PREV[((n - 1) << 1) + 1] = e.y; end = e; break; }
+    }
+    return { pts: PREV, n: n, end: end };
+  }
+
+  /* ---------------- course generation ---------------- */
+  function dist(ax, ay, bx, by) { var dx = ax - bx, dy = ay - by; return Math.sqrt(dx * dx + dy * dy); }
+  function rr(rnd, a, b) { return a + (b - a) * rnd(); }
+
+  function countFor(n, rnd) {
+    var tbl = [1, 2, 2, 3, 3, 4, 4, 5, 5];
+    if (n <= 9) return tbl[n - 1];
+    var c = 4 + (rnd() < 0.5 ? 0 : 1);
+    if (n >= 15 && rnd() < 0.35) c++;
+    return Math.min(6, c);
+  }
+
+  var HUES = [192, 205, 224, 268, 318, 42, 152];
+
+  function mkPlanet(x, y, r, orbR, rnd) {
+    var hue = HUES[Math.min(HUES.length - 1, Math.floor(rnd() * HUES.length))] + (rnd() * 18 - 9);
+    var sf = Math.max(20, r * 0.9);
+    return {
+      ox: x, oy: y, r: r, orbR: orbR,
+      orbW: orbR > 0 ? (rnd() < 0.5 ? -1 : 1) * rr(rnd, 0.22, 0.5) : 0,
+      orbPh: rnd() * Math.PI * 2,
+      hue: hue, rep: false, mu: MU_K * r * r, soft2: sf * sf, seed: rnd()
+    };
+  }
+
+  /* at least one planet actually sits in the tee->hole corridor */
+  function corridorOK(planets, tee, hol) {
+    var dx = hol.x - tee.x, dy = hol.y - tee.y, L2 = dx * dx + dy * dy;
+    if (L2 <= 0) return false;
+    for (var i = 0; i < planets.length; i++) {
+      var p = planets[i];
+      var u = ((p.ox - tee.x) * dx + (p.oy - tee.y) * dy) / L2;
+      if (u < 0.12 || u > 0.88) continue;
+      if (dist(p.ox, p.oy, tee.x + dx * u, tee.y + dy * u) < p.r + p.orbR + 150) return true;
+    }
+    return false;
+  }
+
+  /* Every shot starts from the tee, so a hole is only fair if it can be sunk
+     in ONE shot. Deterministic coarse sweep, ordered outward from the direct
+     bearing so easy holes bail out after a handful of trials. */
+  function solvable(course, need, budget) {
+    var tee = course.tee, hol = course.hole;
+    var base = Math.atan2(hol.y - tee.y, hol.x - tee.x);
+    var s = { x: 0, y: 0, vx: 0, vy: 0 };
+    var NA = 240, NP = 12, step = Math.PI * 2 / NA;
+    var maxSteps = Math.round(FLIGHT_MAX * 240);
+    var found = 0, used = 0, ai, pi, k;
+    for (ai = 0; ai < NA; ai++) {
+      var half = (ai + 1) >> 1;
+      var ang = base + ((ai & 1) ? half : -half) * step;
+      var ca = Math.cos(ang), sa = Math.sin(ang);
+      for (pi = 0; pi < NP; pi++) {
+        var sp = MAX_SPEED * (0.18 + 0.82 * pi / (NP - 1));
+        s.x = tee.x; s.y = tee.y; s.vx = ca * sp; s.vy = sa * sp;
+        for (k = 0; k < maxSteps; k++) {
+          var e = substep(course, s, k * DT);
+          used++;
+          if (e) { if (e.type === 'sink') found++; break; }
+        }
+        if (found >= need) return true;
+        if (used > budget) return false;
+      }
+    }
+    return false;
+  }
+
+  function genHole(n) {
+    var rnd = mulberry32(Math.imul(n, 0x9E3779B1) ^ 0x51ED2701);
+    var i, j, k;
+    for (i = 0; i < 8; i++) rnd();                    // warm up
+    var count = countFor(n, rnd);
+    var allowRep = n >= 4, allowOrb = n >= 7;
+    var repChance = n >= 7 ? 0.55 : 0.35;
+    var orbChance = n >= 10 ? 0.5 : 0.38;
+
+    for (var attempt = 0; attempt < 90; attempt++) {
+      var relax = attempt > 60;                       // drop the corridor rule if desperate
+      var tee = { x: rr(rnd, 0.07, 0.21) * W, y: rr(rnd, 0.18, 0.82) * H };
+      var hol = { x: rr(rnd, 0.77, 0.93) * W, y: rr(rnd, 0.18, 0.82) * H };
+      var planets = [], ok = true;
+
+      for (i = 0; i < count; i++) {
+        var placed = null;
+        for (k = 0; k < 140; k++) {
+          var r = rr(rnd, 22, 54);
+          var orbR = (allowOrb && rnd() < orbChance) ? rr(rnd, 30, 78) : 0;
+          var x = rr(rnd, 0.20, 0.88) * W;
+          var y = rr(rnd, 0.10, 0.90) * H;
+          var eff = r + orbR;                          // swept disc of the whole orbit
+          if (x - eff < 8 || x + eff > W - 8 || y - eff < 8 || y + eff > H - 8) continue;
+          if (dist(x, y, tee.x, tee.y) < eff + 158) continue;
+          if (dist(x, y, hol.x, hol.y) < eff + 112) continue;
+          var clash = false;
+          for (j = 0; j < planets.length; j++) {
+            var q = planets[j];
+            if (dist(x, y, q.ox, q.oy) < eff + q.r + q.orbR + 58) { clash = true; break; }
+          }
+          if (clash) continue;
+          placed = mkPlanet(x, y, r, orbR, rnd);
+          break;
+        }
+        if (!placed) { ok = false; break; }
+        planets.push(placed);
+      }
+      if (!ok) continue;
+      if (!relax && !corridorOK(planets, tee, hol)) continue;
+
+      var hasRep = false;
+      if (allowRep && rnd() < repChance) {
+        var ri = Math.min(planets.length - 1, Math.floor(rnd() * planets.length));
+        planets[ri].rep = true;
+        planets[ri].hue = 348 + rnd() * 14;
+        planets[ri].mu = -MU_K * planets[ri].r * planets[ri].r * 0.8;
+        hasRep = true;
+      }
+      var hasOrb = false;
+      for (i = 0; i < planets.length; i++) if (planets[i].orbR > 0) hasOrb = true;
+
+      var par = 2 + Math.floor(count / 2) + (hasOrb ? 1 : 0);
+      if (par < 2) par = 2;
+      if (par > 5) par = 5;
+
+      var cand = { n: n, par: par, tee: tee, hole: hol, planets: planets,
+                   hasRep: hasRep, hasOrb: hasOrb };
+      if (!solvable(cand, 2, 1600000)) continue;
+      return cand;
+    }
+
+    // deterministic safety net (generation has never needed it)
+    return {
+      n: n, par: 2, tee: { x: W * 0.14, y: H * 0.5 }, hole: { x: W * 0.86, y: H * 0.5 },
+      planets: [mkPlanet(W * 0.5, H * 0.5, 40, 0, mulberry32(7))], hasRep: false, hasOrb: false
+    };
+  }
+
+  return {
+    W: W, H: H, DT: DT, BALL_R: BALL_R, MAX_SPEED: MAX_SPEED, MAX_DRAG: MAX_DRAG,
+    MIN_DRAG: MIN_DRAG, CAPTURE_R: CAPTURE_R, FLIGHT_MAX: FLIGHT_MAX, OOB_PAD: OOB_PAD,
+    PREVIEW_STEPS: PREVIEW_STEPS,
+    genHole: genHole, substep: substep, preview: preview,
+    planetX: planetX, planetY: planetY, mulberry32: mulberry32
+  };
+})();
+</script>
+
+<script id="app">
+/* ============================================================
+   APP - rendering, input, audio, flow. Physics lives in #core.
+   ============================================================ */
+(function () {
+'use strict';
+var W = GG.W, H = GG.H, DT = GG.DT, TAU = Math.PI * 2;
+var cv = document.getElementById('cv');
+var ctx = cv.getContext('2d', { alpha: false });
+function $(id) { return document.getElementById(id); }
+var elHole = $('hHole'), elPar = $('hPar'), elStr = $('hStr'), elTot = $('hTot');
+var elHint = $('hint'), elToast = $('toast'), elCard = $('card'), elPanel = $('panel');
+
+/* ---------------- viewport ---------------- */
+var cw = 1, ch = 1, dpr = 1, scale = 1, offX = 0, offY = 0, vig = null;
+function resize() {
+  cw = Math.max(1, window.innerWidth | 0);
+  ch = Math.max(1, window.innerHeight | 0);
+  // cap dpr AND total backing pixels: six full-screen passes per frame
+  // (base + 4 starfield blits + vignette) is what sets the frame cost
+  dpr = Math.min(2, window.devicePixelRatio || 1, Math.sqrt(5.5e6 / (cw * ch)));
+  if (dpr < 1) dpr = 1;
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+  cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+  scale = Math.min(cw / W, ch / H);
+  offX = (cw - W * scale) / 2; offY = (ch - H * scale) / 2;
+  vig = ctx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * 0.26,
+                                 cw / 2, ch / 2, Math.max(cw, ch) * 0.76);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(0.62, 'rgba(2,4,10,0.20)');
+  vig.addColorStop(1, 'rgba(1,2,7,0.72)');
+  buildSky();
+}
+
+/* ---------------- colour + glow sprites (no shadowBlur anywhere) ---------------- */
+function hsl2rgb(h, s, l) {
+  h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
+  var c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  var r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; }
+  else if (h < 180) { g = c; b = x; } else if (h < 240) { g = x; b = c; }
+  else if (h < 300) { r = x; b = c; } else { r = c; b = x; }
+  return Math.round((r + m) * 255) + ',' + Math.round((g + m) * 255) + ',' + Math.round((b + m) * 255);
+}
+var glowCache = {};
+function glow(r, col) {
+  r = Math.max(4, Math.ceil(r / 4) * 4);
+  var key = r + '|' + col, s = glowCache[key];
+  if (s) return s;
+  var px = r * 2;
+  s = document.createElement('canvas'); s.width = px; s.height = px;
+  var g = s.getContext('2d');
+  var gr = g.createRadialGradient(r, r, 0, r, r, r);
+  gr.addColorStop(0, 'rgba(' + col + ',1)');
+  gr.addColorStop(0.16, 'rgba(' + col + ',0.6)');
+  gr.addColorStop(0.4, 'rgba(' + col + ',0.17)');
+  gr.addColorStop(0.7, 'rgba(' + col + ',0.04)');
+  gr.addColorStop(1, 'rgba(' + col + ',0)');
+  g.fillStyle = gr; g.fillRect(0, 0, px, px);
+  glowCache[key] = s; return s;
+}
+function blob(x, y, r, col, a) {
+  if (a <= 0.002) return;
+  ctx.globalAlpha = a > 1 ? 1 : a;
+  ctx.drawImage(glow(r, col), x - r, y - r, r * 2, r * 2);
+  ctx.globalAlpha = 1;
+}
+var qcolCache = {};
+function qcol(hue) {                       // quantised so the sprite cache stays small
+  var h = Math.round(hue / 12) * 12;
+  return qcolCache[h] || (qcolCache[h] = hsl2rgb(h, 95, 66));
+}
+
+/* ---------------- starfield ---------------- */
+var skyA = null, skyB = null, twinks = [];
+function starTile(w, h, count, maxA, maxR) {
+  var c = document.createElement('canvas'); c.width = w; c.height = h;
+  var g = c.getContext('2d'), i;
+  for (i = 0; i < count; i++) {
+    var x = Math.random() * w, y = Math.random() * h;
+    var r = (0.35 + Math.random() * maxR) * dpr;
+    var a = 0.12 + Math.random() * maxA;
+    var col = Math.random() < 0.76 ? '198,226,255'
+            : (Math.random() < 0.5 ? '255,212,168' : '168,214,255');
+    g.fillStyle = 'rgba(' + col + ',' + a.toFixed(3) + ')';
+    g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    if (x < r + 2) { g.beginPath(); g.arc(x + w, y, r, 0, TAU); g.fill(); }
+  }
+  return c;
+}
+function buildSky() {
+  var pw = Math.round(cw * dpr), ph = Math.round(ch * dpr);
+  var dens = (cw * ch) / (1440 * 800);
+  skyA = starTile(pw, ph, Math.round(200 * dens) + 40, 0.5, 0.9);
+  skyB = starTile(pw, ph, Math.round(70 * dens) + 18, 0.85, 1.6);
+  twinks = [];
+  var n = Math.round(40 * dens) + 10;
+  for (var i = 0; i < n; i++) twinks.push({
+    x: Math.random() * cw, y: Math.random() * ch,
+    r: 3 + Math.random() * 5, p: Math.random() * TAU, s: 0.5 + Math.random() * 1.7,
+    c: Math.random() < 0.55 ? '190,232,255' : (Math.random() < 0.5 ? '255,214,170' : '210,180,255')
+  });
+}
+function drawSky(t, bx) {
+  ctx.globalCompositeOperation = 'lighter';
+  var ax = -((t * 3 + bx * 0.010) % cw); if (ax > 0) ax -= cw;
+  ctx.drawImage(skyA, ax, 0, cw, ch); ctx.drawImage(skyA, ax + cw, 0, cw, ch);
+  var bxo = -((t * 9.5 + bx * 0.027) % cw); if (bxo > 0) bxo -= cw;
+  ctx.drawImage(skyB, bxo, 0, cw, ch); ctx.drawImage(skyB, bxo + cw, 0, cw, ch);
+  for (var i = 0; i < twinks.length; i++) {
+    var s = twinks[i];
+    var x = s.x + bxo; if (x < 0) x += cw;
+    blob(x, s.y, s.r, s.c, 0.10 + 0.34 * Math.abs(Math.sin(t * s.s + s.p)));
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------------- audio (synthesised, built on first gesture) ---------------- */
+var AC = null, master = null, muted = false, nbuf = null;
+function audioInit() {
+  if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
+  var C = window.AudioContext || window.webkitAudioContext;
+  if (!C) return;
+  try { AC = new C(); } catch (e) { return; }
+  master = AC.createGain(); master.gain.value = muted ? 0 : 0.85;
+  master.connect(AC.destination);
+  var n = Math.floor(AC.sampleRate * 1.2);
+  nbuf = AC.createBuffer(1, n, AC.sampleRate);
+  var d = nbuf.getChannelData(0);
+  for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+}
+function noiseSrc() { var s = AC.createBufferSource(); s.buffer = nbuf; s.loop = true; return s; }
+function env(g, t, peak, atk, dec) {
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + atk);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + atk + dec);
+}
+function sfxLaunch(p) {
+  if (!AC) return; var t = AC.currentTime;
+  var src = noiseSrc(), bp = AC.createBiquadFilter(), g = AC.createGain();
+  bp.type = 'bandpass'; bp.Q.value = 1.1;
+  bp.frequency.setValueAtTime(260 + 760 * p, t);
+  bp.frequency.exponentialRampToValueAtTime(90 + 130 * p, t + 0.36);
+  env(g, t, 0.3 * (0.45 + 0.55 * p), 0.03, 0.38);
+  src.connect(bp); bp.connect(g); g.connect(master);
+  src.start(t); src.stop(t + 0.46);
+  var o = AC.createOscillator(), g2 = AC.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(160 + 280 * p, t);
+  o.frequency.exponentialRampToValueAtTime(62, t + 0.22);
+  env(g2, t, 0.2 * (0.4 + 0.6 * p), 0.012, 0.24);
+  o.connect(g2); g2.connect(master); o.start(t); o.stop(t + 0.3);
+}
+function sfxCrash() {
+  if (!AC) return; var t = AC.currentTime;
+  var src = noiseSrc(), lp = AC.createBiquadFilter(), g = AC.createGain();
+  lp.type = 'lowpass'; lp.Q.value = 0.8;
+  lp.frequency.setValueAtTime(3200, t);
+  lp.frequency.exponentialRampToValueAtTime(190, t + 0.5);
+  env(g, t, 0.42, 0.008, 0.55);
+  src.connect(lp); lp.connect(g); g.connect(master);
+  src.start(t); src.stop(t + 0.62);
+  var o = AC.createOscillator(), g2 = AC.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(30, t + 0.35);
+  env(g2, t, 0.34, 0.01, 0.4);
+  o.connect(g2); g2.connect(master); o.start(t); o.stop(t + 0.45);
+}
+function sfxSink() {
+  if (!AC) return; var t = AC.currentTime;
+  var notes = [523.25, 659.25, 783.99, 1046.5, 1318.51], i;
+  for (i = 0; i < notes.length; i++) {
+    var st = t + i * 0.085;
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.type = i < 3 ? 'triangle' : 'sine';
+    o.frequency.setValueAtTime(notes[i], st);
+    env(g, st, 0.19, 0.014, 0.5);
+    o.connect(g); g.connect(master); o.start(st); o.stop(st + 0.6);
+  }
+  var src = noiseSrc(), hp = AC.createBiquadFilter(), gs = AC.createGain();
+  hp.type = 'highpass'; hp.frequency.setValueAtTime(1800, t);
+  hp.frequency.exponentialRampToValueAtTime(7000, t + 0.5);
+  env(gs, t, 0.1, 0.25, 0.35);
+  src.connect(hp); hp.connect(gs); gs.connect(master);
+  src.start(t); src.stop(t + 0.7);
+}
+function sfxMiss() {
+  if (!AC) return; var t = AC.currentTime;
+  var o = AC.createOscillator(), g = AC.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(330, t); o.frequency.exponentialRampToValueAtTime(96, t + 0.26);
+  env(g, t, 0.16, 0.01, 0.28);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.34);
+}
+
+/* ---------------- game state ---------------- */
+var course = null, ball = { x: 0, y: 0, vx: 0, vy: 0 };
+var state = 'aim';                       // aim | fly | sink | dead | done
+var holeNum = 1, strokes = 0, scores = [];
+var simStep = 0, flightSteps = 0, subIdx = 0, acc = 0, lastT = 0;
+var waitT = 0, deadFade = 1, sinkT = 0, sinkAng = 0, sinkRad = 0, shake = 0;
+var pendingLaunch = false, launchVX = 0, launchVY = 0, launchPow = 0, hintDone = false;
+var aim = { active: false, ox: 0, oy: 0, px: 0, py: 0, vx: 0, vy: 0,
+            pullX: 0, pullY: 0, len: 0, power: 0, shown: false, svx: 0, svy: 0 };
+
+/* ribbon trail: ring buffer, ~0.8s of flight */
+var TN = 100, trx = new Float32Array(TN), tryy = new Float32Array(TN), tcount = 0, thead = 0;
+function pushTrail(x, y) { trx[thead] = x; tryy[thead] = y; thead = (thead + 1) % TN; if (tcount < TN) tcount++; }
+function clearTrail() { tcount = 0; thead = 0; }
+
+/* particles + shockwave rings */
+var parts = [], rings = [];
+function burst(x, y, hue, n, sc) {
+  for (var i = 0; i < n; i++) {
+    var a = Math.random() * TAU, sp = (40 + Math.random() * 320) * sc;
+    parts.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0,
+                 max: 0.45 + Math.random() * 0.75, size: 1.6 + Math.random() * 3.6,
+                 col: qcol(hue + (Math.random() * 44 - 22)) });
+  }
+  rings.push({ x: x, y: y, life: 0, max: 0.5, col: qcol(hue), sc: sc });
+}
+function updateParts(dt) {
+  var i, p;
+  for (i = parts.length - 1; i >= 0; i--) {
+    p = parts[i]; p.life += dt;
+    if (p.life >= p.max) { parts[i] = parts[parts.length - 1]; parts.pop(); continue; }
+    var damp = Math.exp(-1.6 * dt);
+    p.vx *= damp; p.vy *= damp;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+  }
+  for (i = rings.length - 1; i >= 0; i--) {
+    rings[i].life += dt;
+    if (rings[i].life >= rings[i].max) { rings[i] = rings[rings.length - 1]; rings.pop(); }
+  }
+}
+function drawParts() {
+  ctx.globalCompositeOperation = 'lighter';
+  var i, p, f;
+  for (i = 0; i < parts.length; i++) {
+    p = parts[i]; f = 1 - p.life / p.max;
+    blob(p.x, p.y, p.size * 3.4, p.col, f * f * 0.8);
+  }
+  for (i = 0; i < rings.length; i++) {
+    var r = rings[i]; f = r.life / r.max;
+    ctx.strokeStyle = 'rgba(' + r.col + ',' + ((1 - f) * 0.5).toFixed(3) + ')';
+    ctx.lineWidth = 2.6 * (1 - f) + 0.4;
+    ctx.beginPath(); ctx.arc(r.x, r.y, 8 + f * 90 * r.sc, 0, TAU); ctx.stroke();
+  }
+}
+
+/* black hole ambience */
+var bhP = [], acc1 = null, acc2 = null, coreGrad = null;
+function bhSpawn(p) {
+  p.a = Math.random() * TAU;
+  p.r = GG.CAPTURE_R + 26 + Math.random() * 140;
+  p.sz = 0.8 + Math.random() * 1.9;
+  p.k = 0.75 + Math.random() * 0.6;
+  return p;
+}
+function bhInit() { bhP = []; for (var i = 0; i < 64; i++) bhP.push(bhSpawn({})); }
+function bhUpdate(dt) {
+  for (var i = 0; i < bhP.length; i++) {
+    var p = bhP[i];
+    p.a += (0.5 + 70 / p.r) * p.k * dt;
+    p.r -= (10 + 210 / p.r) * p.k * dt;
+    if (p.r < GG.CAPTURE_R * 0.45) bhSpawn(p);
+  }
+}
+function makeAccretion(size, h0, h1, count) {
+  var c = document.createElement('canvas'); c.width = size; c.height = size;
+  var g = c.getContext('2d'), R = size / 2, i;
+  g.translate(R, R);
+  g.globalCompositeOperation = 'lighter';
+  g.lineCap = 'round';
+  for (i = 0; i < count; i++) {
+    var a0 = Math.random() * TAU, sw = 0.14 + Math.random() * 0.95;
+    g.lineWidth = 0.8 + Math.random() * 2.6;
+    g.strokeStyle = 'hsla(' + (h0 + Math.random() * (h1 - h0)).toFixed(0) + ',100%,'
+      + (56 + Math.random() * 28).toFixed(0) + '%,' + (0.035 + Math.random() * 0.12).toFixed(3) + ')';
+    g.beginPath(); g.arc(0, 0, R * (0.3 + Math.random() * 0.52), a0, a0 + sw); g.stroke();
+  }
+  for (i = 0; i < 70; i++) {                       // hot inner edge
+    var b0 = Math.random() * TAU;
+    g.lineWidth = 0.6 + Math.random() * 1.6;
+    g.strokeStyle = 'hsla(' + (h0 + Math.random() * 40).toFixed(0) + ',100%,80%,'
+      + (0.05 + Math.random() * 0.16).toFixed(3) + ')';
+    g.beginPath(); g.arc(0, 0, R * (0.28 + Math.random() * 0.07), b0, b0 + 0.1 + Math.random() * 0.5); g.stroke();
+  }
+  return c;
+}
+
+/* ---------------- hole lifecycle ---------------- */
+function prepHole(n) {
+  holeNum = n;
+  course = GG.genHole(n);
+  strokes = 0; simStep = 0; acc = 0; parts.length = 0; rings.length = 0;
+  for (var i = 0; i < course.planets.length; i++) {
+    var p = course.planets[i];
+    p.col = hsl2rgb(p.hue, 92, p.rep ? 64 : 60);
+    var g = ctx.createRadialGradient(-p.r * 0.34, -p.r * 0.38, p.r * 0.05, 0, 0, p.r);
+    if (p.rep) {
+      g.addColorStop(0, 'rgba(255,240,246,0.96)');
+      g.addColorStop(0.3, 'rgba(' + hsl2rgb(p.hue, 96, 62) + ',1)');
+      g.addColorStop(1, 'rgba(' + hsl2rgb(p.hue, 82, 15) + ',1)');
+    } else {
+      g.addColorStop(0, 'rgba(' + hsl2rgb(p.hue, 82, 76) + ',1)');
+      g.addColorStop(0.42, 'rgba(' + hsl2rgb(p.hue, 74, 41) + ',1)');
+      g.addColorStop(1, 'rgba(' + hsl2rgb(p.hue, 66, 9) + ',1)');
+    }
+    p.grad = g;
+  }
+  glowCache = {};          // planet hues change per hole; keep the sprite cache bounded
+  bhInit();
+  resetBall();
+  syncHUD();
+}
+function resetBall() {
+  ball.x = course.tee.x; ball.y = course.tee.y; ball.vx = 0; ball.vy = 0;
+  clearTrail(); deadFade = 1; state = 'aim';
+  aim.active = false; aim.shown = false; aim.len = 0; aim.power = 0;
+}
+function doLaunch() {
+  pendingLaunch = false;
+  strokes++;
+  ball.vx = launchVX; ball.vy = launchVY;
+  flightSteps = 0; subIdx = 0;
+  clearTrail(); pushTrail(ball.x, ball.y);
+  state = 'fly';
+  sfxLaunch(launchPow);
+  if (!hintDone) { hintDone = true; elHint.classList.add('off'); }
+  syncHUD();
+}
+function endShot(e) {
+  if (e.type === 'sink') {
+    ball.x = e.x; ball.y = e.y; pushTrail(e.x, e.y);
+    sinkAng = Math.atan2(e.y - course.hole.y, e.x - course.hole.x);
+    sinkRad = Math.hypot(e.x - course.hole.x, e.y - course.hole.y);
+    sinkT = 0; state = 'sink'; sfxSink();
+  } else if (e.type === 'crash') {
+    ball.x = e.x; ball.y = e.y; pushTrail(e.x, e.y);
+    burst(e.x, e.y, course.planets[e.idx].hue, 34, 1);
+    shake = 4; sfxCrash(); toast('Crashed', '#ff6b8a');
+    state = 'dead'; waitT = 0.6;
+  } else {
+    toast(e.type === 'oob' ? 'Out of bounds' : 'Flight timed out', '#ffcf6b');
+    sfxMiss(); state = 'dead'; waitT = 0.5;
+  }
+}
+function finishHole() {
+  scores.push({ hole: holeNum, par: course.par, strokes: strokes });
+  state = 'done'; syncHUD();
+  if (scores.length % 9 === 0) showCard(); else showResult();
+}
+
+/* ---------------- fixed-step update ---------------- */
+function fixedUpdate() {
+  if (pendingLaunch) doLaunch();
+  if (state === 'fly') {
+    var e = GG.substep(course, ball, simStep * DT);
+    subIdx++;
+    if ((subIdx & 1) === 0) pushTrail(ball.x, ball.y);
+    flightSteps++;
+    if (e) endShot(e);
+    else if (flightSteps >= GG.FLIGHT_MAX * 240) endShot({ type: 'timeout', idx: -1, x: ball.x, y: ball.y });
+  }
+  simStep++;
+}
+
+/* ---------------- input: pointer = mouse + touch + pen ---------------- */
+function toWorld(e, out) { out.x = (e.clientX - offX) / scale; out.y = (e.clientY - offY) / scale; }
+var tmp = { x: 0, y: 0 };
+function updateAim() {
+  var dx = aim.px - aim.ox, dy = aim.py - aim.oy;
+  var len = Math.hypot(dx, dy);
+  aim.len = len; aim.pullX = dx; aim.pullY = dy;
+  aim.power = Math.min(len, GG.MAX_DRAG) / GG.MAX_DRAG;
+  if (len > 1e-6) {
+    var sp = aim.power * GG.MAX_SPEED;
+    aim.vx = -dx / len * sp; aim.vy = -dy / len * sp;
+  } else { aim.vx = 0; aim.vy = 0; }
+}
+cv.addEventListener('pointerdown', function (e) {
+  e.preventDefault();
+  audioInit();
+  if (state !== 'aim') return;
+  toWorld(e, tmp);
+  aim.active = true; aim.shown = false;
+  if (Math.hypot(tmp.x - ball.x, tmp.y - ball.y) <= 170) { aim.ox = ball.x; aim.oy = ball.y; }
+  else { aim.ox = tmp.x; aim.oy = tmp.y; }
+  aim.px = tmp.x; aim.py = tmp.y;
+  updateAim();
+  try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+}, { passive: false });
+cv.addEventListener('pointermove', function (e) {
+  if (!aim.active) return;
+  e.preventDefault();
+  toWorld(e, tmp);
+  aim.px = tmp.x; aim.py = tmp.y;
+  updateAim();
+}, { passive: false });
+function release(e) {
+  if (!aim.active) return;
+  if (e) e.preventDefault();
+  aim.active = false;
+  if (state !== 'aim' || aim.len < GG.MIN_DRAG) return;
+  // fire exactly the velocity the last drawn preview used, so the shot cannot
+  // differ from the dotted line the player was looking at
+  launchVX = aim.shown ? aim.svx : aim.vx;
+  launchVY = aim.shown ? aim.svy : aim.vy;
+  launchPow = aim.power;
+  pendingLaunch = true;
+}
+cv.addEventListener('pointerup', release, { passive: false });
+cv.addEventListener('pointercancel', release, { passive: false });
+cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
+document.addEventListener('pointerdown', audioInit, { once: true });
+
+/* ---------------- drawing ---------------- */
+var CORNERS = [[0, 0, 1, 1], [W, 0, -1, 1], [0, H, 1, -1], [W, H, -1, -1]];
+function drawBounds() {
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(99,242,255,0.075)'; ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, W - 2, H - 2);
+  ctx.strokeStyle = 'rgba(99,242,255,0.3)'; ctx.lineWidth = 2;
+  var L = 34;
+  for (var i = 0; i < 4; i++) {
+    var q = CORNERS[i];
+    ctx.beginPath();
+    ctx.moveTo(q[0] + q[2] * L, q[1] + q[3] * 1);
+    ctx.lineTo(q[0] + q[2] * 1, q[1] + q[3] * 1);
+    ctx.lineTo(q[0] + q[2] * 1, q[1] + q[3] * L);
+    ctx.stroke();
+  }
+}
+function drawBlackHole(t) {
+  var x = course.hole.x, y = course.hole.y, i;
+  ctx.globalCompositeOperation = 'lighter';
+  for (i = 0; i < bhP.length; i++) {
+    var p = bhP[i];
+    var f = 1 - (p.r - GG.CAPTURE_R * 0.45) / 150;
+    if (f < 0) f = 0; else if (f > 1) f = 1;
+    blob(x + Math.cos(p.a) * p.r, y + Math.sin(p.a) * p.r, p.sz * 4.5,
+         '150,215,255', 0.1 + 0.5 * f * f);
+  }
+  blob(x, y, 132, '96,170,255', 0.17);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(t * 0.42);
+  ctx.drawImage(acc1, -120, -120, 240, 240);
+  ctx.rotate(-t * 1.05);
+  ctx.globalAlpha = 0.8; ctx.drawImage(acc2, -85, -85, 170, 170); ctx.globalAlpha = 1;
+  ctx.restore();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath(); ctx.arc(0, 0, 46, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(190,238,255,0.6)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(x, y, GG.CAPTURE_R + 3, 0, TAU); ctx.stroke();
+  ctx.setLineDash([5, 8]);
+  ctx.strokeStyle = 'rgba(120,255,205,0.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(x, y, GG.CAPTURE_R, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]);
+}
+function drawPlanet(p, t) {
+  var x = GG.planetX(p, t), y = GG.planetY(p, t);
+  ctx.globalCompositeOperation = 'lighter';
+  var pulse = p.rep ? 0.72 + 0.28 * Math.sin(t * 3.6 + p.seed * TAU) : 1;
+  blob(x, y, p.r * 3.1, p.col, (p.rep ? 0.5 : 0.36) * pulse);
+  // static well rings
+  ctx.strokeStyle = 'rgba(' + p.col + ',' + (0.13 * pulse).toFixed(3) + ')';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(x, y, p.r * 1.55, 0, TAU); ctx.stroke();
+  if (p.r > 33) {
+    ctx.strokeStyle = 'rgba(' + p.col + ',' + (0.07 * pulse).toFixed(3) + ')';
+    ctx.beginPath(); ctx.arc(x, y, p.r * 2.2, 0, TAU); ctx.stroke();
+  }
+  // travelling ring: inward for a well, outward for a repulsor
+  var w = (t * 0.42 + p.seed) % 1;
+  var rr = p.rep ? p.r * (1.15 + 1.5 * w) : p.r * (2.75 - 1.5 * w);
+  var ra = p.rep ? (1 - w) * 0.3 : w * 0.26;
+  ctx.strokeStyle = 'rgba(' + p.col + ',' + ra.toFixed(3) + ')';
+  ctx.lineWidth = p.rep ? 2 : 1.6;
+  ctx.beginPath(); ctx.arc(x, y, rr, 0, TAU); ctx.stroke();
+  // body
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = p.grad;
+  ctx.beginPath(); ctx.arc(0, 0, p.r, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(' + p.col + ',' + (p.rep ? 0.75 : 0.42) + ')';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(x, y, p.r - 0.7, 0, TAU); ctx.stroke();
+  if (p.rep) {                              // repulsor: hazard chevrons
+    ctx.strokeStyle = 'rgba(255,225,235,' + (0.35 * pulse).toFixed(3) + ')';
+    ctx.lineWidth = 1.6;
+    for (var k = 0; k < 3; k++) {
+      var a = t * 0.9 + k * TAU / 3;
+      ctx.beginPath();
+      ctx.arc(x, y, p.r * 0.62, a - 0.34, a + 0.34);
+      ctx.stroke();
+    }
+  }
+}
+function drawTee() {
+  var x = course.tee.x, y = course.tee.y;
+  ctx.globalCompositeOperation = 'lighter';
+  blob(x, y, 40, '80,150,220', 0.16);
+  ctx.setLineDash([4, 7]);
+  ctx.strokeStyle = 'rgba(120,200,255,0.3)'; ctx.lineWidth = 1.1;
+  ctx.beginPath(); ctx.arc(x, y, 19, 0, TAU); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(120,200,255,0.5)'; ctx.lineWidth = 1.4;
+  for (var i = 0; i < 4; i++) {
+    var a = i * Math.PI / 2 + Math.PI / 4;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * 14, y + Math.sin(a) * 14);
+    ctx.lineTo(x + Math.cos(a) * 21, y + Math.sin(a) * 21);
+    ctx.stroke();
+  }
+}
+function drawAim(t) {
+  ctx.globalCompositeOperation = 'lighter';
+  // pull band
+  var ex = ball.x + aim.pullX, ey = ball.y + aim.pullY;
+  ctx.setLineDash([3, 6]);
+  ctx.strokeStyle = 'rgba(255,90,150,0.4)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(ball.x, ball.y); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.setLineDash([]);
+  blob(ex, ey, 16, '255,110,160', 0.45);
+  if (aim.len < GG.MIN_DRAG) return;
+  // power wing
+  var ang = Math.atan2(aim.vy, aim.vx);
+  ctx.strokeStyle = aim.power > 0.86 ? 'rgba(255,120,150,0.9)' : 'rgba(120,240,255,0.75)';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, 22, ang - 1.0 * aim.power, ang + 1.0 * aim.power); ctx.stroke();
+  // the promise: same integrator, same dt, same planet motion as the flight
+  var pv = GG.preview(course, ball.x, ball.y, aim.vx, aim.vy, simStep);
+  aim.svx = aim.vx; aim.svy = aim.vy; aim.shown = true;
+  var dot = glow(8, '150,235,255');
+  for (var k = 3; k < pv.n; k += 6) {
+    var f = k / GG.PREVIEW_STEPS;
+    var r = 3.6 - 1.4 * f;
+    ctx.globalAlpha = 0.72 - 0.42 * f;
+    ctx.drawImage(dot, pv.pts[k << 1] - r, pv.pts[(k << 1) + 1] - r, r * 2, r * 2);
+  }
+  ctx.globalAlpha = 1;
+  if (pv.end) {
+    if (pv.end.type === 'sink') {
+      ctx.strokeStyle = 'rgba(130,255,205,0.9)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(course.hole.x, course.hole.y, GG.CAPTURE_R * (0.72 + 0.16 * Math.sin(t * 7)), 0, TAU);
+      ctx.stroke();
+    } else if (pv.end.type === 'crash') {
+      ctx.strokeStyle = 'rgba(255,110,130,0.85)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pv.end.x - 6, pv.end.y - 6); ctx.lineTo(pv.end.x + 6, pv.end.y + 6);
+      ctx.moveTo(pv.end.x + 6, pv.end.y - 6); ctx.lineTo(pv.end.x - 6, pv.end.y + 6);
+      ctx.stroke();
+    }
+  }
+}
+function drawBall(t) {
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+  var n = tcount, k, i0, i1, f;
+  for (k = 1; k < n; k++) {
+    i0 = (thead - n + k - 1 + TN) % TN; i1 = (thead - n + k + TN) % TN;
+    f = k / n;
+    ctx.strokeStyle = 'rgba(' + (120 + 125 * f | 0) + ',' + (208 + 47 * f | 0) + ',255,'
+      + ((0.04 + 0.5 * f * f) * deadFade).toFixed(3) + ')';
+    ctx.lineWidth = 0.7 + 4.4 * f * f;
+    ctx.beginPath(); ctx.moveTo(trx[i0], tryy[i0]); ctx.lineTo(trx[i1], tryy[i1]); ctx.stroke();
+  }
+  if (deadFade <= 0.02) return;
+  var sc = state === 'sink' ? Math.max(0.12, 1 - sinkT / 0.55) : 1;
+  var pulse = state === 'aim' ? 1 + 0.1 * Math.sin(t * 3.2) : 1;
+  blob(ball.x, ball.y, 32 * pulse * sc, '140,235,255', 0.5 * deadFade);
+  blob(ball.x, ball.y, 14 * sc, '225,255,255', 0.85 * deadFade);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(255,255,255,' + deadFade.toFixed(3) + ')';
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, GG.BALL_R * sc, 0, TAU); ctx.fill();
+}
+
+function render(dt) {
+  if (state === 'dead') {
+    waitT -= dt;
+    deadFade = Math.max(0, deadFade - dt * 2.2);
+    if (waitT <= 0) resetBall();
+  } else if (state === 'sink') {
+    sinkT += dt;
+    var k = Math.min(1, sinkT / 0.55);
+    sinkAng += (7 + 20 * k) * dt;
+    var rad = sinkRad * (1 - k) * (1 - k);
+    ball.x = course.hole.x + Math.cos(sinkAng) * rad;
+    ball.y = course.hole.y + Math.sin(sinkAng) * rad;
+    pushTrail(ball.x, ball.y);
+    if (k >= 1) {
+      burst(course.hole.x, course.hole.y, 196, 46, 1.5);
+      shake = 2.4; deadFade = 0; clearTrail();     // ball and ribbon are gone with it
+      finishHole();
+    }
+  }
+  updateParts(dt);
+  bhUpdate(dt);
+  shake *= Math.exp(-7 * dt);
+
+  var t = simStep * DT, i;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#04060d';
+  ctx.fillRect(0, 0, cw, ch);
+  drawSky(t, ball.x);
+
+  var sx = 0, sy = 0;
+  if (shake > 0.03) { sx = (Math.random() * 2 - 1) * shake; sy = (Math.random() * 2 - 1) * shake; }
+  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * (offX + sx), dpr * (offY + sy));
+  drawBounds();
+  drawBlackHole(t);
+  drawTee();
+  for (i = 0; i < course.planets.length; i++) drawPlanet(course.planets[i], t);
+  if (state === 'aim' && aim.active) drawAim(t);
+  drawParts();
+  drawBall(t);
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, cw, ch);
+}
+
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!lastT) lastT = now;
+  var dt = (now - lastT) / 1000;
+  lastT = now;
+  if (dt > 0.25) dt = 0.25;
+  acc += dt;
+  var guard = 0;
+  while (acc >= DT && guard < 900) { acc -= DT; fixedUpdate(); guard++; }
+  render(dt);
+}
+
+/* ---------------- HUD, cards, buttons ---------------- */
+function fmtRel(v) { return v === 0 ? 'E' : (v > 0 ? '+' + v : '−' + (-v)); }
+function totalRel() {
+  var s = 0;
+  for (var i = 0; i < scores.length; i++) s += scores[i].strokes - scores[i].par;
+  return s;
+}
+function syncHUD() {
+  elHole.textContent = holeNum;
+  elPar.textContent = course.par;
+  elStr.textContent = strokes;
+  var r = totalRel();
+  elTot.textContent = fmtRel(r);
+  elTot.className = r < 0 ? 'u' : (r > 0 ? 'o' : '');
+}
+var toastTid = 0;
+function toast(msg, col) {
+  elToast.textContent = msg;
+  elToast.style.color = col || '#ff5ad6';
+  elToast.classList.add('on');
+  clearTimeout(toastTid);
+  toastTid = setTimeout(function () { elToast.classList.remove('on'); }, 1100);
+}
+function resultName(s, par) {
+  if (s === 1) return 'Hole in one';
+  var d = s - par;
+  if (d <= -3) return 'Albatross';
+  if (d === -2) return 'Eagle';
+  if (d === -1) return 'Birdie';
+  if (d === 0) return 'Par';
+  if (d === 1) return 'Bogey';
+  if (d === 2) return 'Double bogey';
+  if (d === 3) return 'Triple bogey';
+  return '+' + d;
+}
+function showResult() {
+  var s = scores[scores.length - 1];
+  elPanel.innerHTML =
+    '<h2>Hole ' + s.hole + ' sunk</h2>'
+    + '<div class="big' + (s.strokes <= s.par ? ' gold' : '') + '">' + resultName(s.strokes, s.par) + '</div>'
+    + '<div class="row"><span>Strokes <b>' + s.strokes + '</b></span>'
+    + '<span>Par <b>' + s.par + '</b></span>'
+    + '<span>Total <b>' + fmtRel(totalRel()) + '</b></span></div>'
+    + '<div class="actions"><button class="primary" id="bNext">Next hole &rarr;</button></div>';
+  $('bNext').onclick = nextHole;
+  elCard.classList.add('on');
+}
+function showCard() {
+  var rows = scores.slice(scores.length - 9);
+  var th = '<tr><th></th>', pr = '<tr><td class="lbl">Par</td>', sr = '<tr><td class="lbl">Score</td>';
+  var tp = 0, ts = 0, i;
+  for (i = 0; i < rows.length; i++) {
+    var d = rows[i].strokes - rows[i].par;
+    th += '<th>' + rows[i].hole + '</th>';
+    pr += '<td>' + rows[i].par + '</td>';
+    sr += '<td class="' + (d < 0 ? 'u' : d > 0 ? 'o' : 'e') + '">' + rows[i].strokes + '</td>';
+    tp += rows[i].par; ts += rows[i].strokes;
+  }
+  th += '<th>Tot</th></tr>';
+  pr += '<td class="tot">' + tp + '</td></tr>';
+  sr += '<td class="tot">' + ts + '</td></tr>';
+  var rel = totalRel();
+  elPanel.innerHTML =
+    '<h2>Scorecard &middot; holes ' + rows[0].hole + '&ndash;' + rows[rows.length - 1].hole + '</h2>'
+    + '<div class="big gold">' + fmtRel(rel) + (rel === 0 ? '' : ' vs par') + '</div>'
+    + '<table>' + th + pr + sr + '</table>'
+    + '<div class="row"><span>Total strokes <b>' + scores.reduce(function (a, b) { return a + b.strokes; }, 0) + '</b></span>'
+    + '<span>Holes played <b>' + scores.length + '</b></span></div>'
+    + '<div class="actions"><button class="primary" id="bNext">Play on &rarr;</button>'
+    + '<button id="bAgain">Restart course</button></div>';
+  $('bNext').onclick = nextHole;
+  $('bAgain').onclick = restart;
+  elCard.classList.add('on');
+}
+function nextHole() { elCard.classList.remove('on'); prepHole(holeNum + 1); }
+function restart() { elCard.classList.remove('on'); scores = []; prepHole(1); }
+$('bRestart').onclick = restart;
+$('bMute').onclick = function () {
+  muted = !muted;
+  if (master) master.gain.value = muted ? 0 : 0.85;
+  this.textContent = muted ? 'Muted' : 'Sound on';
+};
+
+/* ---------------- boot ---------------- */
+resize();
+acc1 = makeAccretion(240, 186, 268, 300);
+acc2 = makeAccretion(170, 190, 322, 170);
+coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 46);
+coreGrad.addColorStop(0, 'rgba(1,2,6,1)');
+coreGrad.addColorStop(0.56, 'rgba(1,2,6,1)');
+coreGrad.addColorStop(0.78, 'rgba(2,4,10,0.72)');
+coreGrad.addColorStop(1, 'rgba(4,6,13,0)');
+prepHole(1);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
