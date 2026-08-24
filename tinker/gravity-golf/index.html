@@ -138,10 +138,13 @@ var GG = (function () {
   var CAPTURE_R = 26;             // black hole capture radius
   var FLIGHT_MAX = 14;            // seconds before the shot times out
   var OOB_PAD = 40;               // slack outside the world rect
-  var PREVIEW_STEPS = 480;        // 2 seconds at DT
-  var MAXP = 8;                   // hard cap on planets per hole
+  var PREVIEW_STEPS = 480;        // 2 seconds at DT - the ceiling, not the default
+  var MAXP = 26;                  // hard cap on bodies (planets + belt rocks) per hole
+  var WARP_R = 30;                // wormhole mouth radius
+  var BOUNCE_E = 0.94;            // bumper restitution
+  var TAU = Math.PI * 2;
 
-  // scratch for planet positions at the current substep time
+  // scratch for body positions at the current substep time
   var PX = new Float64Array(MAXP), PY = new Float64Array(MAXP);
 
   function mulberry32(a) {
@@ -153,9 +156,13 @@ var GG = (function () {
     };
   }
 
-  /* --- closed-form planet motion: identical math for physics and rendering --- */
+  /* --- closed-form body motion: identical math for physics and rendering --- */
   function planetX(p, t) { return p.orbR > 0 ? p.ox + p.orbR * Math.cos(p.orbPh + p.orbW * t) : p.ox; }
   function planetY(p, t) { return p.orbR > 0 ? p.oy + p.orbR * Math.sin(p.orbPh + p.orbW * t) : p.oy; }
+
+  /* the hole drifts too, from hole 14 on */
+  function holeX(c, t) { var h = c.hole; return h.orbR > 0 ? h.x + h.orbR * Math.cos(h.orbPh + h.orbW * t) : h.x; }
+  function holeY(c, t) { var h = c.hole; return h.orbR > 0 ? h.y + h.orbR * Math.sin(h.orbPh + h.orbW * t) : h.y; }
 
   function planetsAt(ps, t) {
     for (var i = 0; i < ps.length; i++) {
@@ -184,28 +191,67 @@ var GG = (function () {
     return (t >= 0 && t <= 1) ? t : -1;
   }
 
-  /* swept collision against the hole and every planet (no tunnelling) */
-  function hitTest(course, x0, y0, x1, y1) {
-    var ps = course.planets, best = 2, kind = -1, idx = -1, i;
-    var t = segCircle(x0, y0, x1, y1, course.hole.x, course.hole.y, CAPTURE_R);
+  /* One reused event record. Every caller consumes it before the next substep. */
+  var EV = { type: '', idx: -1, x: 0, y: 0 };
+
+  /* swept collision against the hole, every body and every wormhole mouth */
+  function hitTest(course, x0, y0, x1, y1, hx, hy) {
+    var ps = course.planets, ws = course.warps, best = 2, kind = -1, idx = -1, i, t;
+    t = segCircle(x0, y0, x1, y1, hx, hy, CAPTURE_R);
     if (t >= 0) { best = t; kind = 0; }
     for (i = 0; i < ps.length; i++) {
-      var t2 = segCircle(x0, y0, x1, y1, PX[i], PY[i], ps[i].r + BALL_R);
-      if (t2 >= 0 && t2 < best) { best = t2; kind = 1; idx = i; }
+      t = segCircle(x0, y0, x1, y1, PX[i], PY[i], ps[i].r + BALL_R);
+      if (t >= 0 && t < best) { best = t; kind = 1; idx = i; }
+    }
+    for (i = 0; i < ws.length; i++) {
+      t = segCircle(x0, y0, x1, y1, ws[i].ax, ws[i].ay, WARP_R);
+      if (t >= 0 && t < best) { best = t; kind = 2; idx = i << 1; }
+      t = segCircle(x0, y0, x1, y1, ws[i].bx, ws[i].by, WARP_R);
+      if (t >= 0 && t < best) { best = t; kind = 2; idx = (i << 1) | 1; }
     }
     if (kind < 0) return null;
-    return { type: kind === 0 ? 'sink' : 'crash', idx: idx,
-             x: x0 + (x1 - x0) * best, y: y0 + (y1 - y0) * best };
+    EV.type = kind === 0 ? 'sink' : kind === 2 ? 'warp' : (ps[idx].bump ? 'bounce' : 'crash');
+    EV.idx = idx;
+    EV.x = x0 + (x1 - x0) * best;
+    EV.y = y0 + (y1 - y0) * best;
+    return EV;
+  }
+
+  /* elastic reflection off a bumper. Bumpers carry no gravity - they are mirrors. */
+  function doBounce(ps, idx, s, hx, hy) {
+    var cx = PX[idx], cy = PY[idx], R = ps[idx].r + BALL_R;
+    var nx = hx - cx, ny = hy - cy, d = Math.sqrt(nx * nx + ny * ny);
+    if (d < 1e-6) {                                  // degenerate: bounce straight back
+      d = Math.sqrt(s.vx * s.vx + s.vy * s.vy) || 1;
+      nx = -s.vx / d; ny = -s.vy / d;
+    } else { nx /= d; ny /= d; }
+    var vn = s.vx * nx + s.vy * ny;
+    if (vn < 0) { s.vx -= 2 * vn * nx; s.vy -= 2 * vn * ny; }   // reflect only if incoming
+    s.vx *= BOUNCE_E; s.vy *= BOUNCE_E;
+    s.x = cx + nx * (R + 0.9);                       // settle just outside, never inside
+    s.y = cy + ny * (R + 0.9);
+    s.bounced = 1;
+  }
+
+  /* wormhole: same speed, same heading, other mouth. Exit is displaced along the
+     direction of travel so the ball is already leaving and cannot re-trigger. */
+  function doWarp(w, side, s) {
+    var ex = side ? w.ax : w.bx, ey = side ? w.ay : w.by;
+    var sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy), ux = 1, uy = 0;
+    if (sp > 1e-6) { ux = s.vx / sp; uy = s.vy / sp; }
+    s.x = ex + ux * (WARP_R + BALL_R + 4);
+    s.y = ey + uy * (WARP_R + BALL_R + 4);
   }
 
   /* ONE semi-implicit (symplectic) Euler substep.
      s = {x,y,vx,vy}; t = absolute hole time at the START of the step.
-     Returns null, or the event that ended the shot. */
+     Returns null, or the event that ended the shot. Bounces and warps are
+     resolved in place and do NOT end the shot. */
   function substep(course, s, t) {
-    var ps = course.planets, n = ps.length, i;
+    var ps = course.planets, n = course.gravN, i;
     planetsAt(ps, t);
     var ax = 0, ay = 0;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {                 // gravity bodies are sorted to the front
       var dx = PX[i] - s.x, dy = PY[i] - s.y;
       var d2 = dx * dx + dy * dy;
       var sf = ps[i].soft2;
@@ -216,26 +262,34 @@ var GG = (function () {
     s.vx += ax * DT; s.vy += ay * DT;         // velocity first...
     var x0 = s.x, y0 = s.y;
     s.x += s.vx * DT; s.y += s.vy * DT;       // ...then position (symplectic)
-    var hit = hitTest(course, x0, y0, s.x, s.y);
-    if (hit) return hit;
-    if (s.x < -OOB_PAD || s.x > W + OOB_PAD || s.y < -OOB_PAD || s.y > H + OOB_PAD)
-      return { type: 'oob', idx: -1, x: s.x, y: s.y };
+    var hit = hitTest(course, x0, y0, s.x, s.y, holeX(course, t), holeY(course, t));
+    if (hit) {
+      if (hit.type === 'bounce') { doBounce(ps, hit.idx, s, hit.x, hit.y); return null; }
+      if (hit.type === 'warp') { doWarp(course.warps[hit.idx >> 1], hit.idx & 1, s); s.warped = 1; return null; }
+      return hit;
+    }
+    if (s.x < -OOB_PAD || s.x > W + OOB_PAD || s.y < -OOB_PAD || s.y > H + OOB_PAD) {
+      EV.type = 'oob'; EV.idx = -1; EV.x = s.x; EV.y = s.y; return EV;
+    }
     return null;
   }
 
   /* Trajectory preview. Same substep(), same DT, same absolute-time formula
-     (step index * DT) that the live loop uses, so the path is bit-identical. */
+     (step index * DT) that the live loop uses, so the path is bit-identical.
+     `steps` is how far ahead the caller is allowed to see - the game shrinks it
+     as the course gets harder, so the preview stops being a solution. */
   var PREV = new Float64Array(PREVIEW_STEPS * 2);
-  var pst = { x: 0, y: 0, vx: 0, vy: 0 };
-  function preview(course, x, y, vx, vy, step0) {
-    pst.x = x; pst.y = y; pst.vx = vx; pst.vy = vy;
+  var pst = { x: 0, y: 0, vx: 0, vy: 0, warped: 0 };
+  function preview(course, x, y, vx, vy, step0, steps) {
+    pst.x = x; pst.y = y; pst.vx = vx; pst.vy = vy; pst.warped = 0;
+    var N = steps > 0 ? Math.min(steps, PREVIEW_STEPS) : PREVIEW_STEPS;
     var n = 0, end = null;
-    for (var k = 0; k < PREVIEW_STEPS; k++) {
+    for (var k = 0; k < N; k++) {
       var e = substep(course, pst, (step0 + k) * DT);
       PREV[n << 1] = pst.x; PREV[(n << 1) + 1] = pst.y; n++;
       if (e) { PREV[(n - 1) << 1] = e.x; PREV[((n - 1) << 1) + 1] = e.y; end = e; break; }
     }
-    return { pts: PREV, n: n, end: end };
+    return { pts: PREV, n: n, steps: N, end: end };
   }
 
   /* ---------------- course generation ---------------- */
@@ -250,7 +304,21 @@ var GG = (function () {
     return Math.min(6, c);
   }
 
-  var HUES = [192, 205, 224, 268, 318, 42, 152];
+  /* Which mechanics this hole is allowed to use. Drawn once per hole so the
+     hole keeps its identity across generation retries. */
+  function featuresFor(n, rnd) {
+    return {
+      rep:   n >= 4 && rnd() < (n >= 7 ? 0.55 : 0.35),
+      belt:  n >= 5 && rnd() < (n >= 9 ? 0.50 : 0.32),
+      belt2: n >= 16 && rnd() < 0.35,
+      orb:   n >= 7,
+      warp:  n >= 8 && rnd() < (n >= 12 ? 0.45 : 0.30),
+      bump:  n >= 11 && rnd() < 0.40,
+      drift: n >= 14 && rnd() < 0.40
+    };
+  }
+
+  var HUES = [192, 205, 224, 268, 318, 42];   // green is reserved for bumpers
 
   function mkPlanet(x, y, r, orbR, rnd) {
     var hue = HUES[Math.min(HUES.length - 1, Math.floor(rnd() * HUES.length))] + (rnd() * 18 - 9);
@@ -258,10 +326,23 @@ var GG = (function () {
     return {
       ox: x, oy: y, r: r, orbR: orbR,
       orbW: orbR > 0 ? (rnd() < 0.5 ? -1 : 1) * rr(rnd, 0.22, 0.5) : 0,
-      orbPh: rnd() * Math.PI * 2,
-      hue: hue, rep: false, mu: MU_K * r * r, soft2: sf * sf, seed: rnd()
+      orbPh: rnd() * TAU,
+      hue: hue, sat: 92, rep: false, bump: false, rock: false,
+      mu: MU_K * r * r, soft2: sf * sf, seed: rnd()
     };
   }
+
+  function mkRock(host, beltR, r, phase, spin, rnd) {
+    return {
+      ox: host.ox, oy: host.oy, r: r, orbR: beltR,
+      orbW: spin, orbPh: phase,
+      hue: 26 + rnd() * 16, sat: 30, rep: false, bump: false, rock: true,
+      mu: 0, soft2: 1, seed: rnd()
+    };
+  }
+
+  /* the swept disc a body sweeps out over its whole orbit */
+  function sweep(p) { return p.r + p.orbR; }
 
   /* at least one planet actually sits in the tee->hole corridor */
   function corridorOK(planets, tee, hol) {
@@ -269,11 +350,20 @@ var GG = (function () {
     if (L2 <= 0) return false;
     for (var i = 0; i < planets.length; i++) {
       var p = planets[i];
+      if (p.rock) continue;
       var u = ((p.ox - tee.x) * dx + (p.oy - tee.y) * dy) / L2;
       if (u < 0.12 || u > 0.88) continue;
-      if (dist(p.ox, p.oy, tee.x + dx * u, tee.y + dy * u) < p.r + p.orbR + 150) return true;
+      if (dist(p.ox, p.oy, tee.x + dx * u, tee.y + dy * u) < sweep(p) + 150) return true;
     }
     return false;
+  }
+
+  /* clearance of a point+radius against every body already placed */
+  function clearOf(bodies, x, y, rad, pad) {
+    for (var i = 0; i < bodies.length; i++) {
+      if (dist(x, y, bodies[i].ox, bodies[i].oy) < rad + sweep(bodies[i]) + pad) return false;
+    }
+    return true;
   }
 
   /* Every shot starts from the tee, so a hole is only fair if it can be sunk
@@ -282,8 +372,10 @@ var GG = (function () {
   function solvable(course, need, budget) {
     var tee = course.tee, hol = course.hole;
     var base = Math.atan2(hol.y - tee.y, hol.x - tee.x);
-    var s = { x: 0, y: 0, vx: 0, vy: 0 };
-    var NA = 240, NP = 12, step = Math.PI * 2 / NA;
+    var s = { x: 0, y: 0, vx: 0, vy: 0, warped: 0 };
+    /* 144 bearings x 9 powers. Coarser than it could be on purpose: a hole that
+       only goes in through a 1.5 degree window is not a hole, it is a lottery. */
+    var NA = 144, NP = 9, step = TAU / NA;
     var maxSteps = Math.round(FLIGHT_MAX * 240);
     var found = 0, used = 0, ai, pi, k;
     for (ai = 0; ai < NA; ai++) {
@@ -305,38 +397,95 @@ var GG = (function () {
     return false;
   }
 
+  /* --- one belt: a ring of dead rock around a body that does not move --- */
+  function addBelt(planets, tee, hol, rnd) {
+    var hosts = [], i;
+    for (i = 0; i < planets.length; i++) {
+      var p = planets[i];
+      if (!p.rock && !p.bump && !p.belted && p.orbR === 0 && p.r >= 26) hosts.push(p);
+    }
+    if (!hosts.length) return null;
+    for (var attempt = 0; attempt < 24; attempt++) {
+      var host = hosts[Math.min(hosts.length - 1, Math.floor(rnd() * hosts.length))];
+      var rockR = rr(rnd, 8, 13);
+      var beltR = host.r + rr(rnd, 34, 62);
+      var outer = beltR + rockR;
+      if (host.ox - outer < 14 || host.ox + outer > W - 14) continue;
+      if (host.oy - outer < 14 || host.oy + outer > H - 14) continue;
+      if (dist(host.ox, host.oy, tee.x, tee.y) < outer + 120) continue;
+      if (dist(host.ox, host.oy, hol.x, hol.y) < outer + hol.orbR + CAPTURE_R + 80) continue;
+      var clash = false;
+      for (i = 0; i < planets.length; i++) {
+        var q = planets[i];
+        if (q === host) continue;
+        if (dist(host.ox, host.oy, q.ox, q.oy) < outer + sweep(q) + 34) { clash = true; break; }
+      }
+      if (clash) continue;
+      var cnt = 5 + Math.floor(rnd() * 5);
+      var spin = (rnd() < 0.5 ? -1 : 1) * rr(rnd, 0.35, 0.72);
+      var ph0 = rnd() * TAU, rocks = [];
+      for (i = 0; i < cnt; i++) {
+        var ph = ph0 + i * TAU / cnt + rr(rnd, -0.16, 0.16);
+        rocks.push(mkRock(host, beltR + rr(rnd, -4, 4), rockR * rr(rnd, 0.8, 1.2), ph, spin, rnd));
+      }
+      host.belted = true;
+      return { rocks: rocks, band: { x: host.ox, y: host.oy, r: beltR, hue: host.hue } };
+    }
+    return null;
+  }
+
+  /* --- one wormhole pair, both mouths clear of everything else --- */
+  function addWarp(planets, tee, hol, rnd) {
+    var m = [], i, k;
+    for (k = 0; k < 260 && m.length < 2; k++) {
+      var x = rr(rnd, 0.16, 0.90) * W, y = rr(rnd, 0.10, 0.90) * H;
+      if (x - WARP_R < 56 || x + WARP_R > W - 56) continue;
+      if (y - WARP_R < 56 || y + WARP_R > H - 56) continue;
+      if (dist(x, y, tee.x, tee.y) < WARP_R + 130) continue;
+      if (dist(x, y, hol.x, hol.y) < WARP_R + hol.orbR + CAPTURE_R + 120) continue;
+      if (!clearOf(planets, x, y, WARP_R, 62)) continue;
+      if (m.length === 1 && dist(x, y, m[0].x, m[0].y) < 400) continue;
+      m.push({ x: x, y: y });
+    }
+    if (m.length < 2) return null;
+    return { ax: m[0].x, ay: m[0].y, bx: m[1].x, by: m[1].y, hue: 296 };
+  }
+
   function genHole(n) {
     var rnd = mulberry32(Math.imul(n, 0x9E3779B1) ^ 0x51ED2701);
     var i, j, k;
     for (i = 0; i < 8; i++) rnd();                    // warm up
     var count = countFor(n, rnd);
-    var allowRep = n >= 4, allowOrb = n >= 7;
-    var repChance = n >= 7 ? 0.55 : 0.35;
+    var want = featuresFor(n, rnd);
     var orbChance = n >= 10 ? 0.5 : 0.38;
 
     for (var attempt = 0; attempt < 90; attempt++) {
-      var relax = attempt > 60;                       // drop the corridor rule if desperate
+      var soft = attempt > 45;                        // exotics are the first thing to go
+      var relax = attempt > 65;                       // then the corridor rule
+      var drift = want.drift && !soft;
       var tee = { x: rr(rnd, 0.07, 0.21) * W, y: rr(rnd, 0.18, 0.82) * H };
-      var hol = { x: rr(rnd, 0.77, 0.93) * W, y: rr(rnd, 0.18, 0.82) * H };
+      var hol = { x: rr(rnd, drift ? 0.70 : 0.77, drift ? 0.84 : 0.93) * W,
+                  y: rr(rnd, drift ? 0.30 : 0.18, drift ? 0.70 : 0.82) * H,
+                  orbR: 0, orbW: 0, orbPh: 0 };
+      if (drift) {
+        hol.orbR = rr(rnd, 112, 178);
+        hol.orbW = (rnd() < 0.5 ? -1 : 1) * rr(rnd, 0.24, 0.46);
+        hol.orbPh = rnd() * TAU;
+      }
       var planets = [], ok = true;
 
       for (i = 0; i < count; i++) {
         var placed = null;
         for (k = 0; k < 140; k++) {
           var r = rr(rnd, 22, 54);
-          var orbR = (allowOrb && rnd() < orbChance) ? rr(rnd, 30, 78) : 0;
+          var orbR = (want.orb && rnd() < orbChance) ? rr(rnd, 30, 78) : 0;
           var x = rr(rnd, 0.20, 0.88) * W;
           var y = rr(rnd, 0.10, 0.90) * H;
           var eff = r + orbR;                          // swept disc of the whole orbit
           if (x - eff < 8 || x + eff > W - 8 || y - eff < 8 || y + eff > H - 8) continue;
           if (dist(x, y, tee.x, tee.y) < eff + 158) continue;
-          if (dist(x, y, hol.x, hol.y) < eff + 112) continue;
-          var clash = false;
-          for (j = 0; j < planets.length; j++) {
-            var q = planets[j];
-            if (dist(x, y, q.ox, q.oy) < eff + q.r + q.orbR + 58) { clash = true; break; }
-          }
-          if (clash) continue;
+          if (dist(x, y, hol.x, hol.y) < eff + hol.orbR + 112) continue;
+          if (!clearOf(planets, x, y, eff, 58)) continue;
           placed = mkPlanet(x, y, r, orbR, rnd);
           break;
         }
@@ -347,39 +496,83 @@ var GG = (function () {
       if (!relax && !corridorOK(planets, tee, hol)) continue;
 
       var hasRep = false;
-      if (allowRep && rnd() < repChance) {
+      if (want.rep) {
         var ri = Math.min(planets.length - 1, Math.floor(rnd() * planets.length));
         planets[ri].rep = true;
         planets[ri].hue = 348 + rnd() * 14;
         planets[ri].mu = -MU_K * planets[ri].r * planets[ri].r * 0.8;
         hasRep = true;
       }
+
+      /* bumper: a dead elastic mirror, so it must not also be the repulsor */
+      var hasBump = false;
+      if (want.bump && !soft) {
+        var cands = [];
+        for (i = 0; i < planets.length; i++) if (!planets[i].rep && planets[i].orbR === 0) cands.push(planets[i]);
+        if (cands.length) {
+          var b = cands[Math.min(cands.length - 1, Math.floor(rnd() * cands.length))];
+          b.bump = true; b.mu = 0; b.hue = 150 + rnd() * 14; b.sat = 78;
+          hasBump = true;
+        }
+      }
+
+      /* belts hang off static bodies, so add them before the array is frozen */
+      var bands = [], belt;
+      if (want.belt && !soft) {
+        belt = addBelt(planets, tee, hol, rnd);
+        if (belt) { bands.push(belt.band); for (i = 0; i < belt.rocks.length; i++) planets.push(belt.rocks[i]); }
+      }
+      if (want.belt2 && !soft && bands.length && planets.length + 10 <= MAXP) {
+        belt = addBelt(planets, tee, hol, rnd);
+        if (belt) { bands.push(belt.band); for (i = 0; i < belt.rocks.length; i++) planets.push(belt.rocks[i]); }
+      }
+      if (planets.length > MAXP) continue;
+
+      var warps = [];
+      if (want.warp && !soft) {
+        var wp = addWarp(planets, tee, hol, rnd);
+        if (wp) warps.push(wp);
+      }
+
+      /* gravity bodies first: substep only loops the front of the array */
+      planets.sort(function (a, b) { return (a.mu !== 0 ? 0 : 1) - (b.mu !== 0 ? 0 : 1); });
+      var gravN = 0;
+      for (i = 0; i < planets.length; i++) if (planets[i].mu !== 0) gravN++;
+
       var hasOrb = false;
-      for (i = 0; i < planets.length; i++) if (planets[i].orbR > 0) hasOrb = true;
+      for (i = 0; i < planets.length; i++) if (!planets[i].rock && planets[i].orbR > 0) hasOrb = true;
 
-      var par = 2 + Math.floor(count / 2) + (hasOrb ? 1 : 0);
+      /* bumpers are as much a tool as a hazard, so they do not move par */
+      var exotic = (hasOrb ? 1 : 0) + (bands.length ? 1 : 0) + (warps.length ? 1 : 0) + (drift ? 1 : 0);
+      var par = 2 + Math.floor(count / 2) + Math.min(2, Math.ceil(exotic / 2));
       if (par < 2) par = 2;
-      if (par > 5) par = 5;
+      if (par > 6) par = 6;
 
-      var cand = { n: n, par: par, tee: tee, hole: hol, planets: planets,
-                   hasRep: hasRep, hasOrb: hasOrb };
+      var cand = { n: n, par: par, tee: tee, hole: hol, planets: planets, gravN: gravN,
+                   warps: warps, bands: bands,
+                   hasRep: hasRep, hasOrb: hasOrb, hasBump: hasBump,
+                   hasBelt: bands.length > 0, hasWarp: warps.length > 0, hasDrift: drift };
       if (!solvable(cand, 2, 1600000)) continue;
       return cand;
     }
 
     // deterministic safety net (generation has never needed it)
+    var sn = mkPlanet(W * 0.5, H * 0.5, 40, 0, mulberry32(7));
     return {
-      n: n, par: 2, tee: { x: W * 0.14, y: H * 0.5 }, hole: { x: W * 0.86, y: H * 0.5 },
-      planets: [mkPlanet(W * 0.5, H * 0.5, 40, 0, mulberry32(7))], hasRep: false, hasOrb: false
+      n: n, par: 2, tee: { x: W * 0.14, y: H * 0.5 },
+      hole: { x: W * 0.86, y: H * 0.5, orbR: 0, orbW: 0, orbPh: 0 },
+      planets: [sn], gravN: 1, warps: [], bands: [],
+      hasRep: false, hasOrb: false, hasBump: false,
+      hasBelt: false, hasWarp: false, hasDrift: false
     };
   }
 
   return {
     W: W, H: H, DT: DT, BALL_R: BALL_R, MAX_SPEED: MAX_SPEED, MAX_DRAG: MAX_DRAG,
     MIN_DRAG: MIN_DRAG, CAPTURE_R: CAPTURE_R, FLIGHT_MAX: FLIGHT_MAX, OOB_PAD: OOB_PAD,
-    PREVIEW_STEPS: PREVIEW_STEPS,
+    PREVIEW_STEPS: PREVIEW_STEPS, WARP_R: WARP_R,
     genHole: genHole, substep: substep, preview: preview,
-    planetX: planetX, planetY: planetY, mulberry32: mulberry32
+    planetX: planetX, planetY: planetY, holeX: holeX, holeY: holeY, mulberry32: mulberry32
   };
 })();
 </script>
@@ -570,6 +763,39 @@ function sfxSink() {
   src.connect(hp); hp.connect(gs); gs.connect(master);
   src.start(t); src.stop(t + 0.7);
 }
+var lastBlip = -1;
+function sfxBounce(p) {
+  if (!AC) return; var t = AC.currentTime;
+  if (t - lastBlip < 0.05) return;                 // chatter guard
+  lastBlip = t;
+  var o = AC.createOscillator(), g = AC.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(520 + 460 * p, t);
+  o.frequency.exponentialRampToValueAtTime(240 + 200 * p, t + 0.11);
+  env(g, t, 0.1 + 0.12 * p, 0.004, 0.13);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.17);
+  var src = noiseSrc(), bp = AC.createBiquadFilter(), g2 = AC.createGain();
+  bp.type = 'bandpass'; bp.Q.value = 2.4;
+  bp.frequency.setValueAtTime(1900 + 1200 * p, t);
+  env(g2, t, 0.09, 0.003, 0.07);
+  src.connect(bp); bp.connect(g2); g2.connect(master);
+  src.start(t); src.stop(t + 0.1);
+}
+function sfxWarp() {
+  if (!AC) return; var t = AC.currentTime;
+  var src = noiseSrc(), bp = AC.createBiquadFilter(), g = AC.createGain();
+  bp.type = 'bandpass'; bp.Q.value = 3.2;
+  bp.frequency.setValueAtTime(420, t);
+  bp.frequency.exponentialRampToValueAtTime(4200, t + 0.24);
+  env(g, t, 0.2, 0.015, 0.26);
+  src.connect(bp); bp.connect(g); g.connect(master);
+  src.start(t); src.stop(t + 0.34);
+  var o = AC.createOscillator(), g2 = AC.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(1250, t + 0.2);
+  env(g2, t, 0.14, 0.01, 0.22);
+  o.connect(g2); g2.connect(master); o.start(t); o.stop(t + 0.3);
+}
 function sfxMiss() {
   if (!AC) return; var t = AC.currentTime;
   var o = AC.createOscillator(), g = AC.createGain();
@@ -580,7 +806,7 @@ function sfxMiss() {
 }
 
 /* ---------------- game state ---------------- */
-var course = null, ball = { x: 0, y: 0, vx: 0, vy: 0 };
+var course = null, ball = { x: 0, y: 0, vx: 0, vy: 0, warped: 0, bounced: 0 };
 var state = 'aim';                       // aim | fly | sink | dead | done
 var holeNum = 1, strokes = 0, scores = [];
 var simStep = 0, flightSteps = 0, subIdx = 0, acc = 0, lastT = 0;
@@ -676,18 +902,43 @@ function makeAccretion(size, h0, h1, count) {
 }
 
 /* ---------------- hole lifecycle ---------------- */
+/* say a mechanic's name the first time it ever shows up, then never again */
+var FEATS = [
+  ['hasRep',   'Repulsor - it shoves you away', '#ff7a95'],
+  ['hasOrb',   'Some planets orbit now',        '#8ce4ff'],
+  ['hasBelt',  'Asteroid belt - rocks kill',    '#ffc07a'],
+  ['hasWarp',  'Wormhole - in one, out the other', '#c9a2ff'],
+  ['hasBump',  'Bumper - bounce off it',        '#6effc0'],
+  ['hasDrift', 'The hole drifts now',           '#9fe8ff']
+];
+var featSeen = {};
+function announce() {
+  for (var i = 0; i < FEATS.length; i++) {
+    var f = FEATS[i];
+    if (course[f[0]] && !featSeen[f[0]]) { featSeen[f[0]] = 1; toast(f[1], f[2]); return; }
+  }
+}
 function prepHole(n) {
   holeNum = n;
   course = GG.genHole(n);
   strokes = 0; simStep = 0; acc = 0; parts.length = 0; rings.length = 0;
   for (var i = 0; i < course.planets.length; i++) {
     var p = course.planets[i];
-    p.col = hsl2rgb(p.hue, 92, p.rep ? 64 : 60);
+    p.col = hsl2rgb(p.hue, p.sat, p.rep ? 64 : p.rock ? 68 : 60);
     var g = ctx.createRadialGradient(-p.r * 0.34, -p.r * 0.38, p.r * 0.05, 0, 0, p.r);
     if (p.rep) {
       g.addColorStop(0, 'rgba(255,240,246,0.96)');
       g.addColorStop(0.3, 'rgba(' + hsl2rgb(p.hue, 96, 62) + ',1)');
       g.addColorStop(1, 'rgba(' + hsl2rgb(p.hue, 82, 15) + ',1)');
+    } else if (p.bump) {                       // metallic mint: reads as solid, not deadly
+      g.addColorStop(0, 'rgba(' + hsl2rgb(p.hue, 60, 92) + ',1)');
+      g.addColorStop(0.34, 'rgba(' + hsl2rgb(p.hue, 74, 58) + ',1)');
+      g.addColorStop(0.82, 'rgba(' + hsl2rgb(p.hue, 60, 22) + ',1)');
+      g.addColorStop(1, 'rgba(' + hsl2rgb(p.hue, 70, 46) + ',1)');
+    } else if (p.rock) {                       // dead dusty stone, no glow of its own
+      g.addColorStop(0, 'rgba(' + hsl2rgb(p.hue, 24, 62) + ',1)');
+      g.addColorStop(0.55, 'rgba(' + hsl2rgb(p.hue, 26, 33) + ',1)');
+      g.addColorStop(1, 'rgba(' + hsl2rgb(p.hue, 22, 12) + ',1)');
     } else {
       g.addColorStop(0, 'rgba(' + hsl2rgb(p.hue, 82, 76) + ',1)');
       g.addColorStop(0.42, 'rgba(' + hsl2rgb(p.hue, 74, 41) + ',1)');
@@ -695,13 +946,19 @@ function prepHole(n) {
     }
     p.grad = g;
   }
+  for (i = 0; i < course.bands.length; i++)
+    course.bands[i].col = hsl2rgb(course.bands[i].hue, 40, 62);
+  for (i = 0; i < course.warps.length; i++)
+    course.warps[i].col = hsl2rgb(course.warps[i].hue, 96, 70);
   glowCache = {};          // planet hues change per hole; keep the sprite cache bounded
   bhInit();
   resetBall();
   syncHUD();
+  announce();
 }
 function resetBall() {
   ball.x = course.tee.x; ball.y = course.tee.y; ball.vx = 0; ball.vy = 0;
+  ball.warped = 0; ball.bounced = 0;
   clearTrail(); deadFade = 1; state = 'aim';
   aim.active = false; aim.shown = false; aim.len = 0; aim.power = 0;
 }
@@ -719,13 +976,15 @@ function doLaunch() {
 function endShot(e) {
   if (e.type === 'sink') {
     ball.x = e.x; ball.y = e.y; pushTrail(e.x, e.y);
-    sinkAng = Math.atan2(e.y - course.hole.y, e.x - course.hole.x);
-    sinkRad = Math.hypot(e.x - course.hole.x, e.y - course.hole.y);
+    var ht = simStep * DT, hx = GG.holeX(course, ht), hy = GG.holeY(course, ht);
+    sinkAng = Math.atan2(e.y - hy, e.x - hx);
+    sinkRad = Math.hypot(e.x - hx, e.y - hy);
     sinkT = 0; state = 'sink'; sfxSink();
   } else if (e.type === 'crash') {
     ball.x = e.x; ball.y = e.y; pushTrail(e.x, e.y);
     burst(e.x, e.y, course.planets[e.idx].hue, 34, 1);
-    shake = 4; sfxCrash(); toast('Crashed', '#ff6b8a');
+    shake = 4; sfxCrash();
+    toast(course.planets[e.idx].rock ? 'Hit a rock' : 'Crashed', '#ff6b8a');
     state = 'dead'; waitT = 0.6;
   } else {
     toast(e.type === 'oob' ? 'Out of bounds' : 'Flight timed out', '#ffcf6b');
@@ -744,6 +1003,11 @@ function fixedUpdate() {
   if (state === 'fly') {
     var e = GG.substep(course, ball, simStep * DT);
     subIdx++;
+    if (ball.warped) { ball.warped = 0; clearTrail(); sfxWarp(); }   // no streak across the map
+    if (ball.bounced) {
+      ball.bounced = 0;
+      sfxBounce(Math.min(1, Math.hypot(ball.vx, ball.vy) / GG.MAX_SPEED));
+    }
     if ((subIdx & 1) === 0) pushTrail(ball.x, ball.y);
     flightSteps++;
     if (e) endShot(e);
@@ -821,8 +1085,14 @@ function drawBounds() {
   }
 }
 function drawBlackHole(t) {
-  var x = course.hole.x, y = course.hole.y, i;
+  var x = GG.holeX(course, t), y = GG.holeY(course, t), i;
   ctx.globalCompositeOperation = 'lighter';
+  if (course.hole.orbR > 0) {                 // show the track, not just the target
+    ctx.setLineDash([5, 16]);
+    ctx.strokeStyle = 'rgba(150,215,255,0.24)'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(course.hole.x, course.hole.y, course.hole.orbR, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+  }
   for (i = 0; i < bhP.length; i++) {
     var p = bhP[i];
     var f = 1 - (p.r - GG.CAPTURE_R * 0.45) / 150;
@@ -851,7 +1121,102 @@ function drawBlackHole(t) {
   ctx.beginPath(); ctx.arc(x, y, GG.CAPTURE_R, 0, TAU); ctx.stroke();
   ctx.setLineDash([]);
 }
+/* dead rock: no glow, no field rings - nothing about it should say "gravity" */
+function drawRock(p, t) {
+  var x = GG.planetX(p, t), y = GG.planetY(p, t), k, a, rad;
+  ctx.globalCompositeOperation = 'lighter';
+  blob(x, y, p.r * 2.6, p.col, 0.18);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(t * (0.6 + p.seed * 1.4) + p.seed * TAU);
+  ctx.fillStyle = p.grad;
+  ctx.beginPath();
+  for (k = 0; k < 7; k++) {                   // lumpy, and never wider than its hitbox
+    a = k * TAU / 7;
+    rad = p.r * (0.72 + 0.28 * ((p.seed * 977 + k * 131) % 1));
+    if (k) ctx.lineTo(Math.cos(a) * rad, Math.sin(a) * rad);
+    else ctx.moveTo(Math.cos(a) * rad, Math.sin(a) * rad);
+  }
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(' + p.col + ',0.45)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(x, y, p.r * 0.9, 0, TAU); ctx.stroke();
+}
+
+/* bumper: a mirror, not a hazard. Mint, hard-edged, springy - and no field rings,
+   because it has no gravity at all. */
+function drawBumper(p, t) {
+  var x = GG.planetX(p, t), y = GG.planetY(p, t), k, a;
+  var pulse = 0.8 + 0.2 * Math.sin(t * 2.4 + p.seed * TAU);
+  ctx.globalCompositeOperation = 'lighter';
+  blob(x, y, p.r * 2.4, p.col, 0.24 * pulse);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = p.grad;
+  ctx.beginPath(); ctx.arc(0, 0, p.r, 0, TAU); ctx.fill();
+  ctx.restore();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(' + p.col + ',0.9)'; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.arc(x, y, p.r - 1.2, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(' + p.col + ',' + (0.32 * pulse).toFixed(3) + ')'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(x, y, p.r + 5 + 3 * pulse, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(226,255,242,' + (0.42 * pulse).toFixed(3) + ')'; ctx.lineWidth = 1.8;
+  for (k = 0; k < 8; k++) {                   // outward ticks: the way you leave
+    a = k * TAU / 8 + t * 0.25;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * p.r * 0.6, y + Math.sin(a) * p.r * 0.6);
+    ctx.lineTo(x + Math.cos(a) * p.r * 0.87, y + Math.sin(a) * p.r * 0.87);
+    ctx.stroke();
+  }
+}
+
+/* the band a belt sweeps, drawn under everything so the danger zone is legible */
+function drawBands() {
+  if (!course.bands.length) return;
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.setLineDash([6, 12]); ctx.lineWidth = 1.1;
+  for (var i = 0; i < course.bands.length; i++) {
+    var b = course.bands[i];
+    ctx.strokeStyle = 'rgba(' + b.col + ',0.15)';
+    ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+}
+
+function drawMouth(x, y, col, t, dir) {
+  var R = GG.WARP_R, k, a;
+  blob(x, y, R * 2.2, col, 0.28);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.9 * dir);
+  ctx.strokeStyle = 'rgba(' + col + ',0.72)'; ctx.lineWidth = 2;
+  for (k = 0; k < 3; k++) { a = k * TAU / 3; ctx.beginPath(); ctx.arc(0, 0, R * 0.86, a, a + 1.5); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(' + col + ',0.38)'; ctx.lineWidth = 1.4;
+  for (k = 0; k < 3; k++) { a = k * TAU / 3 + 0.9; ctx.beginPath(); ctx.arc(0, 0, R * 0.54, a, a + 1.4); ctx.stroke(); }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(' + col + ',0.85)'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,240,255,0.55)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(x, y, R - 3.5, 0, TAU); ctx.stroke();
+}
+
+/* wormhole pair: same speed, same heading, other mouth. One spins each way. */
+function drawWarps(t) {
+  ctx.globalCompositeOperation = 'lighter';
+  for (var i = 0; i < course.warps.length; i++) {
+    var w = course.warps[i];
+    ctx.setLineDash([3, 16]);
+    ctx.strokeStyle = 'rgba(' + w.col + ',0.10)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(w.ax, w.ay); ctx.lineTo(w.bx, w.by); ctx.stroke();
+    ctx.setLineDash([]);
+    drawMouth(w.ax, w.ay, w.col, t, 1);
+    drawMouth(w.bx, w.by, w.col, t, -1);
+  }
+}
+
 function drawPlanet(p, t) {
+  if (p.rock) { drawRock(p, t); return; }
+  if (p.bump) { drawBumper(p, t); return; }
   var x = GG.planetX(p, t), y = GG.planetY(p, t);
   ctx.globalCompositeOperation = 'lighter';
   var pulse = p.rep ? 0.72 + 0.28 * Math.sin(t * 3.6 + p.seed * TAU) : 1;
@@ -909,7 +1274,13 @@ function drawTee() {
     ctx.stroke();
   }
 }
-function drawAim(t) {
+/* look-ahead budget in physics steps: 480 (2.0 s) early, 108 (0.45 s) from hole 12 */
+function aimSteps() {
+  var f = (holeNum - 2) / 10;
+  if (f < 0) f = 0; else if (f > 1) f = 1;
+  return Math.round(GG.PREVIEW_STEPS - 372 * f);
+}
+function drawAim() {
   ctx.globalCompositeOperation = 'lighter';
   // pull band
   var ex = ball.x + aim.pullX, ey = ball.y + aim.pullY;
@@ -924,30 +1295,29 @@ function drawAim(t) {
   ctx.strokeStyle = aim.power > 0.86 ? 'rgba(255,120,150,0.9)' : 'rgba(120,240,255,0.75)';
   ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(ball.x, ball.y, 22, ang - 1.0 * aim.power, ang + 1.0 * aim.power); ctx.stroke();
-  // the promise: same integrator, same dt, same planet motion as the flight
-  var pv = GG.preview(course, ball.x, ball.y, aim.vx, aim.vy, simStep);
+  /* The promise: same integrator, same dt, same planet motion as the flight -
+     but only as far ahead as this hole lets you see. Holes 1-2 show the whole
+     2 s; by hole 12 it is a 0.45 s launch line. */
+  var pv = GG.preview(course, ball.x, ball.y, aim.vx, aim.vy, simStep, aimSteps());
   aim.svx = aim.vx; aim.svy = aim.vy; aim.shown = true;
   var dot = glow(8, '150,235,255');
   for (var k = 3; k < pv.n; k += 6) {
-    var f = k / GG.PREVIEW_STEPS;
+    var f = k / pv.steps;
     var r = 3.6 - 1.4 * f;
-    ctx.globalAlpha = 0.72 - 0.42 * f;
+    var a = 0.72 - 0.30 * f;
+    if (f > 0.7) a *= 1 - (f - 0.7) / 0.3;   // dissolve, so the cut-off is not readable
+    ctx.globalAlpha = a > 0 ? a : 0;
     ctx.drawImage(dot, pv.pts[k << 1] - r, pv.pts[(k << 1) + 1] - r, r * 2, r * 2);
   }
   ctx.globalAlpha = 1;
-  if (pv.end) {
-    if (pv.end.type === 'sink') {
-      ctx.strokeStyle = 'rgba(130,255,205,0.9)'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(course.hole.x, course.hole.y, GG.CAPTURE_R * (0.72 + 0.16 * Math.sin(t * 7)), 0, TAU);
-      ctx.stroke();
-    } else if (pv.end.type === 'crash') {
-      ctx.strokeStyle = 'rgba(255,110,130,0.85)'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(pv.end.x - 6, pv.end.y - 6); ctx.lineTo(pv.end.x + 6, pv.end.y + 6);
-      ctx.moveTo(pv.end.x + 6, pv.end.y - 6); ctx.lineTo(pv.end.x - 6, pv.end.y + 6);
-      ctx.stroke();
-    }
+  /* Failure is fair to show. Success is not: the old build lit a ring on the
+     hole the instant the previewed path would sink, which handed you the shot. */
+  if (pv.end && pv.end.type === 'crash') {
+    ctx.strokeStyle = 'rgba(255,110,130,0.85)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pv.end.x - 6, pv.end.y - 6); ctx.lineTo(pv.end.x + 6, pv.end.y + 6);
+    ctx.moveTo(pv.end.x + 6, pv.end.y - 6); ctx.lineTo(pv.end.x - 6, pv.end.y + 6);
+    ctx.stroke();
   }
 }
 function drawBall(t) {
@@ -982,11 +1352,12 @@ function render(dt) {
     var k = Math.min(1, sinkT / 0.55);
     sinkAng += (7 + 20 * k) * dt;
     var rad = sinkRad * (1 - k) * (1 - k);
-    ball.x = course.hole.x + Math.cos(sinkAng) * rad;
-    ball.y = course.hole.y + Math.sin(sinkAng) * rad;
+    var ht = simStep * DT, hx = GG.holeX(course, ht), hy = GG.holeY(course, ht);
+    ball.x = hx + Math.cos(sinkAng) * rad;
+    ball.y = hy + Math.sin(sinkAng) * rad;
     pushTrail(ball.x, ball.y);
     if (k >= 1) {
-      burst(course.hole.x, course.hole.y, 196, 46, 1.5);
+      burst(hx, hy, 196, 46, 1.5);
       shake = 2.4; deadFade = 0; clearTrail();     // ball and ribbon are gone with it
       finishHole();
     }
@@ -1006,10 +1377,12 @@ function render(dt) {
   if (shake > 0.03) { sx = (Math.random() * 2 - 1) * shake; sy = (Math.random() * 2 - 1) * shake; }
   ctx.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * (offX + sx), dpr * (offY + sy));
   drawBounds();
+  drawBands();
   drawBlackHole(t);
   drawTee();
+  drawWarps(t);
   for (i = 0; i < course.planets.length; i++) drawPlanet(course.planets[i], t);
-  if (state === 'aim' && aim.active) drawAim(t);
+  if (state === 'aim' && aim.active) drawAim();
   drawParts();
   drawBall(t);
 
