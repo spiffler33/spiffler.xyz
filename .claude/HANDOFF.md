@@ -8,15 +8,19 @@
 
 ## Verify before coding
 - `git status --short` in `~/dev/projects/spiffler.xyz` — expect clean except the known untracked `Library/*` and `house-md/START_HERE_NextEpisodePrompt.md` (deliberately left out, see below).
-- Extract and run the engine headlessly — `#core` is DOM-free by design:
-  `node -e "const s=require('fs').readFileSync('tinker/gravity-golf/index.html','utf8').match(/<script id=\"core\">([\s\S]*?)<\/script>/)[1];const GG=new Function(s+';return GG;')();for(let n=1;n<=40;n++){const c=GG.genHole(n);if(c.planets.length>26)throw n;}console.log('ok')"`
-- Expected shape of holes 1–40: par 2 at hole 1 rising to 6 by hole ~10; worst-case `genHole` ~105 ms (hole 28); max 21 bodies.
+- Run the three checks from `tinker/gravity-golf/` — no deps, no browser, ~4 s total:
+  `node test/generation.js` — expect `ALL CHECKS PASS`, slowest `genHole` ~105 ms (hole 28), max 21/26 bodies.
+  `node test/mechanics.js` — expect `BOUNCE + WARP INVARIANTS HOLD`, ~0.2% of shots still alive at 14 s.
+  `node test/playthrough.js` — expect `played 40/40 holes`, no runtime errors.
+- Run all three after ANY change to `#core` or the renderers. `generation.js` is the one that proves
+  every hole is still winnable; `playthrough.js` is the only thing that executes the new render code.
 
 ## What shipped
 - **Anti-cheat.** Deleted the green ring that pulsed on the hole whenever the previewed path would sink — spiff's kids wiggled the drag until it lit, so the game solved itself. Replaced with a look-ahead that shrinks by hole number: `aimSteps()` in `#app`, 480 physics steps (2.0 s) at hole 1 down to 108 (0.45 s) from hole 12. The crash marker stayed; failure is fair to show, success is not.
 - **Four mechanics**, gated into the existing difficulty ladder: asteroid belts (hole 5+, dead rock orbiting a static planet, `mu = 0`), wormhole pairs (8+, same speed and heading out of the far mouth), bumpers (11+, zero-gravity elastic mirrors, mint), drifting black hole (14+, the target orbits its own dashed track).
 - Bodies are sorted gravity-first and `course.gravN` bounds the force loop, so belt rocks cost collision checks only.
 - `solvable()` sweep coarsened to 144 bearings x 9 powers — halves generation cost *and* guarantees surviving holes have a forgiving solution window.
+- `test/` — three headless checks kept alongside the game (see Verify above). They are inside the Pages-served tree, so they are publicly fetchable; that is harmless, they contain no secrets.
 
 ## Constraints carried forward
 - **Never reintroduce a "this shot goes in" indicator.** Tune difficulty with the two constants in `aimSteps()`.
