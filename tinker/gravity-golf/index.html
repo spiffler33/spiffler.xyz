@@ -112,7 +112,7 @@ td.u{color:var(--amber)} td.o{color:var(--mag)} td.e{color:var(--txt)} td.tot{co
     <div class="chip"><span>Strokes</span><b id="hStr">0</b></div>
     <div class="chip"><span>Total</span><b id="hTot">E</b></div>
     <div class="spacer"></div>
-    <button id="bMute">Sound on</button>
+    <button id="bMute">Mute</button>
     <button id="bRestart">Restart</button>
   </div>
   <div class="hint" id="hint">drag from the ball &middot; release to launch</div>
@@ -814,6 +814,10 @@ var waitT = 0, deadFade = 1, sinkT = 0, sinkAng = 0, sinkRad = 0, shake = 0;
 var pendingLaunch = false, launchVX = 0, launchVY = 0, launchPow = 0, hintDone = false;
 var aim = { active: false, ox: 0, oy: 0, px: 0, py: 0, vx: 0, vy: 0,
             pullX: 0, pullY: 0, len: 0, power: 0, shown: false, svx: 0, svy: 0 };
+/* Hole 4's sink window is a few world units of pull wide - far narrower than the
+   1.7s preview can show. On that hole only, the cup confirms the aim instead:
+   fly the WHOLE shot behind the scenes and light the core if it drops. */
+var SOLVE_HINT_HOLE = 4, aimSolves = false;
 
 /* ribbon trail: ring buffer, ~0.8s of flight */
 var TN = 100, trx = new Float32Array(TN), tryy = new Float32Array(TN), tcount = 0, thead = 0;
@@ -1019,6 +1023,18 @@ function fixedUpdate() {
 /* ---------------- input: pointer = mouse + touch + pen ---------------- */
 function toWorld(e, out) { out.x = (e.clientX - offX) / scale; out.y = (e.clientY - offY) / scale; }
 var tmp = { x: 0, y: 0 };
+var solveS = { x: 0, y: 0, vx: 0, vy: 0, warped: 0, bounced: 0 };
+function aimWouldSink() {
+  if (holeNum !== SOLVE_HINT_HOLE || aim.len < GG.MIN_DRAG) return false;
+  solveS.x = ball.x; solveS.y = ball.y; solveS.vx = aim.vx; solveS.vy = aim.vy;
+  solveS.warped = 0; solveS.bounced = 0;
+  var n = GG.FLIGHT_MAX * 240;                 // same ceiling the live flight uses
+  for (var k = 0; k < n; k++) {
+    var e = GG.substep(course, solveS, (simStep + k) * DT);
+    if (e) return e.type === 'sink';
+  }
+  return false;
+}
 function updateAim() {
   var dx = aim.px - aim.ox, dy = aim.py - aim.oy;
   var len = Math.hypot(dx, dy);
@@ -1028,6 +1044,7 @@ function updateAim() {
     var sp = aim.power * GG.MAX_SPEED;
     aim.vx = -dx / len * sp; aim.vy = -dy / len * sp;
   } else { aim.vx = 0; aim.vy = 0; }
+  aimSolves = aimWouldSink();
 }
 cv.addEventListener('pointerdown', function (e) {
   e.preventDefault();
@@ -1114,6 +1131,11 @@ function drawBlackHole(t) {
   ctx.beginPath(); ctx.arc(0, 0, 46, 0, TAU); ctx.fill();
   ctx.restore();
   ctx.globalCompositeOperation = 'lighter';
+  if (aimSolves && state === 'aim' && aim.active) {   // this pull goes in - release it
+    var pu = 0.76 + 0.24 * Math.sin(t * 7.5);
+    blob(x, y, 44, '255,214,132', 0.46 * pu);
+    blob(x, y, 16, '255,250,228', 0.9 * pu);
+  }
   ctx.strokeStyle = 'rgba(190,238,255,0.6)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(x, y, GG.CAPTURE_R + 3, 0, TAU); ctx.stroke();
   ctx.setLineDash([5, 8]);
@@ -1484,7 +1506,7 @@ $('bRestart').onclick = restart;
 $('bMute').onclick = function () {
   muted = !muted;
   if (master) master.gain.value = muted ? 0 : 0.85;
-  this.textContent = muted ? 'Muted' : 'Sound on';
+  this.textContent = muted ? 'Unmute' : 'Mute';
 };
 
 /* ---------------- boot ---------------- */
