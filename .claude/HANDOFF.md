@@ -1,6 +1,6 @@
 # Handoff — 2026-08-30 (phase closed: station-nova published to tinker)
 
-`tinker/station-nova/` shipped — a browser escape room built for Nandini, added to `tinker.html` and `sitemap.xml`. It is a **vendored copy**; the source repo is elsewhere. Nothing else in the site changed.
+`tinker/station-nova/` shipped — a browser escape room built for Nandini, added to `tinker.html` and `sitemap.xml`. It is a **vendored copy**; the source repo is elsewhere. Later the same day `tinker.html` was regrouped into three sections (`games` / `learn` / `projects`) — a new game gets a card under `games` plus a `sitemap.xml` entry.
 
 ## Read first
 - Memory `station-nova` — why the site copy is not canonical, what must never be published, and how to verify a deploy.
@@ -15,7 +15,7 @@
 
 **Do not edit `tinker/station-nova/` directly.** The canonical source is a separate, remoteless git repo at `~/dev/projects/games/station-nova`, which also holds the 198-test suite, the Chrome-driven `tests/fit-check.mjs`, and `PLAN.md`. Fix bugs there, verify there, then re-copy the four paths above and push here.
 
-This is the **opposite** direction from the gravity-golf duplicate-copy gotcha, where the deployed file is the one to edit. Don't pattern-match between them.
+Every game under `tinker/` follows the same rule since 2026-08-30: the source is `~/dev/projects/games/<name>/`, and `tinker/<name>/` is a byte-identical copy of its runtime files. gravity-golf used to be the exception (deployed file was the one to edit) — it no longer is.
 
 `PLAN.md` and `tests/` are excluded on purpose: `PLAN.md` contains every puzzle solution and all the pinned dialogue, and this repo is public. The tests assert pinned strings against it, so they cannot run from the copy either.
 
