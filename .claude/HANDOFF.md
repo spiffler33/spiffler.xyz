@@ -13,7 +13,7 @@
 
 ## The one thing that will trip you up
 
-**Do not edit `tinker/station-nova/` directly.** The canonical source is a separate, remoteless git repo at `~/dev/projects/fluid/escaperoom`, which also holds the 198-test suite, the Chrome-driven `tests/fit-check.mjs`, and `PLAN.md`. Fix bugs there, verify there, then re-copy the four paths above and push here.
+**Do not edit `tinker/station-nova/` directly.** The canonical source is a separate, remoteless git repo at `~/dev/projects/games/station-nova`, which also holds the 198-test suite, the Chrome-driven `tests/fit-check.mjs`, and `PLAN.md`. Fix bugs there, verify there, then re-copy the four paths above and push here.
 
 This is the **opposite** direction from the gravity-golf duplicate-copy gotcha, where the deployed file is the one to edit. Don't pattern-match between them.
 
