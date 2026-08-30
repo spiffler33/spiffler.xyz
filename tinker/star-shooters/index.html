@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050510">
+<title>STAR SHOOTERS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;overflow:hidden;background:#050510;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;touch-action:none;cursor:crosshair;
+}
+body{display:flex;align-items:center;justify-content:center}
+/* fixed 960x600 backing store, CSS-scaled and letterboxed against the near-black page */
+#stage{display:block;width:min(100vw,160vh);height:min(62.5vw,100vh);background:#050510;touch-action:none}
+</style>
+</head>
+<body>
+<canvas id="stage" width="960" height="600"></canvas>
+
+<script src="engine.js"></script>
+<script src="shootout.js"></script>
+<script src="ai.js"></script>
+<script src="audio.js"></script>
+<script src="game.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var S = globalThis.StarShooters;
+  var canvas = document.getElementById('stage');
+
+  // real offscreen canvas factory - the game pre-renders its glow sprites through this
+  function createCanvas(w, h) {
+    var c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    return c;
+  }
+
+  var game = S.Game.create({
+    canvas: canvas,
+    createCanvas: createCanvas,
+    engine: S.Engine,
+    shootout: S.Shootout,
+    ai: S.AI,
+    audio: S.GameAudio,
+    rng: S.Engine.mulberry32(Date.now() >>> 0)
+  });
+
+  // Chrome and Safari keep an AudioContext suspended until a real user gesture, and audio.js
+  // deliberately never calls resume() - so the first genuine key or tap is what turns sound on.
+  // This lives here and not in game.js: game.js may never name a browser global.
+  var audioUnlocked = false;
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    S.GameAudio.init(window.AudioContext || window.webkitAudioContext);
+  }
+
+  var last = 0;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    var dt = last ? now - last : 16;
+    last = now;
+    if (dt > 100) dt = 100; // tab was backgrounded - do not fast-forward the match
+    game.step(dt);
+  }
+  requestAnimationFrame(frame);
+
+  // A keydown with a modifier held is a browser shortcut, not a game input - it is ignored.
+  // A keyUP is never a shortcut: releasing a key must ALWAYS reach the game, or letting go of
+  // an arrow while cmd is down leaves the power bar climbing for the rest of the session.
+  // The browser can still swallow a keyup outright (alt-tab away mid-hold), so the shell tracks
+  // what it pressed and releases the lot when the window stops receiving keys.
+  var down = Object.create(null);
+  function release(code) {
+    if (!down[code]) return;
+    delete down[code];
+    game.onKey(code, false);
+  }
+  function releaseAll() {
+    for (var code in down) release(code);
+  }
+  window.addEventListener('keydown', function (e) {
+    unlockAudio();
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    e.preventDefault();
+    if (e.repeat) return;
+    down[e.code] = true;
+    game.onKey(e.code, true);
+  });
+  window.addEventListener('keyup', function (e) {
+    delete down[e.code];
+    game.onKey(e.code, false);
+  });
+  window.addEventListener('blur', releaseAll);
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) releaseAll();
+  });
+
+  // pointer coords -> canvas space, through the letterbox scale
+  function at(e, type) {
+    var r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (canvas.width / r.width),
+      y: (e.clientY - r.top) * (canvas.height / r.height),
+      type: type
+    };
+  }
+  window.addEventListener('pointermove', function (e) { game.onPointer(at(e, 'move')); });
+  canvas.addEventListener('pointerdown', function (e) { unlockAudio(); game.onPointer(at(e, 'down')); });
+  window.addEventListener('pointerup', function (e) { game.onPointer(at(e, 'up')); });
+})();
+</script>
+</body>
+</html>
