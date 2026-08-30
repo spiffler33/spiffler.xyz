@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>spiffler.xyz | Developer Portfolio</title>
-    <meta name="description" content="Personal portfolio and project hub. Building things with code, one project at a time.">
+    <title>spiffler.xyz</title>
+    <meta name="description" content="spiff's little cave — games built with the kids, a few things worth learning from, some small projects. the writing lives on substack.">
 
     <!-- Open Graph -->
     <meta property="og:title" content="spiffler.xyz">
-    <meta property="og:description" content="Personal portfolio and project hub. Building things with code, one project at a time.">
+    <meta property="og:description" content="spiff's little cave — games built with the kids, a few things worth learning from, some small projects. the writing lives on substack.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://spiffler.xyz/">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="spiffler.xyz">
-    <meta name="twitter:description" content="Personal portfolio and project hub. Building things with code, one project at a time.">
+    <meta name="twitter:description" content="spiff's little cave — games built with the kids, a few things worth learning from, some small projects. the writing lives on substack.">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +27,7 @@
             <nav>
                 <a href="/" class="logo">~/spiffler</a>
                 <div class="nav-links">
-                    <a href="https://meridian.spiffler.xyz" target="_blank">meridian</a>
-                    <a href="/tinker.html">tinker</a>
-                    <a href="https://blog.spiffler.xyz">blog</a>
+                    <a href="__SUBSTACK__" target="_blank">substack</a>
                     <a href="https://github.com/spiffler33" target="_blank">github</a>
                 </div>
             </nav>
@@ -42,11 +40,87 @@
                     <span class="typing">welcome to my little cave</span>
                     <span class="cursor">_</span>
                 </div>
+                <p class="intro">games i build with my kids, a few things worth learning from, and some small projects — all hosted here. the writing, and what i'm reading, is over on substack.</p>
             </section>
 
-            <section class="blog-preview">
-                <h2>// recent thoughts</h2>
-                <a href="https://blog.spiffler.xyz" class="view-all">visit the blog →</a>
+            <section id="games">
+                <h2>games</h2>
+                <div class="project-grid">
+                    <a href="/tinker/station-nova/" class="project-card">
+                        <div class="project-name">station-nova</div>
+                        <div class="project-desc">a solar flare locked the station down and the crew left. wake her up room by room with PIP, a maintenance robot who has lost most of his memory. no fail states, no timers counting down.</div>
+                    </a>
+                    <a href="/tinker/star-shooters/" class="project-card">
+                        <div class="project-name">star-shooters</div>
+                        <div class="project-desc">a penalty shootout that is a mind game, not a reflex test. pick your taker, read the keeper, then take a turn in goal.</div>
+                    </a>
+                    <a href="/tinker/gravity-golf/" class="project-card">
+                        <div class="project-name">gravity-golf</div>
+                        <div class="project-desc">space mini-golf where the hazards are gravity wells. slingshot past the planets, sink the black hole.</div>
+                    </a>
+                    <a href="/tinker/fluid/" class="project-card">
+                        <div class="project-name">fluid</div>
+                        <div class="project-desc">real-time incompressible Navier-Stokes on the GPU. drag to stir the dye.</div>
+                    </a>
+                    <a href="/word-runner/" class="project-card">
+                        <div class="project-name">word-runner</div>
+                        <div class="project-desc">learn typography while playing. an endless runner for kids learning their letters.</div>
+                    </a>
+                    <a href="/physics-playground/" class="project-card">
+                        <div class="project-name">physics-playground</div>
+                        <div class="project-desc">interactive physics demos — gravity, waves, and more. built for curious minds.</div>
+                    </a>
+                </div>
+            </section>
+
+            <section id="learn">
+                <h2>learn</h2>
+                <div class="project-grid">
+                    <a href="/house-md/" class="project-card">
+                        <div class="project-name">house-md</div>
+                        <div class="project-desc">the medicine behind the House M.D. mysteries, explained from zero — one episode at a time, for anyone who watches House for fun.</div>
+                    </a>
+                    <a href="/brain-learning/" class="project-card">
+                        <div class="project-name">brain-learning</div>
+                        <div class="project-desc">interactive apps to discover how your brain really works — superpowers, connections, and more.</div>
+                    </a>
+                    <a href="/library/" class="project-card">
+                        <div class="project-name">library</div>
+                        <div class="project-desc">read books in small, digestible passages.</div>
+                    </a>
+                </div>
+            </section>
+
+            <section id="projects">
+                <h2>projects</h2>
+                <div class="project-grid">
+                    <a href="https://github.com/spiffler33/financial-agents-framework" target="_blank" class="project-card">
+                        <div class="project-name">financial-agents-framework</div>
+                        <div class="project-desc">architectural constraints for autonomous agents in financial systems.</div>
+                    </a>
+                    <a href="https://santas-list.spiffler.xyz" target="_blank" class="project-card">
+                        <div class="project-name">santas-list</div>
+                        <div class="project-desc">did you make it to Santa's naughty or nice list?</div>
+                    </a>
+                    <a href="https://nandini-invite.spiffler.xyz" target="_blank" class="project-card">
+                        <div class="project-name">nandini-invite</div>
+                        <div class="project-desc">a special invitation.</div>
+                    </a>
+                </div>
+            </section>
+
+            <section id="elsewhere">
+                <h2>elsewhere</h2>
+                <div class="link-list">
+                    <a href="__SUBSTACK__" target="_blank" class="link-item">
+                        <span class="link-name">substack</span>
+                        <span class="link-desc">essays, notes, and what i'm reading</span>
+                    </a>
+                    <a href="https://github.com/spiffler33" target="_blank" class="link-item">
+                        <span class="link-name">github</span>
+                        <span class="link-desc">the code behind this site and most of what's on it</span>
+                    </a>
+                </div>
             </section>
         </main>
 

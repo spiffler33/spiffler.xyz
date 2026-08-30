@@ -411,6 +411,39 @@ footer {
     color: var(--text-primary);
 }
 
+/* Elsewhere */
+.link-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+}
+
+.link-item {
+    display: flex;
+    gap: 24px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.link-name {
+    color: var(--accent-secondary);
+    min-width: 96px;
+}
+
+.link-desc {
+    color: var(--text-secondary);
+}
+
+.link-item:hover .link-name {
+    text-decoration: underline;
+}
+
+.project-desc:last-child {
+    margin-bottom: 0;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .container {
