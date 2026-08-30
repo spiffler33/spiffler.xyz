@@ -13,7 +13,7 @@
 
 ## The one thing that will trip you up
 
-**Do not edit `tinker/station-nova/` directly.** The canonical source is a separate, remoteless git repo at `~/dev/projects/games/station-nova`, which also holds the 198-test suite, the Chrome-driven `tests/fit-check.mjs`, and `PLAN.md`. Fix bugs there, verify there, then re-copy the four paths above and push here.
+**Do not edit `tinker/station-nova/` directly.** The canonical source is a separate git repo at `~/dev/projects/games/station-nova` (private remote `spiffler33/station-nova`), which also holds the 198-test suite, the Chrome-driven `tests/fit-check.mjs`, and `PLAN.md`. Fix bugs there, verify there, then re-copy the four paths above and push here.
 
 Every game under `tinker/` follows the same rule since 2026-08-30: the source is `~/dev/projects/games/<name>/`, and `tinker/<name>/` is a byte-identical copy of its runtime files. gravity-golf used to be the exception (deployed file was the one to edit) — it no longer is.
 
