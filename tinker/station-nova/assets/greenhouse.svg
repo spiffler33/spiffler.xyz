@@ -1,0 +1,505 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3600 1000">
+  <!-- STATION NOVA — GREENHOUSE panorama.  (P5 owns this file.)
+       viewBox 0 0 3600 1000. Three parallax groups: back 0.55x, mid 1.00x, front 1.06x.
+       The base wash sits OUTSIDE the groups so it rides the mid rate and never gaps at an edge.
+       Back-layer art only ever needs to reach x 2800 — beyond that the camera can never bring it
+       on screen. Everything that reacts to a flag does it from the <style> block below, hanging
+       off the .nv-flag-<name> classes the renderer puts on .nv-world. No JS, nothing to leak.
+       Palette: PLAN decision 9 — bg oklch(20% .05 160), leaf oklch(70% .15 170),
+       biolum pink oklch(70% .18 320). -->
+  <defs>
+    <linearGradient id="gh-air" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="oklch(12% 0.04 165)"/>
+      <stop offset="0.5" stop-color="oklch(20% 0.05 160)"/>
+      <stop offset="1" stop-color="oklch(27% 0.05 158)"/>
+    </linearGradient>
+    <linearGradient id="gh-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="oklch(10% 0.04 265)"/>
+      <stop offset="1" stop-color="oklch(19% 0.06 250)"/>
+    </linearGradient>
+    <linearGradient id="gh-glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="oklch(88% 0.05 200)" stop-opacity="0.30"/>
+      <stop offset="0.5" stop-color="oklch(88% 0.05 200)" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="oklch(88% 0.05 200)" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="gh-water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="oklch(78% 0.10 210)" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="oklch(52% 0.10 225)" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="gh-petal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="oklch(90% 0.11 330)"/>
+      <stop offset="1" stop-color="oklch(66% 0.19 318)"/>
+    </linearGradient>
+    <linearGradient id="gh-bud-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="oklch(62% 0.14 300)"/>
+      <stop offset="1" stop-color="oklch(38% 0.10 300)"/>
+    </linearGradient>
+    <radialGradient id="gh-pink" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="oklch(70% 0.18 320)" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="oklch(70% 0.18 320)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gh-lime" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="oklch(80% 0.16 165)" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="oklch(80% 0.16 165)" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="gh-dome-clip">
+      <path d="M1500 440 A500 400 0 0 1 2500 440 Z"/>
+    </clipPath>
+    <clipPath id="gh-tank-clip"><rect x="622" y="546" width="292" height="204" rx="10"/></clipPath>
+
+    <style>
+      .gh-leaf   { fill: oklch(70% 0.15 170); }
+      .gh-leaf-d { fill: oklch(42% 0.10 168); }
+      .gh-leaf-l { fill: oklch(85% 0.13 165); }
+      .gh-pinkf  { fill: oklch(70% 0.18 320); }
+      .gh-soil   { fill: oklch(30% 0.05 60); }
+      .gh-steel  { fill: oklch(52% 0.02 220); }
+      .gh-steel-d{ fill: oklch(36% 0.02 220); }
+      .gh-brass  { fill: oklch(72% 0.11 85); }
+      .gh-panel  { fill: oklch(24% 0.04 162); }
+      .gh-label  { fill: oklch(88% 0.04 160); font: 600 16px/1 system-ui, sans-serif; letter-spacing: .1em; }
+      .gh-plaque-t { fill: oklch(30% 0.05 85); font: 700 15px/1 system-ui, sans-serif; letter-spacing: .12em; }
+
+      /* --- ambient life ------------------------------------------------------------- */
+      @keyframes gh-tw   { 0%, 100% { opacity: .2 } 50% { opacity: 1 } }
+      @keyframes gh-drip { 0% { transform: translateY(0); opacity: 0 }
+                           12% { opacity: .85 }
+                           100% { transform: translateY(150px); opacity: 0 } }
+      @keyframes gh-float{ 0% { transform: translate(0, 0) } 50% { transform: translate(22px, -30px) }
+                           100% { transform: translate(0, 0) } }
+      @keyframes gh-sway { 0%, 100% { transform: rotate(0deg) } 50% { transform: rotate(1.8deg) } }
+      @keyframes gh-pulse{ 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
+      @keyframes gh-swim { 0% { transform: translateX(0) } 45% { transform: translateX(150px) }
+                           50% { transform: translateX(150px) scaleX(-1) }
+                           95% { transform: translateX(0) scaleX(-1) }
+                           100% { transform: translateX(0) } }
+      .gh-star  { animation: gh-tw 4.5s ease-in-out infinite; }
+      .gh-drop  { animation: gh-drip 3.4s linear infinite; }
+      .gh-spore { animation: gh-float 11s ease-in-out infinite; }
+      .gh-frond { transform-box: fill-box; transform-origin: 50% 100%; animation: gh-sway 8s ease-in-out infinite; }
+      .gh-glow  { animation: gh-pulse 6s ease-in-out infinite; }
+      #gh-fish  { transform-box: fill-box; transform-origin: 50% 50%; animation: gh-swim 14s ease-in-out infinite; }
+
+      /* --- vault-flower: the bloom is a REWARD moment, so it may use rainbow --------- */
+      @keyframes gh-rainbow { from { filter: hue-rotate(0deg) } to { filter: hue-rotate(360deg) } }
+      #gh-bud   { transition: opacity .9s ease .2s; }
+      #gh-bloom { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; transform: scale(.45);
+                  transition: opacity 1.4s ease, transform 1.8s cubic-bezier(.2,.9,.25,1); }
+      .nv-flag-vault-open #gh-bud   { opacity: 0; }
+      .nv-flag-vault-open #gh-bloom { opacity: 1; transform: none; animation: gh-rainbow 6s linear 1; }
+
+      /* --- water reaching the beds: vines drink, then let go of the tube door -------- */
+      .gh-wet   { opacity: 0; transition: opacity 1.8s ease; }
+      .nv-flag-planters-watered .gh-wet { opacity: 1; }
+      #gh-vines { transform-box: fill-box; transform-origin: 50% 0%;
+                  transition: transform 2.8s cubic-bezier(.4,0,.2,1) .6s, opacity 2.4s ease .8s; }
+      .nv-flag-planters-watered #gh-vines { transform: translateY(-210px) scaleY(.3); opacity: .1; }
+      .gh-thirsty { transition: fill 2.4s ease .9s; }
+      .nv-flag-planters-watered .gh-thirsty { fill: oklch(80% 0.16 166); }
+
+      /* --- charted: the telescope's brass ring wakes up ------------------------------ */
+      #gh-scope-ring { transition: fill 1s ease; }
+      .nv-flag-charted #gh-scope-ring { fill: oklch(88% 0.14 92); }
+
+      /* --- sealed: the iris opens --------------------------------------------------- */
+      .gh-iris { transition: transform 1.3s cubic-bezier(.5,0,.2,1); transform-box: fill-box; }
+      .nv-flag-tube-sealed .gh-iris-l { transform: translateX(-138px); }
+      .nv-flag-tube-sealed .gh-iris-r { transform: translateX(138px); }
+
+      @media (prefers-reduced-motion: reduce) {
+        .gh-star, .gh-drop, .gh-spore, .gh-frond, .gh-glow, #gh-fish { animation: none; }
+        #gh-bud, #gh-bloom, #gh-vines, .gh-iris, .gh-wet, .gh-thirsty, #gh-scope-ring { transition: none; }
+        .nv-flag-vault-open #gh-bloom { animation: none; }
+      }
+    </style>
+  </defs>
+
+  <!-- base wash — mid rate, full bleed -->
+  <rect width="3600" height="1000" fill="url(#gh-air)"/>
+
+  <!-- ============================ BACK  (0.55x, art to x 2800) ============================ -->
+  <g id="layer-back">
+    <!-- hull panelling -->
+    <g opacity="0.55">
+      <rect x="0" y="120" width="2800" height="640" class="gh-panel"/>
+      <rect x="60" y="150" width="380" height="560" rx="26" fill="oklch(17% 0.04 162)"/>
+      <rect x="470" y="150" width="380" height="560" rx="26" fill="oklch(17% 0.04 162)"/>
+      <rect x="880" y="150" width="380" height="560" rx="26" fill="oklch(17% 0.04 162)"/>
+      <rect x="1290" y="150" width="180" height="560" rx="26" fill="oklch(17% 0.04 162)"/>
+      <rect x="2540" y="150" width="240" height="560" rx="26" fill="oklch(17% 0.04 162)"/>
+    </g>
+
+    <!-- moss wall -->
+    <g>
+      <rect x="250" y="160" width="400" height="300" rx="34" fill="oklch(28% 0.07 168)"/>
+      <circle cx="310" cy="215" r="46" class="gh-leaf-d"/>
+      <circle cx="392" cy="196" r="58" fill="oklch(48% 0.11 170)"/>
+      <circle cx="470" cy="228" r="42" class="gh-leaf-d"/>
+      <circle cx="548" cy="204" r="52" fill="oklch(44% 0.10 172)"/>
+      <circle cx="330" cy="300" r="54" fill="oklch(46% 0.11 168)"/>
+      <circle cx="424" cy="318" r="44" class="gh-leaf-d"/>
+      <circle cx="516" cy="300" r="56" fill="oklch(40% 0.09 170)"/>
+      <circle cx="596" cy="330" r="40" class="gh-leaf-d"/>
+      <circle cx="356" cy="392" r="46" fill="oklch(43% 0.10 170)"/>
+      <circle cx="452" cy="404" r="38" class="gh-leaf-d"/>
+      <circle cx="548" cy="392" r="48" fill="oklch(47% 0.11 168)"/>
+      <circle cx="398" cy="252" r="9" class="gh-pinkf gh-glow"/>
+      <circle cx="530" cy="352" r="7" class="gh-pinkf gh-glow" style="animation-delay:2s"/>
+      <circle cx="300" cy="356" r="6" class="gh-pinkf gh-glow" style="animation-delay:4s"/>
+    </g>
+
+    <!-- observation dome: real stars, not a screen -->
+    <g>
+      <path d="M1500 440 A500 400 0 0 1 2500 440 Z" fill="url(#gh-sky)"/>
+      <g clip-path="url(#gh-dome-clip)" fill="oklch(96% 0.02 250)">
+        <circle class="gh-star" cx="1590" cy="360" r="3"/>
+        <circle class="gh-star" cx="1648" cy="286" r="2.4" style="animation-delay:.6s"/>
+        <circle class="gh-star" cx="1712" cy="392" r="3.4" style="animation-delay:1.7s"/>
+        <circle class="gh-star" cx="1764" cy="228" r="2.6" style="animation-delay:2.4s"/>
+        <circle class="gh-star" cx="1820" cy="318" r="4" style="animation-delay:.3s"/>
+        <circle class="gh-star" cx="1880" cy="180" r="2.8" style="animation-delay:3.1s"/>
+        <circle class="gh-star" cx="1926" cy="404" r="3" style="animation-delay:1.1s"/>
+        <circle class="gh-star" cx="1984" cy="252" r="3.6" style="animation-delay:2.8s"/>
+        <circle class="gh-star" cx="2032" cy="140" r="2.4" style="animation-delay:.9s"/>
+        <circle class="gh-star" cx="2090" cy="330" r="3.2" style="animation-delay:3.6s"/>
+        <circle class="gh-star" cx="2148" cy="212" r="2.6" style="animation-delay:1.4s"/>
+        <circle class="gh-star" cx="2204" cy="386" r="3.8" style="animation-delay:2.1s"/>
+        <circle class="gh-star" cx="2260" cy="272" r="2.4" style="animation-delay:.2s"/>
+        <circle class="gh-star" cx="2318" cy="164" r="3" style="animation-delay:3.3s"/>
+        <circle class="gh-star" cx="2370" cy="352" r="2.8" style="animation-delay:1.9s"/>
+        <circle class="gh-star" cx="2424" cy="248" r="3.4" style="animation-delay:2.6s"/>
+        <circle class="gh-star" cx="1560" cy="252" r="2.2" style="animation-delay:4.1s"/>
+        <circle class="gh-star" cx="1690" cy="150" r="2.2" style="animation-delay:.5s"/>
+        <circle class="gh-star" cx="2116" cy="90" r="2.6" style="animation-delay:2.2s"/>
+        <circle class="gh-star" cx="1852" cy="424" r="2.2" style="animation-delay:3.8s"/>
+        <circle class="gh-star" cx="2280" cy="430" r="2.4" style="animation-delay:1.3s"/>
+        <circle class="gh-star" cx="2000" cy="360" r="2.2" style="animation-delay:4.4s"/>
+      </g>
+      <path d="M1500 440 A500 400 0 0 1 2500 440 Z" fill="url(#gh-glass)"/>
+      <g stroke="oklch(62% 0.03 210)" stroke-width="7" fill="none" opacity="0.85">
+        <path d="M1500 440 A500 400 0 0 1 2500 440"/>
+        <path d="M2000 40 2000 440"/>
+        <path d="M1652 148 1652 440"/>
+        <path d="M2348 148 2348 440"/>
+        <path d="M1520 300 2480 300"/>
+        <path d="M1500 440 2500 440"/>
+      </g>
+      <rect x="1476" y="430" width="1048" height="30" rx="15" class="gh-steel-d"/>
+    </g>
+
+    <!-- distant canopy -->
+    <g class="gh-leaf-d" opacity="0.85">
+      <ellipse cx="140" cy="700" rx="180" ry="120"/>
+      <ellipse cx="760" cy="726" rx="210" ry="128"/>
+      <ellipse cx="1180" cy="690" rx="160" ry="110"/>
+      <ellipse cx="1520" cy="730" rx="200" ry="118"/>
+      <ellipse cx="2050" cy="712" rx="230" ry="126"/>
+      <ellipse cx="2520" cy="700" rx="190" ry="120"/>
+      <ellipse cx="2760" cy="736" rx="170" ry="112"/>
+    </g>
+    <g opacity="0.5">
+      <circle cx="900" cy="640" r="150" fill="url(#gh-pink)"/>
+      <circle cx="1980" cy="600" r="180" fill="url(#gh-lime)"/>
+      <circle cx="2600" cy="660" r="140" fill="url(#gh-pink)"/>
+      <circle cx="300" cy="620" r="130" fill="url(#gh-lime)"/>
+    </g>
+  </g>
+
+  <!-- ============================ MID  (1.00x, art to x 3600) ============================ -->
+  <g id="layer-mid">
+    <!-- deck -->
+    <rect x="0" y="846" width="3600" height="154" fill="oklch(23% 0.04 160)"/>
+    <rect x="0" y="846" width="3600" height="12" fill="oklch(34% 0.06 162)"/>
+    <g opacity="0.35" stroke="oklch(40% 0.04 160)" stroke-width="4">
+      <path d="M240 858 240 1000M720 858 720 1000M1200 858 1200 1000M1680 858 1680 1000
+               M2160 858 2160 1000M2640 858 2640 1000M3120 858 3120 1000"/>
+    </g>
+
+    <!-- == planter row one: sun-melons == -->
+    <g>
+      <rect x="130" y="700" width="380" height="140" rx="22" class="gh-steel-d"/>
+      <rect x="142" y="712" width="356" height="52" rx="14" class="gh-soil"/>
+      <rect x="130" y="700" width="380" height="18" rx="9" class="gh-steel"/>
+      <g class="gh-leaf gh-thirsty">
+        <ellipse cx="200" cy="676" rx="52" ry="34"/>
+        <ellipse cx="290" cy="660" rx="60" ry="38"/>
+        <ellipse cx="390" cy="672" rx="54" ry="34"/>
+        <ellipse cx="462" cy="686" rx="40" ry="26"/>
+      </g>
+      <circle cx="232" cy="640" r="30" fill="oklch(84% 0.16 90)"/>
+      <circle cx="224" cy="632" r="9" fill="oklch(94% 0.10 92)"/>
+      <circle cx="348" cy="626" r="34" fill="oklch(82% 0.16 88)"/>
+      <circle cx="338" cy="616" r="10" fill="oklch(94% 0.10 92)"/>
+      <circle cx="430" cy="646" r="24" fill="oklch(80% 0.15 92)"/>
+      <circle cx="300" cy="700" r="120" fill="url(#gh-lime)" class="gh-wet"/>
+    </g>
+
+    <!-- == aquarium: Fish == -->
+    <g>
+      <rect x="640" y="750" width="256" height="94" rx="12" class="gh-steel-d"/>
+      <rect x="614" y="534" width="308" height="228" rx="16" class="gh-steel"/>
+      <rect x="622" y="546" width="292" height="204" rx="10" fill="oklch(22% 0.05 210)"/>
+      <g clip-path="url(#gh-tank-clip)">
+        <rect x="622" y="596" width="292" height="154" fill="url(#gh-water)"/>
+        <rect x="622" y="726" width="292" height="24" fill="oklch(40% 0.05 80)"/>
+        <path d="M676 726c6-56 22-84 30-96 6 22 12 60 8 96z" fill="oklch(58% 0.13 168)"/>
+        <path d="M840 726c-8-48-22-72-30-84-4 20-8 52-4 84z" fill="oklch(52% 0.12 168)"/>
+        <g id="gh-fish">
+          <ellipse cx="720" cy="654" rx="26" ry="15" fill="oklch(78% 0.16 60)"/>
+          <path d="M694 654 674 640v28z" fill="oklch(70% 0.15 45)"/>
+          <circle cx="732" cy="650" r="3.4" fill="oklch(18% 0.02 60)"/>
+        </g>
+        <circle cx="800" cy="700" r="5" fill="oklch(88% 0.04 210)" opacity="0.5"/>
+        <circle cx="812" cy="668" r="3.5" fill="oklch(88% 0.04 210)" opacity="0.4"/>
+      </g>
+      <rect x="614" y="534" width="308" height="228" rx="16" fill="url(#gh-glass)"/>
+      <!-- Taklu's sticky note, taped to the glass -->
+      <g transform="rotate(-5 880 588)">
+        <rect x="836" y="552" width="92" height="82" rx="4" fill="oklch(88% 0.13 96)"/>
+        <g stroke="oklch(38% 0.06 90)" stroke-width="3.4" stroke-linecap="round" opacity="0.75">
+          <path d="M848 576 916 576M848 592 906 592M848 608 898 608M848 622 872 622"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- == vault-flower pedestal == -->
+    <g>
+      <path d="M1080 846h190l22 -60h-234z" class="gh-steel-d"/>
+      <rect x="1064" y="742" width="222" height="52" rx="14" class="gh-steel"/>
+      <rect x="1094" y="600" width="162" height="150" rx="18" fill="oklch(34% 0.05 300)"/>
+      <rect x="1108" y="614" width="134" height="122" rx="12" fill="oklch(26% 0.05 300)"/>
+      <circle cx="1175" cy="676" r="220" fill="url(#gh-pink)" opacity="0.7" class="gh-glow"/>
+      <!-- recipe card clipped to the pot -->
+      <g transform="rotate(4 1290 700)">
+        <rect x="1252" y="654" width="80" height="96" rx="5" fill="oklch(92% 0.03 100)"/>
+        <rect x="1282" y="648" width="20" height="14" rx="4" class="gh-brass"/>
+        <g stroke="oklch(42% 0.05 100)" stroke-width="3" stroke-linecap="round" opacity="0.8">
+          <path d="M1262 676 1322 676M1262 692 1312 692M1262 708 1318 708M1262 724 1300 724"/>
+        </g>
+      </g>
+      <!-- the closed bud -->
+      <g id="gh-bud">
+        <path d="M1175 610 1160 560 1175 380 1190 560z" fill="oklch(46% 0.11 168)"/>
+        <path d="M1175 372c46 0 78 58 78 122s-34 110-78 110-78-46-78-110 32-122 78-122z" fill="url(#gh-bud-g)"/>
+        <path d="M1175 372c-24 0-42 30-50 74 14-18 32-28 50-28z" fill="oklch(74% 0.14 305)" opacity="0.55"/>
+        <path d="M1140 468c14 40 56 44 70 0" fill="none" stroke="oklch(30% 0.08 300)" stroke-width="5" opacity="0.6"/>
+      </g>
+      <!-- the bloom -->
+      <g id="gh-bloom">
+        <path d="M1175 620 1162 566 1175 430 1188 566z" fill="oklch(52% 0.12 168)"/>
+        <g fill="url(#gh-petal)">
+          <ellipse cx="1175" cy="330" rx="46" ry="86"/>
+          <ellipse cx="1175" cy="330" rx="46" ry="86" transform="rotate(51 1175 424)"/>
+          <ellipse cx="1175" cy="330" rx="46" ry="86" transform="rotate(102 1175 424)"/>
+          <ellipse cx="1175" cy="330" rx="46" ry="86" transform="rotate(153 1175 424)"/>
+          <ellipse cx="1175" cy="330" rx="46" ry="86" transform="rotate(204 1175 424)"/>
+          <ellipse cx="1175" cy="330" rx="46" ry="86" transform="rotate(255 1175 424)"/>
+          <ellipse cx="1175" cy="330" rx="46" ry="86" transform="rotate(306 1175 424)"/>
+        </g>
+        <circle cx="1175" cy="424" r="42" fill="oklch(92% 0.14 96)"/>
+        <circle cx="1175" cy="424" r="26" fill="oklch(80% 0.16 60)"/>
+        <circle cx="1163" cy="414" r="8" fill="oklch(96% 0.08 96)"/>
+        <circle cx="1175" cy="424" r="210" fill="url(#gh-pink)"/>
+      </g>
+    </g>
+
+    <!-- == irrigation manifold == -->
+    <g>
+      <rect x="1450" y="470" width="400" height="380" rx="22" fill="oklch(26% 0.04 162)"/>
+      <rect x="1466" y="486" width="368" height="348" rx="16" class="gh-panel"/>
+      <g stroke="oklch(46% 0.02 220)" stroke-width="22" fill="none" stroke-linecap="round">
+        <path d="M1516 826 1516 530 1790 530"/>
+        <path d="M1516 660 1790 660"/>
+        <path d="M1516 760 1790 760"/>
+      </g>
+      <g class="gh-wet" stroke="oklch(76% 0.11 210)" stroke-width="8" fill="none" stroke-linecap="round">
+        <path d="M1516 826 1516 530 1790 530"/>
+        <path d="M1516 660 1790 660"/>
+        <path d="M1516 760 1790 760"/>
+      </g>
+      <g>
+        <circle cx="1624" cy="530" r="26" class="gh-brass"/>
+        <circle cx="1624" cy="530" r="10" class="gh-steel-d"/>
+        <circle cx="1624" cy="660" r="26" class="gh-brass"/>
+        <circle cx="1624" cy="660" r="10" class="gh-steel-d"/>
+        <circle cx="1624" cy="760" r="26" class="gh-brass"/>
+        <circle cx="1624" cy="760" r="10" class="gh-steel-d"/>
+      </g>
+      <!-- the socket the brass handle drops into -->
+      <path d="M1746 792 1774 776 1802 792 1802 824 1774 840 1746 824z" class="gh-brass" opacity="0.85"/>
+      <path d="M1758 800 1774 790 1790 800 1790 818 1774 828 1758 818z" fill="oklch(22% 0.03 85)"/>
+      <!-- electrics box: the thing that must stay dry -->
+      <rect x="1690" y="486" width="130" height="96" rx="10" fill="oklch(70% 0.15 95)"/>
+      <rect x="1700" y="496" width="110" height="76" rx="6" fill="oklch(22% 0.03 95)"/>
+      <path d="M1758 506 1734 542h18l-8 26 28-38h-18z" fill="oklch(88% 0.16 96)"/>
+      <text class="gh-label" x="1470" y="864">MANIFOLD A-F</text>
+    </g>
+
+    <!-- == planter rows two and three == -->
+    <g>
+      <rect x="1920" y="700" width="370" height="140" rx="22" class="gh-steel-d"/>
+      <rect x="1932" y="712" width="346" height="52" rx="14" class="gh-soil"/>
+      <rect x="1920" y="700" width="370" height="18" rx="9" class="gh-steel"/>
+      <g class="gh-leaf-l gh-thirsty">
+        <path d="M1976 700c-30-40-26-92 6-124 26 34 24 88-6 124z"/>
+        <path d="M2058 700c-34-46-30-104 6-140 30 38 28 100-6 140z"/>
+        <path d="M2144 700c-30-40-26-92 6-124 26 34 24 88-6 124z"/>
+        <path d="M2224 700c-26-34-22-80 6-108 22 30 20 76-6 108z"/>
+      </g>
+      <circle cx="2000" cy="600" r="10" class="gh-pinkf gh-glow"/>
+      <circle cx="2094" cy="574" r="12" class="gh-pinkf gh-glow" style="animation-delay:2.5s"/>
+      <circle cx="2168" cy="602" r="9" class="gh-pinkf gh-glow" style="animation-delay:5s"/>
+      <circle cx="2104" cy="700" r="130" fill="url(#gh-pink)" class="gh-wet"/>
+      <rect x="2250" y="806" width="46" height="16" rx="6" class="gh-brass" transform="rotate(-8 2273 814)"/>
+    </g>
+
+    <!-- == dome telescope == -->
+    <g>
+      <path d="M2470 846 2550 700 2590 700 2530 846z" class="gh-steel-d"/>
+      <path d="M2690 846 2610 700 2570 700 2630 846z" class="gh-steel-d"/>
+      <rect x="2506" y="836" width="188" height="20" rx="10" class="gh-steel"/>
+      <circle cx="2580" cy="686" r="34" class="gh-steel"/>
+      <g transform="rotate(-32 2580 686)">
+        <rect x="2500" y="640" width="330" height="92" rx="46" class="gh-steel"/>
+        <rect x="2500" y="640" width="330" height="30" rx="15" fill="oklch(64% 0.02 220)"/>
+        <rect x="2806" y="632" width="34" height="108" rx="14" id="gh-scope-ring" class="gh-brass"/>
+        <circle cx="2528" cy="686" r="30" fill="oklch(20% 0.04 250)"/>
+        <circle cx="2528" cy="686" r="14" fill="oklch(70% 0.10 250)" opacity="0.6"/>
+      </g>
+      <rect x="2560" y="742" width="40" height="104" rx="14" class="gh-steel-d"/>
+    </g>
+
+    <!-- == planter row four == -->
+    <g>
+      <rect x="2820" y="712" width="230" height="128" rx="20" class="gh-steel-d"/>
+      <rect x="2832" y="724" width="206" height="46" rx="12" class="gh-soil"/>
+      <g class="gh-leaf gh-thirsty">
+        <ellipse cx="2872" cy="694" rx="44" ry="30"/>
+        <ellipse cx="2952" cy="682" rx="52" ry="34"/>
+        <ellipse cx="3018" cy="698" rx="38" ry="26"/>
+      </g>
+      <circle cx="2900" cy="648" r="14" class="gh-pinkf gh-glow" style="animation-delay:1.5s"/>
+      <circle cx="2966" cy="632" r="17" class="gh-pinkf gh-glow" style="animation-delay:3.5s"/>
+      <circle cx="2934" cy="712" r="110" fill="url(#gh-pink)" class="gh-wet"/>
+    </g>
+
+    <!-- == transit tube door == -->
+    <g>
+      <rect x="3080" y="290" width="300" height="596" rx="40" class="gh-steel-d"/>
+      <rect x="3098" y="308" width="264" height="560" rx="30" fill="oklch(18% 0.03 200)"/>
+      <circle cx="3230" cy="588" r="132" fill="oklch(14% 0.03 210)"/>
+      <circle cx="3230" cy="588" r="132" fill="url(#gh-glass)"/>
+      <g>
+        <path class="gh-iris gh-iris-l" d="M3098 456h132v264h-132z" fill="oklch(46% 0.03 205)"/>
+        <path class="gh-iris gh-iris-r" d="M3230 456h132v264h-132z" fill="oklch(52% 0.03 205)"/>
+        <rect class="gh-iris gh-iris-l" x="3200" y="456" width="30" height="264" fill="oklch(60% 0.03 205)"/>
+        <rect class="gh-iris gh-iris-r" x="3230" y="456" width="30" height="264" fill="oklch(60% 0.03 205)"/>
+      </g>
+      <circle cx="3230" cy="588" r="140" fill="none" stroke="oklch(58% 0.03 205)" stroke-width="14"/>
+      <rect x="3110" y="330" width="240" height="24" rx="12" class="gh-brass" opacity="0.6"/>
+      <text class="gh-label" x="3120" y="348" style="fill:oklch(22% 0.03 85)">TRANSIT TUBE</text>
+      <!-- the vines that are hugging it -->
+      <g id="gh-vines">
+        <g fill="none" stroke="oklch(48% 0.12 168)" stroke-width="20" stroke-linecap="round">
+          <path d="M3086 300c60 60 30 140 78 200s110 60 128 150 -20 150 -20 236"/>
+          <path d="M3374 300c-70 70-40 160-96 220s-120 70-134 170 30 160 30 196"/>
+          <path d="M3230 292c-10 90 40 130 30 220s-70 130-58 210"/>
+        </g>
+        <g class="gh-leaf-d">
+          <ellipse cx="3140" cy="410" rx="34" ry="20" transform="rotate(-24 3140 410)"/>
+          <ellipse cx="3320" cy="446" rx="36" ry="21" transform="rotate(28 3320 446)"/>
+          <ellipse cx="3186" cy="560" rx="32" ry="19" transform="rotate(-14 3186 560)"/>
+          <ellipse cx="3298" cy="628" rx="38" ry="22" transform="rotate(20 3298 628)"/>
+          <ellipse cx="3156" cy="726" rx="34" ry="20" transform="rotate(-30 3156 726)"/>
+          <ellipse cx="3286" cy="790" rx="30" ry="18" transform="rotate(16 3286 790)"/>
+        </g>
+        <circle cx="3236" cy="480" r="9" class="gh-pinkf gh-glow"/>
+        <circle cx="3168" cy="654" r="7" class="gh-pinkf gh-glow" style="animation-delay:3s"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============================ FRONT  (1.06x) ============================ -->
+  <g id="layer-front">
+    <!-- overhead irrigation, dripping -->
+    <g>
+      <rect x="0" y="52" width="3600" height="34" rx="17" class="gh-steel"/>
+      <rect x="0" y="52" width="3600" height="12" rx="6" fill="oklch(64% 0.02 220)"/>
+      <g class="gh-wet"><rect x="0" y="60" width="3600" height="10" fill="oklch(76% 0.11 210)" opacity="0.7"/></g>
+      <g class="gh-steel-d">
+        <rect x="300" y="86" width="26" height="46" rx="8"/>
+        <rect x="880" y="86" width="26" height="46" rx="8"/>
+        <rect x="1520" y="86" width="26" height="46" rx="8"/>
+        <rect x="2080" y="86" width="26" height="46" rx="8"/>
+        <rect x="2700" y="86" width="26" height="46" rx="8"/>
+        <rect x="3260" y="86" width="26" height="46" rx="8"/>
+      </g>
+      <g fill="oklch(82% 0.08 210)">
+        <ellipse class="gh-drop" cx="313" cy="140" rx="6" ry="9"/>
+        <ellipse class="gh-drop" cx="893" cy="140" rx="6" ry="9" style="animation-delay:1.1s"/>
+        <ellipse class="gh-drop" cx="1533" cy="140" rx="6" ry="9" style="animation-delay:2.3s"/>
+        <ellipse class="gh-drop" cx="2093" cy="140" rx="6" ry="9" style="animation-delay:.6s"/>
+        <ellipse class="gh-drop" cx="2713" cy="140" rx="6" ry="9" style="animation-delay:1.8s"/>
+        <ellipse class="gh-drop" cx="3273" cy="140" rx="6" ry="9" style="animation-delay:2.9s"/>
+      </g>
+      <g fill="none" stroke="oklch(44% 0.10 168)" stroke-width="12" stroke-linecap="round" opacity="0.9">
+        <path d="M520 86c30 60 10 100 26 150"/>
+        <path d="M1290 86c-26 70-4 110-22 160"/>
+        <path d="M2340 86c34 66 6 104 22 156"/>
+        <path d="M2940 86c-22 62 2 108-16 150"/>
+      </g>
+    </g>
+
+    <!-- the three brass plaques, by the door -->
+    <g>
+      <rect x="2870" y="230" width="230" height="250" rx="16" fill="oklch(58% 0.09 85)"/>
+      <rect x="2880" y="240" width="210" height="230" rx="12" fill="oklch(68% 0.10 86)"/>
+      <g stroke="oklch(34% 0.06 85)" stroke-width="3" fill="oklch(34% 0.06 85)">
+        <g>
+          <path d="M2892 296 2912 286 2928 273 2948 255M2912 286 2918 311" fill="none"/>
+          <circle cx="2892" cy="296" r="4.5"/><circle cx="2912" cy="286" r="4.5"/>
+          <circle cx="2928" cy="273" r="4.5"/><circle cx="2948" cy="255" r="4.5"/>
+          <circle cx="2918" cy="311" r="4.5"/>
+        </g>
+        <g>
+          <path d="M2892 335 2922 339 2952 344 2982 348" fill="none"/>
+          <circle cx="2892" cy="335" r="4.5"/><circle cx="2922" cy="339" r="4.5"/>
+          <circle cx="2952" cy="344" r="4.5"/><circle cx="2982" cy="348" r="4.5"/>
+        </g>
+        <g>
+          <path d="M2892 451 2900 467 2928 455 2892 451M2928 455 2956 447 2982 437M2956 447 2968 415" fill="none"/>
+          <circle cx="2892" cy="451" r="4.5"/><circle cx="2900" cy="467" r="4.5"/>
+          <circle cx="2928" cy="455" r="4.5"/><circle cx="2956" cy="447" r="4.5"/>
+          <circle cx="2982" cy="437" r="4.5"/><circle cx="2968" cy="415" r="4.5"/>
+        </g>
+      </g>
+      <text class="gh-plaque-t" x="2990" y="292">UNICORN</text>
+      <text class="gh-plaque-t" x="2990" y="348">COMB</text>
+      <text class="gh-plaque-t" x="2990" y="452">WHALE</text>
+    </g>
+
+    <!-- foreground fronds -->
+    <g class="gh-leaf-d">
+      <path class="gh-frond" d="M40 1000c-40-160 10-300 120-390-30 150-40 260-20 390z"/>
+      <path class="gh-frond" d="M170 1000c-70-140-50-290 40-400-10 160-30 270-4 400z" style="animation-delay:2.5s"/>
+      <path class="gh-frond" d="M3560 1000c50-170-10-310-130-404 36 156 48 270 26 404z" style="animation-delay:1.4s"/>
+      <path class="gh-frond" d="M3430 1000c74-146 54-296-44-410 14 164 34 276 6 410z" style="animation-delay:3.6s"/>
+    </g>
+    <g class="gh-leaf" opacity="0.55">
+      <path class="gh-frond" d="M110 1000c-30-120 6-232 92-300-22 116-30 200-14 300z" style="animation-delay:1.1s"/>
+      <path class="gh-frond" d="M3496 1000c40-130-8-238-100-312 28 120 38 208 20 312z" style="animation-delay:4.2s"/>
+    </g>
+
+    <!-- biolum spores -->
+    <g class="gh-pinkf">
+      <circle class="gh-spore" cx="640" cy="420" r="5" opacity="0.8"/>
+      <circle class="gh-spore" cx="1040" cy="300" r="4" opacity="0.7" style="animation-delay:2s"/>
+      <circle class="gh-spore" cx="1420" cy="480" r="6" opacity="0.65" style="animation-delay:4s"/>
+      <circle class="gh-spore" cx="1900" cy="360" r="4.5" opacity="0.75" style="animation-delay:6s"/>
+      <circle class="gh-spore" cx="2260" cy="520" r="5" opacity="0.6" style="animation-delay:1s"/>
+      <circle class="gh-spore" cx="2760" cy="380" r="4" opacity="0.8" style="animation-delay:8s"/>
+      <circle class="gh-spore" cx="3020" cy="560" r="5.5" opacity="0.6" style="animation-delay:3s"/>
+      <circle class="gh-spore" cx="380" cy="520" r="4.5" opacity="0.7" style="animation-delay:5s"/>
+    </g>
+  </g>
+</svg>

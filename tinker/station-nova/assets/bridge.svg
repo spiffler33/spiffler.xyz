@@ -1,0 +1,581 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3600 1000">
+  <!-- STATION NOVA — the Bridge. Hand-authored panorama, P6.
+       Palette (decision 9): bg oklch(22% 0.03 250) · glow white oklch(92% 0.02 250)
+                             console green oklch(80% 0.16 150)
+       Rainbow appears in exactly one place here: #br-nav-arc, the locked course. -->
+  <defs>
+    <radialGradient id="br-planet-g" cx="34%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="oklch(68% 0.13 250)"/>
+      <stop offset="62%" stop-color="oklch(46% 0.11 265)"/>
+      <stop offset="100%" stop-color="oklch(26% 0.07 275)"/>
+    </radialGradient>
+    <radialGradient id="br-halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="oklch(92% 0.02 250)" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="oklch(92% 0.02 250)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="br-screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="oklch(34% 0.05 160)"/>
+      <stop offset="100%" stop-color="oklch(24% 0.04 160)"/>
+    </linearGradient>
+    <linearGradient id="br-desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="oklch(43% 0.045 250)"/>
+      <stop offset="100%" stop-color="oklch(32% 0.04 250)"/>
+    </linearGradient>
+    <linearGradient id="br-rainbow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="oklch(78% 0.19 20)"/>
+      <stop offset="25%" stop-color="oklch(84% 0.18 90)"/>
+      <stop offset="50%" stop-color="oklch(82% 0.19 150)"/>
+      <stop offset="75%" stop-color="oklch(76% 0.18 250)"/>
+      <stop offset="100%" stop-color="oklch(74% 0.19 320)"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    /* This block is document-scoped, so every name is prefixed. The .nv-flag-* classes are
+       published on .nv-world by the renderer — the whole room lights up with no JS. */
+    #br-planet { animation: nvb-drift 150s ease-in-out infinite alternate; }
+    #br-moon   { animation: nvb-drift2 190s ease-in-out infinite alternate; }
+    .nvb-blink { animation: nvb-blink 3.4s steps(1, end) infinite; }
+    #br-term-live, #br-nav-live, #br-launch-live, #br-dock-live { opacity: 0; transition: opacity 1.1s ease; }
+    #br-term-standby { opacity: 1; transition: opacity .9s ease; }
+    .nv-flag-bridge-online #br-term-live { opacity: 1; }
+    .nv-flag-bridge-online #br-term-standby { opacity: 0; }
+    .nv-flag-nav-unlocked #br-nav-live { opacity: 1; }
+    .nv-flag-memory-restored #br-launch-live { opacity: 1; }
+    .nv-flag-memory-restored #br-dock-live { opacity: 1; }
+    #br-nav-arc { opacity: 0; transition: opacity 1.4s ease; }
+    .nv-flag-course-locked #br-nav-arc { opacity: 1; animation: nvb-hue 7s linear infinite; }
+    /* the portrait slides aside — driven by the bridge-memory slice, see the scene effect */
+    #br-portrait-frame { transition: transform 1.1s cubic-bezier(.22,.8,.24,1); }
+    .nvb-portrait-open #br-portrait-frame { transform: translateX(-232px); }
+    #br-shard3 { opacity: 0; transition: opacity .8s ease .5s; }
+    .nvb-portrait-open #br-shard3 { opacity: 1; }
+    /* she took it — off the wall, into PIP */
+    .nvb-shard-taken #br-shard3 { opacity: 0; transition-delay: 0s; }
+    @keyframes nvb-drift  { from { transform: translateX(-40px) } to { transform: translateX(120px) } }
+    @keyframes nvb-drift2 { from { transform: translateX(60px) }  to { transform: translateX(-90px) } }
+    @keyframes nvb-blink  { 0%, 78% { opacity: .25 } 80%, 100% { opacity: 1 } }
+    @keyframes nvb-hue    { from { filter: hue-rotate(0deg) } to { filter: hue-rotate(360deg) } }
+    @media (prefers-reduced-motion: reduce) {
+      #br-planet, #br-moon, .nvb-blink, .nv-flag-course-locked #br-nav-arc { animation: none; }
+    }
+  </style>
+
+  <rect width="3600" height="1000" fill="oklch(22% 0.03 250)"/>
+
+  <g id="layer-back">
+    <rect width="3600" height="1000" fill="oklch(16% 0.03 262)"/>
+    <ellipse cx="1900" cy="420" rx="1500" ry="330" fill="oklch(30% 0.07 300)" opacity="0.20"/>
+    <ellipse cx="700" cy="300" rx="900" ry="240" fill="oklch(32% 0.06 210)" opacity="0.16"/>
+    <circle cx="917" cy="757" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="3283" cy="765" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.27"/>
+    <circle cx="3348" cy="679" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.64"/>
+    <circle cx="671" cy="274" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.45"/>
+    <circle cx="1333" cy="568" r="1.5" fill="oklch(92% 0.02 250)" opacity="0.81"/>
+    <circle cx="231" cy="151" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.83"/>
+    <circle cx="792" cy="592" r="2.7" fill="oklch(92% 0.02 250)" opacity="0.33"/>
+    <circle cx="369" cy="254" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.33"/>
+    <circle cx="3023" cy="645" r="1.9" fill="oklch(92% 0.02 250)" opacity="0.47"/>
+    <circle cx="438" cy="751" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.33"/>
+    <circle cx="2413" cy="148" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.44"/>
+    <circle cx="882" cy="654" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.28"/>
+    <circle cx="2696" cy="758" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.60"/>
+    <circle cx="949" cy="488" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.79"/>
+    <circle cx="1662" cy="519" r="0.9" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="3135" cy="796" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    <circle cx="515" cy="161" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="3482" cy="603" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    <circle cx="2496" cy="562" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.71"/>
+    <circle cx="46" cy="701" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.50"/>
+    <circle cx="2750" cy="619" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.65"/>
+    <circle cx="441" cy="288" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.77"/>
+    <circle cx="1587" cy="191" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.63"/>
+    <circle cx="1676" cy="307" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.74"/>
+    <circle cx="2358" cy="568" r="2.5" fill="oklch(92% 0.02 250)" opacity="0.65"/>
+    <circle cx="380" cy="263" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.75"/>
+    <circle cx="3480" cy="640" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.46"/>
+    <circle cx="1606" cy="316" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.81"/>
+    <circle cx="2811" cy="111" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    <circle cx="2169" cy="813" r="3.1" fill="oklch(92% 0.02 250)" opacity="0.54"/>
+    <circle cx="467" cy="410" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.29"/>
+    <circle cx="2711" cy="215" r="1.5" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="2835" cy="701" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.64"/>
+    <circle cx="163" cy="734" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="3472" cy="679" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.68"/>
+    <circle cx="1672" cy="435" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.36"/>
+    <circle cx="396" cy="273" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.45"/>
+    <circle cx="31" cy="165" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.69"/>
+    <circle cx="1236" cy="142" r="0.9" fill="oklch(92% 0.02 250)" opacity="0.80"/>
+    <circle cx="3023" cy="471" r="0.9" fill="oklch(92% 0.02 250)" opacity="0.51"/>
+    <circle cx="1268" cy="90" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.27"/>
+    <circle cx="1801" cy="368" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="1412" cy="629" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.64"/>
+    <circle cx="3353" cy="214" r="2.5" fill="oklch(92% 0.02 250)" opacity="0.69"/>
+    <circle cx="2006" cy="795" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.81"/>
+    <circle cx="1060" cy="817" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.83"/>
+    <circle cx="362" cy="257" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.48"/>
+    <circle cx="1368" cy="452" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="447" cy="697" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.83"/>
+    <circle cx="2221" cy="177" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.67"/>
+    <circle cx="1012" cy="792" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="3408" cy="332" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.66"/>
+    <circle cx="2842" cy="500" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.32"/>
+    <circle cx="1109" cy="624" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="3190" cy="164" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.62"/>
+    <circle cx="62" cy="627" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.59"/>
+    <circle cx="2411" cy="349" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.82"/>
+    <circle cx="1761" cy="341" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.40"/>
+    <circle cx="2436" cy="490" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.78"/>
+    <circle cx="3096" cy="98" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.69"/>
+    <circle cx="95" cy="346" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.54"/>
+    <circle cx="2584" cy="538" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.57"/>
+    <circle cx="1241" cy="117" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.54"/>
+    <circle cx="3203" cy="246" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="2611" cy="716" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.58"/>
+    <circle cx="1980" cy="301" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="1846" cy="235" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="1771" cy="69" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.60"/>
+    <circle cx="1502" cy="75" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.53"/>
+    <circle cx="1064" cy="296" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.81"/>
+    <circle cx="3407" cy="213" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.70"/>
+    <circle cx="745" cy="356" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.60"/>
+    <circle cx="2591" cy="823" r="2.7" fill="oklch(92% 0.02 250)" opacity="0.63"/>
+    <circle cx="937" cy="778" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.26"/>
+    <circle cx="320" cy="482" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.60"/>
+    <circle cx="1633" cy="471" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.59"/>
+    <circle cx="3382" cy="773" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.37"/>
+    <circle cx="2401" cy="572" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.41"/>
+    <circle cx="1686" cy="471" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.56"/>
+    <circle cx="2641" cy="704" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.32"/>
+    <circle cx="2705" cy="686" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.57"/>
+    <circle cx="2024" cy="197" r="1.5" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="1183" cy="713" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.63"/>
+    <circle cx="2916" cy="711" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="2107" cy="239" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.79"/>
+    <circle cx="2858" cy="400" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="1468" cy="755" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.41"/>
+    <circle cx="3164" cy="780" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.26"/>
+    <circle cx="1811" cy="319" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="2811" cy="321" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.83"/>
+    <circle cx="2725" cy="662" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.56"/>
+    <circle cx="149" cy="78" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.43"/>
+    <circle cx="1716" cy="484" r="0.9" fill="oklch(92% 0.02 250)" opacity="0.68"/>
+    <circle cx="1362" cy="427" r="1.4" fill="oklch(92% 0.02 250)" opacity="0.66"/>
+    <circle cx="1910" cy="353" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.31"/>
+    <circle cx="438" cy="633" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.56"/>
+    <circle cx="1486" cy="451" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.76"/>
+    <circle cx="2637" cy="123" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.51"/>
+    <circle cx="875" cy="144" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="2925" cy="830" r="1.5" fill="oklch(92% 0.02 250)" opacity="0.84"/>
+    <circle cx="806" cy="518" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="3589" cy="752" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.43"/>
+    <circle cx="947" cy="225" r="1.9" fill="oklch(92% 0.02 250)" opacity="0.59"/>
+    <circle cx="3394" cy="81" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.79"/>
+    <circle cx="2251" cy="93" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.29"/>
+    <circle cx="1649" cy="720" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.33"/>
+    <circle cx="2736" cy="325" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.38"/>
+    <circle cx="3198" cy="126" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.84"/>
+    <circle cx="335" cy="123" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    <circle cx="943" cy="81" r="2.5" fill="oklch(92% 0.02 250)" opacity="0.64"/>
+    <circle cx="1628" cy="320" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    <circle cx="1727" cy="572" r="1.9" fill="oklch(92% 0.02 250)" opacity="0.79"/>
+    <circle cx="2543" cy="154" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.75"/>
+    <circle cx="3454" cy="61" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.51"/>
+    <circle cx="2541" cy="539" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.78"/>
+    <circle cx="2381" cy="385" r="2.5" fill="oklch(92% 0.02 250)" opacity="0.57"/>
+    <circle cx="1757" cy="673" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.69"/>
+    <circle cx="2076" cy="614" r="1.4" fill="oklch(92% 0.02 250)" opacity="0.75"/>
+    <circle cx="3135" cy="207" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.59"/>
+    <circle cx="2293" cy="348" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.33"/>
+    <circle cx="2149" cy="71" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.71"/>
+    <circle cx="1466" cy="649" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.43"/>
+    <circle cx="330" cy="485" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.57"/>
+    <circle cx="818" cy="266" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.79"/>
+    <circle cx="424" cy="207" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.40"/>
+    <circle cx="2168" cy="143" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.74"/>
+    <circle cx="1838" cy="146" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.40"/>
+    <circle cx="902" cy="742" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.72"/>
+    <circle cx="1670" cy="640" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="2226" cy="370" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.47"/>
+    <circle cx="2764" cy="825" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.54"/>
+    <circle cx="1276" cy="632" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.32"/>
+    <circle cx="3135" cy="407" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="3065" cy="334" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.83"/>
+    <circle cx="265" cy="732" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.73"/>
+    <circle cx="95" cy="821" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.71"/>
+    <circle cx="3033" cy="183" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.70"/>
+    <circle cx="3078" cy="486" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.63"/>
+    <circle cx="2544" cy="402" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="938" cy="148" r="2.5" fill="oklch(92% 0.02 250)" opacity="0.49"/>
+    <circle cx="2825" cy="199" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.48"/>
+    <circle cx="2727" cy="101" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.41"/>
+    <circle cx="1430" cy="462" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.57"/>
+    <circle cx="50" cy="97" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.61"/>
+    <circle cx="648" cy="262" r="3.1" fill="oklch(92% 0.02 250)" opacity="0.48"/>
+    <circle cx="2453" cy="60" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.50"/>
+    <circle cx="2305" cy="682" r="3.1" fill="oklch(92% 0.02 250)" opacity="0.60"/>
+    <circle cx="2231" cy="133" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.49"/>
+    <circle cx="3093" cy="184" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.71"/>
+    <circle cx="3580" cy="636" r="2.7" fill="oklch(92% 0.02 250)" opacity="0.68"/>
+    <circle cx="2705" cy="309" r="2.6" fill="oklch(92% 0.02 250)" opacity="0.28"/>
+    <circle cx="1942" cy="794" r="1.4" fill="oklch(92% 0.02 250)" opacity="0.55"/>
+    <circle cx="2371" cy="558" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.67"/>
+    <circle cx="2765" cy="828" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.29"/>
+    <circle cx="12" cy="234" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.56"/>
+    <circle cx="3521" cy="526" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="814" cy="228" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.70"/>
+    <circle cx="3275" cy="503" r="0.9" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="1151" cy="411" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.53"/>
+    <circle cx="1340" cy="113" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.77"/>
+    <circle cx="1514" cy="700" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.25"/>
+    <circle cx="223" cy="626" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="2519" cy="500" r="1.4" fill="oklch(92% 0.02 250)" opacity="0.45"/>
+    <circle cx="862" cy="706" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.76"/>
+    <circle cx="3285" cy="333" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.40"/>
+    <circle cx="395" cy="529" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.32"/>
+    <circle cx="3108" cy="626" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.65"/>
+    <circle cx="3598" cy="118" r="1.4" fill="oklch(92% 0.02 250)" opacity="0.53"/>
+    <circle cx="3420" cy="768" r="3.1" fill="oklch(92% 0.02 250)" opacity="0.55"/>
+    <circle cx="2245" cy="298" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.32"/>
+    <circle cx="2526" cy="801" r="2.9" fill="oklch(92% 0.02 250)" opacity="0.58"/>
+    <circle cx="1187" cy="131" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.64"/>
+    <circle cx="201" cy="652" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.78"/>
+    <circle cx="546" cy="85" r="2.7" fill="oklch(92% 0.02 250)" opacity="0.73"/>
+    <circle cx="3355" cy="71" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.70"/>
+    <circle cx="1932" cy="754" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.82"/>
+    <circle cx="1153" cy="220" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.34"/>
+    <circle cx="2336" cy="232" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.36"/>
+    <circle cx="3357" cy="480" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.57"/>
+    <circle cx="2315" cy="669" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.62"/>
+    <circle cx="3165" cy="348" r="1.9" fill="oklch(92% 0.02 250)" opacity="0.79"/>
+    <circle cx="1179" cy="241" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.42"/>
+    <circle cx="1853" cy="321" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.48"/>
+    <circle cx="167" cy="760" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="2990" cy="119" r="2.0" fill="oklch(92% 0.02 250)" opacity="0.65"/>
+    <circle cx="1431" cy="669" r="2.7" fill="oklch(92% 0.02 250)" opacity="0.72"/>
+    <circle cx="2713" cy="686" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.84"/>
+    <circle cx="393" cy="184" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.29"/>
+    <circle cx="41" cy="612" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.39"/>
+    <circle cx="314" cy="279" r="2.5" fill="oklch(92% 0.02 250)" opacity="0.72"/>
+    <circle cx="153" cy="522" r="1.3" fill="oklch(92% 0.02 250)" opacity="0.83"/>
+    <circle cx="1650" cy="707" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.82"/>
+    <circle cx="3433" cy="585" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.52"/>
+    <circle cx="1378" cy="189" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.32"/>
+    <circle cx="3524" cy="127" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.62"/>
+    <circle cx="2635" cy="744" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.71"/>
+    <circle cx="449" cy="391" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.78"/>
+    <circle cx="2497" cy="589" r="2.4" fill="oklch(92% 0.02 250)" opacity="0.82"/>
+    <circle cx="2660" cy="351" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.68"/>
+    <circle cx="3104" cy="466" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.40"/>
+    <circle cx="1260" cy="537" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.81"/>
+    <circle cx="2114" cy="497" r="2.2" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="2872" cy="395" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.41"/>
+    <circle cx="372" cy="813" r="2.3" fill="oklch(92% 0.02 250)" opacity="0.47"/>
+    <circle cx="2819" cy="823" r="0.9" fill="oklch(92% 0.02 250)" opacity="0.43"/>
+    <circle cx="863" cy="733" r="1.0" fill="oklch(92% 0.02 250)" opacity="0.82"/>
+    <circle cx="492" cy="152" r="3.0" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="488" cy="814" r="3.3" fill="oklch(92% 0.02 250)" opacity="0.25"/>
+    <circle cx="2635" cy="716" r="1.7" fill="oklch(92% 0.02 250)" opacity="0.41"/>
+    <circle cx="2882" cy="243" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.67"/>
+    <circle cx="1177" cy="167" r="1.2" fill="oklch(92% 0.02 250)" opacity="0.51"/>
+    <circle cx="3143" cy="794" r="2.1" fill="oklch(92% 0.02 250)" opacity="0.69"/>
+    <circle cx="582" cy="736" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.56"/>
+    <circle cx="2855" cy="493" r="1.1" fill="oklch(92% 0.02 250)" opacity="0.30"/>
+    <circle cx="1996" cy="448" r="1.5" fill="oklch(92% 0.02 250)" opacity="0.75"/>
+    <circle cx="2762" cy="611" r="2.8" fill="oklch(92% 0.02 250)" opacity="0.70"/>
+    <circle cx="1251" cy="487" r="3.1" fill="oklch(92% 0.02 250)" opacity="0.38"/>
+    <circle cx="2525" cy="360" r="3.2" fill="oklch(92% 0.02 250)" opacity="0.37"/>
+    <circle cx="3075" cy="329" r="1.6" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    <circle cx="3542" cy="446" r="1.8" fill="oklch(92% 0.02 250)" opacity="0.33"/>
+    <g id="br-planet">
+      <circle cx="1250" cy="392" r="286" fill="url(#br-halo)"/>
+      <circle cx="1250" cy="392" r="216" fill="url(#br-planet-g)"/>
+      <path d="M1080 300q120 40 240 6t180-58q-30 130-150 176t-238-16q-42-52-32-108z" fill="oklch(74% 0.10 200)" opacity="0.26"/>
+      <path d="M1108 486q130 54 268 10" stroke="oklch(80% 0.08 210)" stroke-width="12" fill="none" opacity="0.22" stroke-linecap="round"/>
+      <ellipse cx="1250" cy="392" rx="330" ry="52" fill="none" stroke="oklch(78% 0.08 90)" stroke-width="9" opacity="0.30" transform="rotate(-14 1250 392)"/>
+    </g>
+    <g id="br-moon">
+      <circle cx="2180" cy="238" r="46" fill="oklch(72% 0.02 250)" opacity="0.75"/>
+      <circle cx="2166" cy="226" r="12" fill="oklch(58% 0.02 250)" opacity="0.6"/>
+    </g>
+  </g>
+
+  <g id="layer-mid">
+    <!-- ceiling -->
+    <rect x="0" y="0" width="3600" height="112" fill="oklch(27% 0.035 250)"/>
+    <rect x="0" y="104" width="3600" height="10" fill="oklch(92% 0.02 250)" opacity="0.10"/>
+    <rect x="60" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="320" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="580" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="840" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="1100" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="1360" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="1620" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="1880" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="2140" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="2400" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="2660" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="2920" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="3180" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+    <rect x="3440" y="34" width="150" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.16"/>
+
+    <!-- floor -->
+    <rect x="0" y="870" width="3600" height="130" fill="oklch(24% 0.03 250)"/>
+    <rect x="0" y="870" width="3600" height="8" fill="oklch(92% 0.02 250)" opacity="0.12"/>
+    <path d="M0 878 L-26 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M90 878 L64 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M180 878 L154 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M270 878 L244 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M360 878 L334 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M450 878 L424 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M540 878 L514 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M630 878 L604 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M720 878 L694 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M810 878 L784 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M900 878 L874 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M990 878 L964 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1080 878 L1054 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1170 878 L1144 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1260 878 L1234 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1350 878 L1324 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1440 878 L1414 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1530 878 L1504 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1620 878 L1594 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1710 878 L1684 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1800 878 L1774 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1890 878 L1864 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M1980 878 L1954 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2070 878 L2044 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2160 878 L2134 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2250 878 L2224 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2340 878 L2314 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2430 878 L2404 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2520 878 L2494 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2610 878 L2584 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2700 878 L2674 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2790 878 L2764 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2880 878 L2854 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M2970 878 L2944 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M3060 878 L3034 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M3150 878 L3124 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M3240 878 L3214 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M3330 878 L3304 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M3420 878 L3394 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+    <path d="M3510 878 L3484 1000" stroke="oklch(92% 0.02 250)" stroke-width="1.6" opacity="0.07"/>
+
+    <!-- left bulkhead -->
+    <rect x="0" y="112" width="944" height="760" fill="oklch(27% 0.035 250)"/>
+    <rect x="0" y="112" width="944" height="760" fill="url(#br-halo)" opacity="0.25"/>
+    <rect x="60" y="170" width="820" height="6" rx="3" fill="oklch(92% 0.02 250)" opacity="0.10"/>
+    <rect x="60" y="200" width="360" height="6" rx="3" fill="oklch(92% 0.02 250)" opacity="0.06"/>
+
+    <!-- crew station A -->
+    <g id="br-crew">
+      <path d="M120 700h500l-34 150H154z" fill="url(#br-desk)"/>
+      <rect x="120" y="672" width="500" height="34" rx="12" fill="oklch(43% 0.045 250)"/>
+      <rect x="168" y="520" width="180" height="140" rx="12" fill="oklch(30% 0.05 220)" stroke="oklch(37% 0.042 250)" stroke-width="5"/>
+      <rect x="184" y="540" width="148" height="9" rx="4" fill="oklch(48% 0.09 150)" opacity="0.7"/>
+      <rect x="184" y="562" width="104" height="9" rx="4" fill="oklch(48% 0.09 150)" opacity="0.45"/>
+      <rect x="184" y="584" width="128" height="9" rx="4" fill="oklch(48% 0.09 150)" opacity="0.3"/>
+      <circle class="nvb-blink" cx="330" cy="640" r="6" fill="oklch(80% 0.16 150)"/>
+      <rect x="392" y="520" width="180" height="140" rx="12" fill="oklch(30% 0.05 220)" stroke="oklch(37% 0.042 250)" stroke-width="5"/>
+      <rect x="408" y="546" width="120" height="9" rx="4" fill="oklch(48% 0.09 150)" opacity="0.5"/>
+      <rect x="408" y="568" width="146" height="9" rx="4" fill="oklch(48% 0.09 150)" opacity="0.32"/>
+      <!-- chair -->
+      <rect x="250" y="760" width="180" height="30" rx="14" fill="oklch(37% 0.042 250)"/>
+      <rect x="300" y="786" width="26" height="70" fill="oklch(32% 0.04 250)"/>
+      <rect x="252" y="850" width="126" height="18" rx="9" fill="oklch(37% 0.042 250)"/>
+    </g>
+
+    <!-- Taklu's sticky note, on the desk lip [pinned text lives on the hotspot bark] -->
+    <g id="br-sticky">
+      <rect x="254" y="456" width="132" height="100" rx="6" fill="oklch(88% 0.13 95)" transform="rotate(-4 320 506)"/>
+      <rect x="272" y="486" width="92" height="7" rx="3" fill="oklch(45% 0.06 80)" opacity="0.5" transform="rotate(-4 320 506)"/>
+      <rect x="272" y="504" width="76" height="7" rx="3" fill="oklch(45% 0.06 80)" opacity="0.45" transform="rotate(-4 320 506)"/>
+      <rect x="272" y="522" width="54" height="7" rx="3" fill="oklch(45% 0.06 80)" opacity="0.4" transform="rotate(-4 320 506)"/>
+    </g>
+
+    <!-- display case: one comb, under glass -->
+    <g id="br-case">
+      <path d="M712 780h176l22 92H690z" fill="oklch(37% 0.042 250)"/>
+      <rect x="706" y="742" width="188" height="42" rx="10" fill="oklch(43% 0.045 250)"/>
+      <rect x="716" y="440" width="168" height="304" rx="14" fill="oklch(70% 0.05 210)" opacity="0.13" stroke="oklch(92% 0.02 250)" stroke-opacity="0.35" stroke-width="4"/>
+      <rect x="748" y="596" width="104" height="20" rx="8" fill="oklch(74% 0.12 70)"/>
+      <g fill="oklch(74% 0.12 70)">
+        <rect x="754" y="616" width="7" height="26" rx="3"/><rect x="770" y="616" width="7" height="26" rx="3"/>
+        <rect x="786" y="616" width="7" height="26" rx="3"/><rect x="802" y="616" width="7" height="26" rx="3"/>
+        <rect x="818" y="616" width="7" height="26" rx="3"/><rect x="834" y="616" width="7" height="26" rx="3"/>
+      </g>
+      <rect x="736" y="700" width="128" height="26" rx="6" fill="oklch(43% 0.045 250)"/>
+      <rect x="748" y="710" width="104" height="6" rx="3" fill="oklch(92% 0.02 250)" opacity="0.35"/>
+    </g>
+
+    <!-- the big forward window: mid draws the frame, the hole shows layer-back -->
+    <rect x="944" y="112" width="1480" height="24" fill="oklch(27% 0.035 250)"/>
+    <rect x="944" y="700" width="1480" height="172" fill="oklch(27% 0.035 250)"/>
+    <rect x="944" y="700" width="1480" height="12" fill="oklch(92% 0.02 250)" opacity="0.14"/>
+    <g stroke="oklch(43% 0.045 250)" stroke-width="18" fill="none">
+      <rect x="953" y="139" width="1462" height="562" rx="30"/>
+      <path d="M1436 139v562M1932 139v562"/>
+    </g>
+    <g stroke="oklch(92% 0.02 250)" stroke-width="3" fill="none" opacity="0.32">
+      <rect x="953" y="139" width="1462" height="562" rx="30"/>
+    </g>
+    <rect x="964" y="150" width="1440" height="44" rx="18" fill="oklch(92% 0.02 250)" opacity="0.05"/>
+
+    <!-- captain's console -->
+    <g id="br-console">
+      <path d="M1180 660h1200l64 212H1116z" fill="url(#br-desk)"/>
+      <rect x="1150" y="636" width="1260" height="34" rx="16" fill="oklch(43% 0.045 250)"/>
+      <rect x="1196" y="800" width="1148" height="10" rx="5" fill="oklch(92% 0.02 250)" opacity="0.08"/>
+
+      <!-- terminal screen -->
+      <g id="br-terminal">
+        <rect x="1414" y="462" width="492" height="212" rx="18" fill="oklch(37% 0.042 250)"/>
+        <rect x="1430" y="476" width="460" height="184" rx="12" fill="url(#br-screen)"/>
+        <g id="br-term-standby">
+          <circle cx="1660" cy="568" r="9" fill="oklch(74% 0.12 70)" opacity="0.75" class="nvb-blink"/>
+        </g>
+        <g id="br-term-live" fill="oklch(80% 0.16 150)">
+          <rect x="1452" y="498" width="180" height="10" rx="5"/>
+          <rect x="1452" y="524" width="300" height="10" rx="5" opacity="0.8"/>
+          <rect x="1452" y="550" width="240" height="10" rx="5" opacity="0.65"/>
+          <rect x="1452" y="576" width="330" height="10" rx="5" opacity="0.5"/>
+          <rect x="1452" y="602" width="140" height="10" rx="5" opacity="0.75"/>
+          <rect x="1604" y="602" width="16" height="14" rx="3" class="nvb-blink"/>
+          <rect x="1430" y="476" width="460" height="184" rx="12" fill="oklch(80% 0.16 150)" opacity="0.06"/>
+        </g>
+        <rect x="1414" y="462" width="492" height="212" rx="18" fill="none" stroke="oklch(92% 0.02 250)" stroke-opacity="0.22" stroke-width="4"/>
+      </g>
+
+      <!-- nav display, left of the terminal -->
+      <g id="br-nav">
+        <rect x="1206" y="500" width="180" height="164" rx="14" fill="oklch(37% 0.042 250)"/>
+        <rect x="1220" y="514" width="152" height="136" rx="10" fill="oklch(26% 0.05 250)"/>
+        <g id="br-nav-live" fill="oklch(80% 0.16 150)" opacity="0">
+          <circle cx="1296" cy="582" r="52" fill="none" stroke="oklch(80% 0.16 150)" stroke-width="3" opacity="0.45"/>
+          <circle cx="1296" cy="582" r="26" fill="none" stroke="oklch(80% 0.16 150)" stroke-width="3" opacity="0.3"/>
+          <circle cx="1252" cy="546" r="4"/><circle cx="1330" cy="558" r="4"/><circle cx="1310" cy="624" r="4"/>
+        </g>
+        <path id="br-nav-arc" d="M1240 626q64-104 132-96" stroke="url(#br-rainbow)" stroke-width="9" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- framed photo, propped on the desk [pinned caption on the hotspot bark] -->
+      <g id="br-photo">
+        <rect x="1958" y="548" width="164" height="128" rx="10" fill="oklch(43% 0.045 250)"/>
+        <rect x="1972" y="562" width="136" height="100" rx="6" fill="oklch(34% 0.06 240)"/>
+        <circle cx="2016" cy="600" r="17" fill="oklch(70% 0.09 60)"/>
+        <path d="M1998 646q18-26 36-26t36 26z" fill="oklch(62% 0.10 200)"/>
+        <circle cx="2072" cy="606" r="12" fill="oklch(80% 0.12 320)"/>
+        <path d="M2058 646q14-20 28-20t26 20z" fill="oklch(70% 0.11 320)"/>
+        <path d="M2040 676l-8 24h58l-8-24z" fill="oklch(37% 0.042 250)"/>
+      </g>
+
+      <!-- keys + trim -->
+      <g fill="oklch(43% 0.045 250)">
+        <rect x="1958" y="700" width="330" height="66" rx="12"/>
+      </g>
+      <g fill="oklch(92% 0.02 250)" opacity="0.16">
+        <rect x="1974" y="714" width="40" height="16" rx="5"/><rect x="2022" y="714" width="40" height="16" rx="5"/>
+        <rect x="2070" y="714" width="40" height="16" rx="5"/><rect x="2118" y="714" width="40" height="16" rx="5"/>
+        <rect x="2166" y="714" width="40" height="16" rx="5"/><rect x="2214" y="714" width="58" height="16" rx="5"/>
+        <rect x="1990" y="738" width="40" height="16" rx="5"/><rect x="2038" y="738" width="40" height="16" rx="5"/>
+        <rect x="2086" y="738" width="130" height="16" rx="5"/>
+      </g>
+    </g>
+
+    <!-- right bulkhead -->
+    <rect x="2424" y="112" width="1176" height="760" fill="oklch(27% 0.035 250)"/>
+    <rect x="2424" y="112" width="1176" height="760" fill="url(#br-halo)" opacity="0.22"/>
+    <rect x="2470" y="176" width="1060" height="6" rx="3" fill="oklch(92% 0.02 250)" opacity="0.10"/>
+
+    <!-- launch board -->
+    <g id="br-launch">
+      <rect x="2478" y="418" width="384" height="346" rx="20" fill="oklch(37% 0.042 250)"/>
+      <rect x="2494" y="434" width="352" height="314" rx="14" fill="oklch(32% 0.04 250)"/>
+      <g fill="oklch(43% 0.045 250)">
+        <rect x="2520" y="470" width="60" height="94" rx="10"/><rect x="2596" y="470" width="60" height="94" rx="10"/>
+        <rect x="2672" y="470" width="60" height="94" rx="10"/><rect x="2748" y="470" width="60" height="94" rx="10"/>
+      </g>
+      <g id="br-launch-live">
+        <g fill="oklch(80% 0.16 150)" opacity="0.8">
+          <rect x="2532" y="486" width="36" height="12" rx="6"/><rect x="2608" y="486" width="36" height="12" rx="6"/>
+          <rect x="2684" y="486" width="36" height="12" rx="6"/><rect x="2760" y="486" width="36" height="12" rx="6"/>
+        </g>
+        <rect x="2520" y="600" width="288" height="14" rx="7" fill="oklch(80% 0.16 150)" opacity="0.5"/>
+      </g>
+      <rect x="2520" y="620" width="288" height="104" rx="12" fill="oklch(28% 0.04 250)"/>
+      <rect x="2540" y="646" width="30" height="56" rx="14" fill="oklch(43% 0.045 250)"/>
+      <rect x="2544" y="650" width="22" height="26" rx="11" fill="oklch(74% 0.12 70)"/>
+      <text x="2670" y="686" text-anchor="middle" font-family="ui-monospace, monospace" font-size="30"
+            letter-spacing="4" fill="oklch(92% 0.02 250)" opacity="0.4">LAUNCH</text>
+    </g>
+
+    <!-- Commander Taklu's portrait; it slides aside on the bridge-memory slice -->
+    <g id="br-portrait">
+      <rect x="2946" y="168" width="308" height="392" rx="10" fill="oklch(30% 0.04 250)"/>
+      <g id="br-shard3">
+        <rect x="3038" y="300" width="128" height="128" rx="14" fill="oklch(30% 0.06 200)"/>
+        <path d="M3102 322l50 42-50 42-50-42z" fill="oklch(84% 0.15 190)" opacity="0.9"/>
+        <circle cx="3102" cy="364" r="70" fill="url(#br-halo)"/>
+      </g>
+      <g id="br-portrait-frame">
+        <rect x="2950" y="172" width="300" height="384" rx="8" fill="oklch(74% 0.12 70)" opacity="0.85"/>
+        <rect x="2968" y="190" width="264" height="316" rx="4" fill="oklch(36% 0.05 240)"/>
+        <circle cx="3100" cy="330" r="150" fill="url(#br-halo)" opacity="0.6"/>
+        <path d="M3040 470q0-84 60-84t60 84z" fill="oklch(52% 0.07 250)"/>
+        <circle cx="3100" cy="326" r="70" fill="oklch(70% 0.09 60)"/>
+        <ellipse cx="3078" cy="292" rx="26" ry="16" fill="oklch(96% 0.02 90)" opacity="0.55"/>
+        <circle cx="3076" cy="326" r="7" fill="oklch(24% 0.03 60)"/>
+        <circle cx="3124" cy="326" r="7" fill="oklch(24% 0.03 60)"/>
+        <path d="M3072 356q28 22 56 0" stroke="oklch(30% 0.05 40)" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path d="M3054 300q14-14 30-8M3116 292q16-6 30 8" stroke="oklch(30% 0.05 40)" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <rect x="3012" y="512" width="176" height="34" rx="6" fill="oklch(76% 0.05 90)"/>
+        <rect x="3028" y="524" width="144" height="8" rx="4" fill="oklch(34% 0.04 80)" opacity="0.65"/>
+      </g>
+    </g>
+
+    <!-- PIP's charging dock -->
+    <g id="br-dock">
+      <path d="M2980 596h280v268h-280z" fill="oklch(24% 0.035 250)"/>
+      <path d="M2980 596h280v268h-280z" fill="none" stroke="oklch(43% 0.045 250)" stroke-width="10"/>
+      <rect x="3006" y="800" width="228" height="26" rx="10" fill="oklch(43% 0.045 250)"/>
+      <g id="br-dock-live">
+        <rect x="3006" y="790" width="228" height="8" rx="4" fill="oklch(80% 0.16 150)" opacity="0.6"/>
+      </g>
+      <g fill="oklch(30% 0.05 210)" stroke="oklch(92% 0.02 250)" stroke-opacity="0.3" stroke-width="3">
+        <rect x="3018" y="654" width="62" height="80" rx="10"/>
+        <rect x="3090" y="654" width="62" height="80" rx="10"/>
+        <rect x="3162" y="654" width="62" height="80" rx="10"/>
+      </g>
+      <g stroke="oklch(80% 0.16 150)" stroke-width="4" fill="none" opacity="0.55" stroke-linecap="round">
+        <path d="M3028 706l10-16 10 16 10-16 10 16"/>
+        <path d="M3100 706q10-24 20 0t20 0"/>
+        <path d="M3172 706v-14h14v14h14v-14"/>
+      </g>
+      <text x="3120" y="628" text-anchor="middle" font-family="ui-monospace, monospace" font-size="22"
+            letter-spacing="3" fill="oklch(92% 0.02 250)" opacity="0.34">DOCK</text>
+    </g>
+
+    <!-- far right: decorative airlock (beyond hotspot reach, deliberately) -->
+    <g>
+      <rect x="3380" y="230" width="200" height="600" rx="24" fill="oklch(32% 0.04 250)"/>
+      <rect x="3404" y="256" width="152" height="548" rx="16" fill="oklch(24% 0.035 250)"/>
+      <circle cx="3480" cy="530" r="52" fill="none" stroke="oklch(92% 0.02 250)" stroke-opacity="0.2" stroke-width="8"/>
+      <circle class="nvb-blink" cx="3480" cy="290" r="8" fill="oklch(74% 0.12 70)"/>
+    </g>
+  </g>
+
+  <g id="layer-front">
+    <rect x="0" y="960" width="3600" height="40" fill="oklch(19% 0.03 250)"/>
+    <ellipse cx="600" cy="980" rx="520" ry="80" fill="oklch(92% 0.02 250)" opacity="0.04"/>
+    <ellipse cx="1800" cy="985" rx="700" ry="90" fill="oklch(80% 0.16 150)" opacity="0.05"/>
+    <ellipse cx="3050" cy="980" rx="480" ry="80" fill="oklch(92% 0.02 250)" opacity="0.04"/>
+    <!-- captain's chair, foreground -->
+    <g>
+      <path d="M1560 900h300l30 100h-360z" fill="oklch(26% 0.035 250)"/>
+      <rect x="1590" y="826" width="240" height="90" rx="26" fill="oklch(30% 0.04 250)"/>
+      <rect x="1610" y="842" width="200" height="14" rx="7" fill="oklch(92% 0.02 250)" opacity="0.07"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#080c14" />
+    <title>STATION NOVA</title>
+    <!-- inline, so the page makes no network request of any kind -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111a26'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%2379d8ff'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fff3d4'/%3E%3C/svg%3E"
+    />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        background: oklch(14% 0.02 250);
+        color: oklch(92% 0.02 250);
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #scene { position: fixed; inset: 0; }
+
+      /* ---------- title screen ---------- */
+      #title {
+        position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
+        background:
+          radial-gradient(120% 80% at 50% 8%, oklch(30% 0.07 280 / .55), transparent 62%),
+          radial-gradient(90% 60% at 78% 92%, oklch(34% 0.06 200 / .4), transparent 60%),
+          oklch(12% 0.02 250);
+        transition: opacity .7s ease;
+      }
+      #title.gone { opacity: 0; pointer-events: none; }
+      #stars { position: absolute; inset: 0; overflow: hidden; }
+      #stars i {
+        position: absolute; display: block; border-radius: 50%; background: oklch(96% 0.02 250);
+        animation: twinkle var(--dur) ease-in-out infinite alternate;
+      }
+      @keyframes twinkle { from { opacity: .18 } to { opacity: 1 } }
+
+      .title-card { position: relative; text-align: center; padding: 24px; }
+      .title-card h1 {
+        margin: 0; font-size: clamp(38px, 9.5vw, 104px); font-weight: 800; letter-spacing: .2em;
+        line-height: 1; color: oklch(97% 0.02 250);
+        text-shadow: 0 0 42px oklch(80% 0.16 250 / .6), 0 0 120px oklch(70% 0.2 280 / .35);
+      }
+      .title-card h1 em { font-style: normal; color: oklch(84% 0.15 200); }
+      .title-card .sub {
+        margin: 18px 0 0; font-size: clamp(10px, 1.5vw, 13px); font-weight: 600;
+        letter-spacing: .46em; text-transform: uppercase; color: oklch(70% 0.05 240);
+      }
+      .title-card .rule {
+        width: min(420px, 70vw); height: 1px; margin: 30px auto 0;
+        background: linear-gradient(90deg, transparent, oklch(72% 0.1 240 / .7), transparent);
+      }
+      .actions { margin-top: 30px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+      .actions button {
+        font: 600 12px/1 system-ui, sans-serif; letter-spacing: .22em; text-transform: uppercase;
+        padding: 15px 30px; border-radius: 999px; cursor: pointer; color: oklch(94% 0.02 250);
+        background: oklch(24% 0.03 250 / .7); border: 1px solid oklch(70% 0.08 240 / .45);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        transition: border-color .16s ease, background .16s ease, transform .12s ease;
+      }
+      .actions button:hover { border-color: oklch(84% 0.15 200); background: oklch(30% 0.05 240 / .8); }
+      .actions button:active { transform: translateY(1px) scale(.99); }
+      .actions button.primary {
+        color: oklch(16% 0.03 250); background: oklch(86% 0.14 200); border-color: transparent;
+        box-shadow: 0 0 34px oklch(80% 0.16 200 / .45);
+      }
+      .actions button.primary:hover { background: oklch(92% 0.13 200); }
+      .actions button[hidden] { display: none; }
+      .dedication {
+        position: fixed; left: 0; right: 0; bottom: 22px; text-align: center;
+        font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
+        color: oklch(62% 0.04 250);
+      }
+      .boot-error {
+        margin-top: 22px; font-size: 13px; line-height: 1.6; color: oklch(78% 0.06 60);
+        max-width: 46ch; margin-inline: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="scene"></div>
+    <div id="overlay"></div>
+    <div id="dialogue"></div>
+    <div id="hud"></div>
+
+    <div id="title">
+      <div id="stars"></div>
+      <div class="title-card">
+        <h1>STATION <em>NOVA</em></h1>
+        <p class="sub">Research Station &middot; Lockdown</p>
+        <div class="rule"></div>
+        <div class="actions">
+          <button id="btn-start" class="primary" type="button">Start</button>
+          <button id="btn-continue" type="button" hidden>Continue</button>
+        </div>
+        <p id="boot-error" class="boot-error" hidden></p>
+      </div>
+      <p class="dedication">for Commander Nandini</p>
+    </div>
+
+    <script type="module">
+      import { createGame } from './engine/state.js';
+      import { MODULES, WALKTHROUGH } from './engine/walkthrough.js';
+      import { CERTIFICATE } from './engine/script/bridge.js';
+      import { CONSTELLATIONS, FIELD } from './engine/puzzles/green-stars.js';
+      import { IDLE_BARKS, SHARD_LABELS, countShards, createBarkRotation } from './engine/script/pip.js';
+      import { createRenderer, createDoorWait } from './ui/renderer.js';
+      import { initAudio, attachTo, play } from './ui/audio.js';
+      import { loadSave, clearSave, attachAutosave, openSaved } from './ui/save.js';
+      import cargoCloseups from './ui/closeups/cargo.js';
+      import greenhouseCloseups from './ui/closeups/greenhouse.js';
+      import bridgeCloseups from './ui/closeups/bridge.js';
+
+      const CLOSEUPS = {
+        cargo: cargoCloseups,
+        greenhouse: greenhouseCloseups,
+        bridge: bridgeCloseups,
+      };
+
+      // ---- starfield -------------------------------------------------------------------
+      const stars = document.getElementById('stars');
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < 190; i += 1) {
+        const s = document.createElement('i');
+        const depth = Math.random();
+        const size = 0.7 + depth * 2.1;
+        s.style.width = `${size}px`;
+        s.style.height = `${size}px`;
+        s.style.left = `${Math.random() * 100}%`;
+        s.style.top = `${Math.random() * 100}%`;
+        s.style.opacity = String(0.2 + depth * 0.6);
+        s.style.setProperty('--dur', `${2.4 + Math.random() * 5.5}s`);
+        s.style.animationDelay = `${-Math.random() * 6}s`;
+        if (depth > 0.93) s.style.boxShadow = '0 0 8px oklch(90% 0.1 220)';
+        frag.appendChild(s);
+      }
+      stars.appendChild(frag);
+
+      // ==================================================================================
+      // P7 — the glue that turns three rooms into one game.
+      //
+      // No puzzle may set `module` (onSolveFlags forbids it), so both doors between the
+      // rooms are wired here: cargo's `hatch-open` opens the crawlway, the greenhouse's
+      // `tube-sealed` hands her to the bridge under the tube ride.
+      // ==================================================================================
+
+      const CRAWL_WAIT_MS = 2900;    // PIP's "It's open…" is 55 chars at 30 cps — let it land
+      const CRAWL_READ_MS = 900;     // …and a beat to read it once he stops typing
+      const CRAWL_MAX_WAIT_MS = 9000;// but a backed-up queue never holds the door shut forever
+      const CRAWL_POLL_MS = 250;     // how often the door asks whether it may open
+      const CRAWL_SWITCH_MS = 1700;  // into the crawl: the room changes under the tunnel
+      const CRAWL_MS = 3300;         // how long the crawlway is on screen
+      // The greenhouse widget holds its own ride back 2533 ms so the pinned "Pressure's
+      // green!" line lands, then runs it for 6 s — and the ride is escapable:false, so that
+      // cover cannot be lifted early. The swap goes under it: never before 2533 ms, never
+      // after 6000 ms, and 4500 sits in the middle of every path into the ride (she can back
+      // out of the close-up the instant she seals, which hands the ride over at ~0 ms).
+      const TUBE_SWITCH_MS = 4500;
+      const BARK_EVERY_MS = 62000;   // PIP's idle rotation
+      const BARK_POLL_MS = 5000;
+
+      function sfx(name) {
+        try { play(name); } catch (err) { console.warn('[station-nova] play', name, err); }
+      }
+
+      /** GASP #1's other half: the crawl through the hatch, on the renderer's full-screen
+       *  surface. Amber cargo dark at one end, greenhouse green at the other, and the module
+       *  swap happens in the middle where nothing can be seen to jump. */
+      function runCrawl(renderer) {
+        const surface = renderer.present({ title: 'Crawlway', escapable: false });
+        const host = surface.el;
+
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes nv-crawl-hoop {
+            0%   { transform: translate(-50%,-50%) scale(.08); opacity: 0 }
+            16%  { opacity: .85 }
+            100% { transform: translate(-50%,-50%) scale(3.6); opacity: 0 }
+          }
+          @keyframes nv-crawl-wash { from { opacity: 0 } to { opacity: 1 } }
+          @keyframes nv-crawl-glow {
+            from { transform: translate(-50%,-50%) scale(.4); opacity: .3 }
+            to   { transform: translate(-50%,-50%) scale(7); opacity: 1 }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .nv-crawl-hoop { animation: none; opacity: .35 }
+          }
+        `;
+        host.appendChild(style);
+
+        const box = document.createElement('div');
+        box.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:oklch(8% 0.02 60)';
+        host.appendChild(box);
+
+        const wash = document.createElement('div');
+        wash.style.cssText =
+          'position:absolute;inset:0;animation:nv-crawl-wash 3.2s ease-in forwards;'
+          + 'background:radial-gradient(circle at 50% 50%, oklch(40% 0.10 165 / .95), oklch(12% 0.035 150) 72%)';
+        box.appendChild(wash);
+
+        for (let i = 0; i < 9; i += 1) {
+          const hoop = document.createElement('div');
+          hoop.className = 'nv-crawl-hoop';
+          hoop.style.cssText =
+            'position:absolute;left:50%;top:50%;width:52vmin;height:34vmin;border-radius:14vmin;'
+            + 'border:3px solid oklch(78% 0.11 78 / .72);'
+            + 'box-shadow:0 0 30px oklch(72% 0.11 80 / .22) inset, 0 0 18px oklch(70% 0.10 80 / .16);'
+            + `animation:nv-crawl-hoop 2.4s linear infinite;animation-delay:-${(i * 0.266).toFixed(3)}s`;
+          box.appendChild(hoop);
+        }
+
+        const glow = document.createElement('div');
+        glow.style.cssText =
+          'position:absolute;left:50%;top:50%;width:12vmin;height:12vmin;border-radius:50%;'
+          + 'background:radial-gradient(circle, oklch(88% 0.16 165), oklch(70% 0.16 168 / .25) 55%, transparent 72%);'
+          + 'animation:nv-crawl-glow 3.3s cubic-bezier(.5,0,.85,.6) forwards';
+        box.appendChild(glow);
+
+        const vignette = document.createElement('div');
+        vignette.style.cssText =
+          'position:absolute;inset:0;pointer-events:none;'
+          + 'background:radial-gradient(120% 90% at 50% 50%, transparent 46%, rgb(0 0 0 / .62) 100%)';
+        box.appendChild(vignette);
+
+        sfx('clunk');
+        setTimeout(() => sfx('rumble'), 170);
+        setTimeout(() => renderer.setFlag('module', 'greenhouse'), CRAWL_SWITCH_MS);
+        setTimeout(() => sfx('whoosh'), CRAWL_MS - 700);
+        setTimeout(() => surface.close(), CRAWL_MS);
+      }
+
+      /** Deterministic scatter, so the chart's backdrop is the same sky every time. */
+      function minstd(seed) {
+        let s = seed % 2147483647;
+        if (s <= 0) s += 2147483646;
+        return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+      }
+
+      /** The star chart, readable from the inventory strip in any module — she charted it in
+       *  the dome and needs it again on the bridge, two rooms later. */
+      function openStarChart(renderer) {
+        const surface = renderer.present({ title: 'Star chart', escapable: true });
+        const wrap = document.createElement('div');
+        wrap.style.cssText =
+          'position:absolute;inset:0;display:grid;place-items:center;padding:4vh 4vw;'
+          + 'background:radial-gradient(120% 90% at 50% 30%, oklch(18% 0.04 260), oklch(9% 0.02 260))';
+        surface.el.appendChild(wrap);
+
+        const panel = document.createElement('div');
+        panel.style.cssText =
+          'width:min(900px,92vw);max-height:90vh;display:flex;flex-direction:column;gap:12px;'
+          + 'padding:18px 20px 20px;border-radius:22px;background:oklch(15% 0.03 258 / .96);'
+          + 'border:1px solid oklch(50% 0.06 250 / .55);box-shadow:0 30px 90px rgb(0 0 0 / .6)';
+        wrap.appendChild(panel);
+
+        const head = document.createElement('div');
+        head.style.cssText = 'display:flex;align-items:center;gap:12px';
+        panel.appendChild(head);
+        const heading = document.createElement('h2');
+        heading.style.cssText =
+          'flex:1;margin:0;font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.24em;'
+          + 'text-transform:uppercase;color:oklch(84% 0.12 200)';
+        heading.textContent = 'Star chart';
+        head.appendChild(heading);
+        const shut = document.createElement('button');
+        shut.type = 'button';
+        shut.textContent = '✕';
+        shut.setAttribute('aria-label', 'Close the star chart');
+        shut.style.cssText =
+          'width:34px;height:34px;border-radius:50%;cursor:pointer;font:600 17px/1 system-ui,sans-serif;'
+          + 'color:oklch(94% 0.01 250);background:rgb(255 255 255 / .07);border:1px solid oklch(60% 0.06 250 / .6)';
+        shut.addEventListener('click', () => surface.close());
+        head.appendChild(shut);
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('viewBox', `0 0 ${FIELD.w} ${FIELD.h}`);
+        svg.style.cssText = 'width:100%;height:auto;max-height:66vh;display:block;border-radius:14px;background:oklch(11% 0.03 262)';
+        panel.appendChild(svg);
+        const put = (tag, attrs, parent) => {
+          const n = document.createElementNS(NS, tag);
+          for (const k of Object.keys(attrs)) n.setAttribute(k, attrs[k]);
+          (parent || svg).appendChild(n);
+          return n;
+        };
+
+        const rnd = minstd(4703);
+        for (let i = 0; i < 110; i += 1) {
+          put('circle', {
+            cx: (rnd() * FIELD.w).toFixed(1), cy: (rnd() * FIELD.h).toFixed(1),
+            r: (1.6 + rnd() * 3.4).toFixed(1), fill: 'oklch(92% 0.02 250)',
+            opacity: (0.12 + rnd() * 0.28).toFixed(2),
+          });
+        }
+
+        for (const c of CONSTELLATIONS) {
+          const g = put('g', {});
+          for (const [a, b] of c.lines) {
+            put('line', {
+              x1: c.stars[a][0], y1: c.stars[a][1], x2: c.stars[b][0], y2: c.stars[b][1],
+              stroke: 'oklch(80% 0.13 200)', 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.6,
+            }, g);
+          }
+          for (const [x, y] of c.stars) {
+            put('circle', { cx: x, cy: y, r: 11, fill: 'oklch(96% 0.05 200)' }, g);
+            put('circle', { cx: x, cy: y, r: 22, fill: 'oklch(88% 0.12 200)', opacity: 0.18 }, g);
+          }
+          const label = put('text', {
+            x: c.at[0], y: c.at[1] + 152, 'text-anchor': 'middle', fill: 'oklch(86% 0.09 200)',
+            style: 'font:600 40px/1 system-ui,sans-serif;letter-spacing:6px',
+          }, g);
+          label.textContent = c.name.toUpperCase();
+        }
+
+        const foot = document.createElement('p');
+        foot.style.cssText =
+          'margin:0;font:400 13px/1.5 system-ui,sans-serif;color:oklch(72% 0.03 250);text-align:center';
+        foot.textContent = 'Charted from the greenhouse dome by Commander Nandini.';
+        panel.appendChild(foot);
+
+        sfx('chime');
+        return surface;      // so ?autotest can open the chart, measure it, and put it away
+      }
+
+      /** The lines a barrel hangs off a flag. The finale speaks WIN's copy on its own surface,
+       *  and an arrival line has to be said again when a reload swallowed it — both need the
+       *  shipped text, and neither may re-type it here. */
+      function scriptLines(key) {
+        for (const mod of MODULES) {
+          const entry = mod.script && mod.script[key];
+          if (entry !== undefined) return Array.isArray(entry) ? entry : [entry];
+        }
+        return [];
+      }
+
+      /** Everything that has to hold across all three rooms: both doors, the clock's full
+       *  stop at WIN, the shard counter on PIP, and his idle rotation. */
+      function wireThreads(game, renderer, resumed) {
+        let crawled = false;
+        let rode = false;
+
+        function paintShards() {
+          const found = countShards(game.state);
+          renderer.setPipBadge(found > 0 ? `${found}/3` : '', SHARD_LABELS[found]);
+        }
+
+        function toGreenhouse(instant) {
+          if (crawled) return;
+          crawled = true;
+          if (instant) { renderer.setFlag('module', 'greenhouse'); return; }
+          // The hatch flag can land behind lines she has not read — PIP gasps at the hatch and
+          // points at the wheel while she is still turning it. So the crawlway waits for him
+          // to stop typing, plus a beat, with a floor and a ceiling on the wait. Anything the
+          // ceiling cuts off is deferred by the renderer, not destroyed, and types out in the
+          // greenhouse once the crawlway lifts.
+          const door = createDoorWait({
+            minMs: CRAWL_WAIT_MS, readMs: CRAWL_READ_MS, maxMs: CRAWL_MAX_WAIT_MS,
+          });
+          const wait = () => {
+            if (door.ready(renderer.dialogueSettled())) { runCrawl(renderer); return; }
+            setTimeout(wait, CRAWL_POLL_MS);
+          };
+          setTimeout(wait, CRAWL_POLL_MS);
+        }
+
+        function toBridge(instant) {
+          if (rode) return;
+          rode = true;
+          if (instant) { renderer.setFlag('module', 'bridge'); return; }
+          setTimeout(() => renderer.setFlag('module', 'bridge'), TUBE_SWITCH_MS);
+        }
+
+        // One subscriber. It must never throw: the engine wraps a throwing subscriber in a
+        // SubscriberError and rethrows it at whoever dispatched.
+        game.subscribe((event) => {
+          try {
+            if (event && event.type === 'flag' && event.value === true) {
+              if (event.name === 'hatch-open') toGreenhouse(false);
+              else if (event.name === 'tube-sealed') toBridge(false);
+              // Before the ~12 s finale, not after it: the certificate prints this number.
+              // The hush runs after this batch of script lines has been delivered: the finale
+              // says PIP's win line on its own surface, so the bubble's copy is a duplicate
+              // that would be waiting for her when the certificate closes.
+              else if (event.name === 'WIN') {
+                renderer.stopClock();
+                // Hush that ONE duplicate, not the queue: a hint she asked for a click before
+                // she typed `launch confirm` is still owed to her when the certificate lifts.
+                const spoken = scriptLines('WIN').map((l) => (typeof l === 'string' ? l : l.text));
+                setTimeout(() => renderer.hushUnderPresentation(spoken), 0);
+              }
+            }
+            paintShards();
+          } catch (err) {
+            console.warn('[station-nova] integration glue', err);
+          }
+        });
+
+        // A save can land in the seconds between a room's last solve and the swap scheduled
+        // above, and events never replay — so Continue could drop her into a finished room
+        // with no door out. Close both seams at boot, without replaying the transition she
+        // has already watched.
+        const arrivedIn = game.state.module;
+        if (game.state.module === 'cargo' && game.hasFlag('hatch-open')) toGreenhouse(true);
+        else if (game.state.module === 'greenhouse' && game.hasFlag('tube-sealed')) toBridge(true);
+        paintShards();
+
+        // The other half of that window: a reload AFTER the swap but before the cover lifted.
+        // The room is right, but its arrival line was spoken to a screen that no longer
+        // exists and flags never fire twice — so "Welcome to the green module. Mind the moss."
+        // would simply never be seen. Say it again, but only if she has done nothing in here
+        // yet: a save from the middle of a room must not re-greet her.
+        if (resumed && game.state.module === arrivedIn) {
+          const mod = MODULES.find((m) => m.id === arrivedIn);
+          const touched = ((mod && mod.puzzles) || []).some((p) => game.isSolved(p.id));
+          if (!touched) {
+            for (const l of scriptLines(`module:${arrivedIn}`)) {
+              if (typeof l === 'string') renderer.say(l);
+              else if (l && l.text) renderer.say(l.text, { pose: l.pose, speaker: l.speaker });
+            }
+          }
+        }
+
+        const barks = createBarkRotation(IDLE_BARKS, {
+          start: Math.floor(Math.random() * IDLE_BARKS.length),
+        });
+        let lastBark = Date.now();
+        setInterval(() => {
+          // isIdle() is the whole politeness rule: never over a line, never into a close-up,
+          // never behind the tube ride or the certificate.
+          if (!renderer.isIdle()) return;
+          if (Date.now() - lastBark < BARK_EVERY_MS) return;
+          lastBark = Date.now();
+          renderer.say(barks.next());
+        }, BARK_POLL_MS);
+      }
+
+      // ---- boot ------------------------------------------------------------------------
+      const title = document.getElementById('title');
+      const startBtn = document.getElementById('btn-start');
+      const continueBtn = document.getElementById('btn-continue');
+      const bootError = document.getElementById('boot-error');
+      const mounts = {
+        scene: document.getElementById('scene'),
+        overlay: document.getElementById('overlay'),
+        dialogue: document.getElementById('dialogue'),
+        hud: document.getElementById('hud'),
+      };
+
+      let saved = null;
+      let booted = false;
+      let stopAutosave = null;
+
+      /** Every error the renderer's safe boundary catches — a close-up whose mount() threw, a
+       *  widget listener that blew up, a dispatch the engine rejected. It still reaches
+       *  console.warn exactly as the renderer's own default did; it ALSO lands here, where
+       *  ?autotest can fail on it.
+       *
+       *  Without this the morning check is blind to the one failure it exists to catch: mount()
+       *  throws, the renderer draws "This close-up hit a snag", the sweep drives the engine
+       *  through renderer.dispatch and never touches the widget's controls — so every step
+       *  lands, WIN fires, and the badge paints PASS on a room she cannot solve by hand. */
+      const CAUGHT = [];
+      function reportCaught(err, where) {
+        CAUGHT.push(`${where} — ${(err && err.message) || String(err)}`);
+        console.warn(`[station-nova] ${where}:`, err);
+      }
+
+      loadSave().then((state) => {
+        saved = state;
+        if (state) continueBtn.hidden = false;
+      });
+
+      function boot(restore) {
+        if (booted) return;
+        booted = true;
+        // The first real gesture. play() is silent whenever the context is not running, so
+        // without this the whole game is mute.
+        initAudio();
+
+        // createGame THROWS on any save this build cannot run — stale SAVE_VERSION, an
+        // unknown module or puzzle id, a corrupt shape. openSaved covers every case with one
+        // handler: drop the save, start fresh, and — the part that matters — report that the
+        // save was NOT restored, so the fresh game gets PIP's whole opening. Never show a
+        // crash instead of a game.
+        let opened;
+        try {
+          opened = openSaved({
+            saved: restore ? saved : null,
+            create: (state) => (state
+              ? createGame({ modules: MODULES, state })
+              : createGame({ modules: MODULES })),
+            onReject: (err) => {
+              console.warn('[station-nova] the save is from an older build — starting fresh:', err);
+              clearSave();
+            },
+          });
+        } catch (err) {
+          // Only reachable from a content error in a barrel, which createGame validates at
+          // load. Say so instead of leaving a black screen.
+          booted = false;
+          bootError.hidden = false;
+          bootError.textContent = `The station could not wake up: ${err.message}`;
+          console.error('[station-nova] createGame failed', err);
+          return;
+        }
+        const { game, restored, elapsedMs } = opened;
+
+        attachTo(game);
+
+        const renderer = createRenderer({
+          game, modules: MODULES, closeups: CLOSEUPS, mounts,
+          restored,                              // do not replay the intro on Continue
+          onError: reportCaught,                 // caught errors must be visible to ?autotest
+          onItemUse(name) {
+            // The star chart is a thing to READ, not a thing to carry — and she needs it two
+            // rooms after she made it. Every other item falls through to the carry ghost.
+            if (name !== 'star-chart') return false;
+            openStarChart(renderer);
+            return true;
+          },
+        });
+        // Attached before start(), and wired to a visible marker: a save that is silently not
+        // happening is the one failure this game cannot shrug off (owner doctrine). It also
+        // stamps the clock into every record, which is what makes the certificate's TIME the
+        // whole game rather than whichever sitting she happened to finish in.
+        stopAutosave = attachAutosave(game, {
+          onStatus: (ok) => renderer.setSaveWarning(!ok),
+          elapsed: () => renderer.elapsed(),
+        });
+        renderer.startClock(elapsedMs);   // 0 for a fresh game; the saved total on Continue
+        renderer.start();
+        // A game she already won, reopened: freeze the clock where it stopped rather than
+        // billing her for the browsing.
+        if (game.hasFlag('WIN')) renderer.stopClock();
+
+        title.classList.add('gone');
+        setTimeout(() => { title.style.display = 'none'; }, 750);
+
+        // The handle the Bridge's certificate reads (elapsed, playAgain).
+        window.stationNova = {
+          game,
+          renderer,
+          /** "play again" used to be a bare reload, which lands on the title with Continue
+           *  offering the FINISHED game back. Drop the save first, then reboot. */
+          playAgain() { clearSave().then(() => window.location.reload()); },
+        };
+
+        wireThreads(game, renderer, restored);
+      }
+
+      startBtn.addEventListener('click', () => {
+        // initAudio() inside the gesture; the old save is gone BEFORE the new game opens its
+        // own connection, so the first seconds of a fresh game cannot land under it.
+        initAudio();
+        clearSave().then(() => boot(false));
+      });
+      continueBtn.addEventListener('click', () => boot(true));
+
+      // ==================================================================================
+      // P8 — ?autotest : the machine's morning check.
+      //
+      //   ?autotest=1     replay the canonical solve path through the REAL ui, then the
+      //                   certificate. PASS + elapsed in the title and a corner badge.
+      //   ?autotest=fit   the same walk, but it reports the moment the last step lands
+      //                   instead of waiting on the ~12 s finale — the panel-fit sweep only.
+      //                   tests/fit-check.mjs drives this at the three laptop sizes.
+      //
+      // It drives engine/walkthrough.js — the same list `node --test` runs — through the
+      // renderer's own safe-dispatch boundary, with every widget open as she would have it.
+      //
+      // WHAT A PASS PROVES: every step of the canonical solve path landed through the real UI ·
+      // every close-up it opened had at least one control, all of them inside the panel's
+      // visible box · the safe-dispatch boundary caught nothing (a mount() that throws draws
+      // the "hit a snag" card and reports here, so it now fails the run) · the star chart opens
+      // and closes · and in mode 1, WIN fired and the certificate came up.
+      //
+      // WHAT IT DOES NOT PROVE — a green badge is a handoff, so it has to say this out loud:
+      //   * that she can drive the widgets. The sweep never clicks a control; it calls
+      //     renderer.dispatch with the walkthrough's payloads. A widget wired to the wrong
+      //     action still passes as long as it renders something clickable.
+      //   * that the Bridge terminal and the course plotter fit. Both are typed at, so
+      //     `bridge-boot`'s rows carry 0 controls by design and measure nothing — and three of
+      //     the thirteen puzzles (boot, password, course) are solved at that one surface.
+      //   * that the crawlway, the tube ride or the certificate lay out correctly. They are
+      //     present() surfaces; of the four, only the star chart is measured here.
+      //
+      // Two things it must NOT do:
+      //
+      //   * replay the two { flag:'module' } steps. P7's glue schedules the crawlway and the
+      //     tube ride off `hatch-open` / `tube-sealed`, and a transition's present() closes
+      //     whatever surface is up — setting the flag again here killed the finale in one of
+      //     P7's harness runs. Wait for the glue instead.
+      //   * leave a save behind. A morning check that ends with the title offering Continue
+      //     into a finished game has spoiled the thing it was checking.
+      // ==================================================================================
+
+      const AUTOTEST = new URLSearchParams(window.location.search).get('autotest');
+
+      const STEP_MS = 30;      // 8x a person's ~240 ms between two deliberate clicks
+      const OPEN_MS = 520;     // the panel's scale-in is 300 ms — measure once it has landed
+      const CLOSE_MS = 300;    // and the overlay's 240 ms shield has to lift before the next
+      const DOOR_MS = 30000;   // the crawlway and the tube ride are long, but not this long
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      // Which close-up a step is actually performed at. Almost always the puzzle's own — but
+      // the console is ONE surface driving four puzzle ids, and `launch confirm` is typed
+      // there even though the switches and throttle live on the launch board. That matters:
+      // the finale (countdown, radio, certificate) is armed by the terminal widget's own WIN
+      // listener, which is dropped when the terminal unmounts. Replay `confirm` with the
+      // launch board open and the game reaches WIN with no finale at all.
+      const TYPED_AT = { 'bridge-launch.confirm': 'bridge-boot' };
+      const CLOSEUP_IDS = new Set();
+      for (const mod of Object.keys(CLOSEUPS)) {
+        for (const id of Object.keys(CLOSEUPS[mod])) CLOSEUP_IDS.add(id);
+      }
+
+      /** The close-up a step is performed at. Its own, when it has one; otherwise whatever is
+       *  already open — `bridge-password` and `bridge-course` have no panel of their own
+       *  because they are typed at the console, which stays up across all of them. */
+      function surfaceFor(step, open) {
+        const own = TYPED_AT[`${step.puzzle}.${step.action}`] || step.puzzle;
+        return CLOSEUP_IDS.has(own) ? own : open;
+      }
+
+      async function waitFor(cond, what, limit = DOOR_MS) {
+        const until = Date.now() + limit;
+        while (Date.now() < until) {
+          if (cond()) return;
+          await sleep(80);
+        }
+        throw new Error(`timed out waiting for ${what}`);
+      }
+
+      // Every cursor this game uses to say "you can do something here" — a widget whose only
+      // control is a drag handle (grab) or a slider (ns-resize) must be measured too, or the
+      // sweep passes it vacuously.
+      const HANDY = new Set(['pointer', 'grab', 'grabbing', 'move', 'crosshair',
+        'ns-resize', 'ew-resize', 'col-resize', 'row-resize', 'all-scroll']);
+
+      /** A control she is meant to be able to reach: a real form control, or anything the
+       *  cursor calls handleable. The child of a handleable group is that same control, so it
+       *  is counted once. */
+      function isControl(node, body) {
+        const style = window.getComputedStyle(node);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const tag = node.tagName.toLowerCase();
+        if (tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea') return true;
+        if (node.getAttribute('role') === 'button' || node.hasAttribute('tabindex')) return true;
+        if (!HANDY.has(style.cursor)) return false;
+        const parent = node.parentElement;
+        if (parent && parent !== body && HANDY.has(window.getComputedStyle(parent).cursor)) return false;
+        return true;
+      }
+
+      /** A control that is ALWAYS meant to be clickable, whatever the cursor says. Used only for
+       *  the collapsed-to-nothing check, where the cursor rule would cry wolf: an empty <g>
+       *  inside the crane's SVG inherits `grab` and has no box, and never was a control. */
+      function isFormControl(node) {
+        const tag = node.tagName.toLowerCase();
+        if (tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea') return true;
+        return node.getAttribute('role') === 'button' || node.hasAttribute('tabindex');
+      }
+
+      function controlName(node) {
+        const text = (node.textContent || '').trim();
+        if (text) return text.slice(0, 28);
+        return node.getAttribute('aria-label') || node.getAttribute('class') || node.tagName;
+      }
+
+      /** The one panel with nothing to click, on purpose: the Bridge terminal is a surface she
+       *  TYPES at. Every other close-up must offer her at least one control — a panel with
+       *  none is a widget whose mount() threw, showing the renderer's "hit a snag" card. */
+      const TYPED_NOT_CLICKED = new Set(['bridge-boot']);
+
+      /** THE guard this phase exists for. `.nv-closeup` is capped at
+       *  min(92vh, 100vh - 6vh - 176px) with overflow:hidden, and its body scrolls with no
+       *  scrollbar and no peek — so a control below the fold is simply invisible, and the
+       *  place it should have been belongs to `.nv-overlay`, whose pointerdown CLOSES the
+       *  puzzle. That combination made the greenhouse unsolvable at every laptop size, and
+       *  all three rooms shipped some version of it. */
+      function measurePanel(puzzleId, phase, sink) {
+        const label = `${puzzleId} (${phase})`;
+        const panel = document.querySelector('.nv-closeup');
+        const body = document.querySelector('.nv-closeup-body');
+        if (!panel || !body) { sink.problems.push(`${label}: the panel was not open`); return; }
+
+        const pr = panel.getBoundingClientRect();
+        const br = body.getBoundingClientRect();
+        const box = {
+          top: Math.max(pr.top, br.top), bottom: Math.min(pr.bottom, br.bottom),
+          left: Math.max(pr.left, br.left), right: Math.min(pr.right, br.right),
+        };
+
+        const outside = [];
+        const clipped = [];
+        const collapsed = [];
+        let controls = 0;
+        for (const node of body.querySelectorAll('*')) {
+          const r = node.getBoundingClientRect();
+          if (r.width < 1 || r.height < 1) {
+            // A control that collapsed to 0×0 is unclickable to her — and invisible to a sweep
+            // that skips empty boxes, which is exactly how it would ship. A control the widget
+            // has deliberately PUT AWAY is a different thing (the crane hides its whole drive
+            // rig once the hatch is revealed), so ask the browser whether it is meant to be on
+            // screen at all. Anything else with no box is decoration or a spacer.
+            if (isFormControl(node) && node.checkVisibility()) collapsed.push(controlName(node));
+            continue;
+          }
+          const past = r.bottom > box.bottom + 1 || r.top < box.top - 1
+            || r.right > box.right + 1 || r.left < box.left - 1;
+          if (isControl(node, body)) {
+            controls += 1;
+            if (past) outside.push(controlName(node));
+          } else if (past && clipped.length < 4 && node.children.length === 0 && (node.textContent || '').trim()) {
+            // not a control, but text she cannot read: worth naming, not worth failing on
+            clipped.push(controlName(node));
+          }
+        }
+
+        const overflow = Math.round(body.scrollHeight - body.clientHeight);
+        sink.fit.push({
+          label, viewport: `${window.innerWidth}x${window.innerHeight}`,
+          panel: `${Math.round(pr.width)}x${Math.round(pr.height)}`,
+          controls, overflow, outside, clipped,
+        });
+        if (outside.length) {
+          sink.problems.push(
+            `${label} at ${window.innerWidth}x${window.innerHeight}: `
+            + `${outside.join(' / ')} ${outside.length === 1 ? 'falls' : 'fall'} outside the panel`,
+          );
+        }
+        if (collapsed.length) {
+          sink.problems.push(`${label}: ${collapsed.join(' / ')} collapsed to 0×0 — nothing to click`);
+        }
+        if (controls === 0 && !TYPED_NOT_CLICKED.has(puzzleId)) {
+          sink.problems.push(
+            `${label}: not one control in the panel — the widget's mount() threw and she got `
+            + 'the "hit a snag" card, or its controls never rendered',
+          );
+        }
+      }
+
+      /** The star chart is the fourth present() surface and the only one she MUST be able to
+       *  read to finish the game: `bridge-course` asks for three constellations in an order she
+       *  can only get from it. It hangs off the inventory strip in every module, so no close-up
+       *  sweep ever opens it. Open it once, on the way into the bridge, and hold it to the same
+       *  bar as a panel: it exists, it has a way out, and nothing sits off-screen. */
+      async function sweepStarChart(renderer, sink) {
+        const chart = openStarChart(renderer);
+        await sleep(OPEN_MS);
+        const body = document.querySelector('.nv-present:not(.nv-off) .nv-present-body');
+        if (!body) { sink.problems.push('star chart: the surface never opened'); return; }
+
+        const outside = [];
+        let controls = 0;
+        for (const node of body.querySelectorAll('*')) {
+          const r = node.getBoundingClientRect();
+          if (r.width < 1 || r.height < 1 || !isControl(node, body)) continue;
+          controls += 1;
+          if (r.bottom > window.innerHeight + 1 || r.top < -1
+            || r.right > window.innerWidth + 1 || r.left < -1) outside.push(controlName(node));
+        }
+
+        sink.fit.push({
+          label: 'star-chart (present)', viewport: `${window.innerWidth}x${window.innerHeight}`,
+          panel: 'fullscreen', controls, overflow: 0, outside, clipped: [],
+        });
+        if (!controls) sink.problems.push('star chart: no control at all — not even a way to close it');
+        if (outside.length) sink.problems.push(`star chart: ${outside.join(' / ')} outside the window`);
+
+        if (chart) chart.close();
+        await waitFor(() => !document.querySelector('.nv-present:not(.nv-off)'), 'the star chart to close');
+      }
+
+      function autotestBadge() {
+        const el = document.createElement('div');
+        el.id = 'autotest-badge';
+        el.style.cssText =
+          'position:fixed;right:14px;top:14px;z-index:200;padding:9px 15px;border-radius:999px;'
+          + 'font:700 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;'
+          + 'color:oklch(16% 0.02 250);background:oklch(80% 0.13 90);box-shadow:0 6px 24px rgb(0 0 0 / .5);'
+          + 'max-width:min(720px,60vw);text-align:right;pointer-events:none';
+        el.textContent = 'AUTOTEST…';
+        document.body.appendChild(el);
+        return el;
+      }
+
+      async function runAutotest(mode) {
+        const badge = autotestBadge();
+        // The problem list IS the caught-error list: anything the renderer's safe boundary
+        // swallowed — at any point, including under the finale — is a failure of this run.
+        const sink = { fit: [], problems: CAUGHT };
+        const started = performance.now();
+        const finish = (pass, detail) => {
+          if (pass && sink.problems.length) { pass = false; detail = sink.problems[0]; }
+          const secs = ((performance.now() - started) / 1000).toFixed(1);
+          const head = pass ? 'PASS' : 'FAIL';
+          badge.textContent = `${head} · ${secs}s · ${detail}`;
+          badge.style.background = pass ? 'oklch(80% 0.16 150)' : 'oklch(66% 0.21 25)';
+          badge.style.color = pass ? 'oklch(16% 0.02 250)' : 'oklch(98% 0.01 250)';
+          document.title = `${head} ${secs}s — STATION NOVA autotest`;
+          window.stationNova = window.stationNova || {};
+          window.stationNova.autotest = {
+            done: true, pass, detail, seconds: Number(secs), fit: sink.fit, problems: sink.problems,
+          };
+          // Stop the autosave BEFORE wiping, and let its last write land first. Clearing while
+          // it is still attached loses the race with the 200 ms debounce — `?autotest=fit`
+          // finishes the instant the last step lands, so the write arrives after the wipe and
+          // the title screen offers Continue into a finished game. index.html documents `fit`
+          // as a URL a human can open; opening it once must not spoil the thing it checks.
+          if (stopAutosave) { try { stopAutosave(); } catch { /* nothing left to stop */ } stopAutosave = null; }
+          setTimeout(() => { Promise.resolve(clearSave()).catch(() => {}); }, 600);
+        };
+
+        try {
+          await clearSave();
+          boot(false);
+          const { game, renderer } = window.stationNova;
+          await sleep(400);      // the first scene mounts and the intro starts
+
+          let open = null;
+          for (let i = 0; i < WALKTHROUGH.length; i += 1) {
+            const step = WALKTHROUGH[i];
+
+            if (typeof step.flag === 'string') {
+              await waitFor(() => game.state.module === step.value, `the door to ${step.value}`);
+              await waitFor(() => !document.querySelector('.nv-present:not(.nv-off)'), `the ${step.value} transition to lift`);
+              open = null;       // mountModule closed the close-up on the way through
+              // She charts the sky in the greenhouse and reads it back on the bridge, so the
+              // chart exists by the second of these two doors and by no earlier one.
+              if (game.state.inventory.includes('star-chart')) await sweepStarChart(renderer, sink);
+              continue;
+            }
+
+            const want = surfaceFor(step, open);
+            if (want !== open) {
+              if (open) { renderer.closeCloseup(); await sleep(CLOSE_MS); open = null; }
+              if (want) {
+                renderer.openCloseup(want);
+                open = want;
+                await sleep(OPEN_MS);
+                measurePanel(want, 'first sight', sink);
+              }
+            }
+
+            const landed = renderer.dispatch(step.puzzle, step.action, step.payload);
+            if (!landed) throw new Error(`step ${i} — ${step.puzzle}.${step.action} did not land`);
+            await sleep(STEP_MS);
+
+            // The last step performed at this panel: measure the layout its own solve built.
+            const next = WALKTHROUGH[i + 1];
+            const after = next && next.puzzle ? surfaceFor(next, open) : null;
+            if (open && after !== open) measurePanel(open, 'solved', sink);
+          }
+
+          const widgets = sink.fit.length;
+          if (sink.problems.length) { finish(false, sink.problems[0]); return; }
+
+          if (mode === 'fit') { finish(true, `${widgets} panel layouts fit`); return; }
+
+          if (!game.hasFlag('WIN')) throw new Error('the walkthrough ended without WIN');
+          await waitFor(
+            () => document.body.textContent.includes(CERTIFICATE.title),
+            'the certificate', 40000,
+          );
+          finish(true, `WIN · certificate up · ${widgets} panel layouts fit`);
+        } catch (err) {
+          finish(false, (err && err.message) || String(err));
+          console.error('[station-nova] autotest', err);
+        }
+      }
+
+      if (AUTOTEST) runAutotest(AUTOTEST);
+    </script>
+  </body>
+</html>
