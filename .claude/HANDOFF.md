@@ -24,3 +24,15 @@ Every game under `tinker/` follows the same rule since 2026-08-30: the source is
 **Redesign committed 2026-08-30, NOT pushed:** the front page now carries the whole catalogue (`games` / `learn` / `projects` / `elsewhere`), `tinker.html` is a redirect stub to `/#games`, nav everywhere is `substack` + `github` (meridian and the old blog link are gone). Substack is https://substack.com/@spiffler. Pushed 2026-08-30. On the game itself, the build stopped at its human-playtest gate — spiff plays it and findings become new phases in the source repo's `PLAN.md`. Three items were deliberately left for his judgement rather than guessed at: the `cargo-power` answer hint is pinned text that restates the goal instead of giving the answer; camera flick/blur coast is tuneable in one FEEL KNOBS constant; and two discoverability beats (the fuse carry, and the fourth code fragment needing a deliberate pan right) were judged fair but are worth watching.
 
 Note another session was committing `star-shooters` to this repo minutes before this phase — pull before starting work.
+
+---
+
+# Handoff — 2026-08-31 (phase closed: fc ved published to tinker)
+
+`tinker/fcved/` shipped — a retro top-down football game built for Ved, with a card at the top of `index.html#games` and a `sitemap.xml` entry.
+
+**Source of truth is `~/dev/projects/games/fcved/app` — never edit `tinker/fcved/` directly.** It is a build output, not source. The loop is: change the source repo, `cd ~/dev/projects/games/fcved/app && npm run build`, then `rm -rf tinker/fcved && cp -R app/dist tinker/fcved` here, then commit and push. `diff -r ~/dev/projects/games/fcved/app/dist tinker/fcved` must be empty afterwards.
+
+Copy `dist/`, never `app/public/`: `public/sw.js` is a template carrying `__FCVED_VERSION__` / `__FCVED_PRECACHE__` placeholders that only the build fills in. A `public/`-sourced service worker would precache nothing.
+
+Vite's `base` is hard-wired to `/tinker/fcved/`, so the assets, the manifest and the service-worker scope only resolve at that path. Moving the folder means rebuilding with a new base.

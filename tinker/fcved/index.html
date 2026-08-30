@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Retro Football</title>
+
+    <!-- L8 installable PWA. Root-absolute hrefs are rebased onto Vite's base,
+         so these resolve under /tinker/fcved/ on Pages and in dev alike. -->
+    <link rel="manifest" href="/tinker/fcved/manifest.webmanifest" />
+    <meta name="theme-color" content="#000000" />
+    <!-- iOS reads neither the manifest's display mode nor its icons. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="/tinker/fcved/icons/icon-192.png" />
+    <script type="module" crossorigin src="/tinker/fcved/assets/index-CRqCySFe.js"></script>
+    <link rel="stylesheet" crossorigin href="/tinker/fcved/assets/index-B3axo2Is.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // Classic inline script on purpose: Vite bundles inline modules but leaves
+      // this alone, so the path below stays a runtime-resolved relative URL.
+      //
+      // 'sw.js' resolves against the document base URL, giving
+      // /tinker/fcved/sw.js on Pages. The registration's scope is then the
+      // script's own directory, /tinker/fcved/ — the whole app, and nothing
+      // above it. Passing no scope is what keeps that true at any base.
+      if ('serviceWorker' in navigator) {
+        addEventListener('load', function () {
+          navigator.serviceWorker.register('sw.js').catch(function (error) {
+            console.error('service worker registration failed:', error);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
