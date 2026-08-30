@@ -366,29 +366,51 @@ var GG = (function () {
     return true;
   }
 
-  /* Every shot starts from the tee, so a hole is only fair if it can be sunk
-     in ONE shot. Deterministic coarse sweep, ordered outward from the direct
-     bearing so easy holes bail out after a handful of trials. */
+  /* Every shot starts from the tee, so a hole is only fair if it can be sunk in
+     ONE shot - and sunk from a target a hand can actually hit. A pull that only
+     drops through a pinhole is a lottery, not a hole, so a hit counts only when
+     a whole ring of pulls FAIR_R around it drops too. Deterministic coarse sweep,
+     ordered outward from the direct bearing so easy holes bail out early. */
+  var FAIR_R = 3;                 // world units of pull the player may be off by
+  var FAIR_N = 8;                 // points checked on that ring
   function solvable(course, need, budget) {
     var tee = course.tee, hol = course.hole;
     var base = Math.atan2(hol.y - tee.y, hol.x - tee.x);
     var s = { x: 0, y: 0, vx: 0, vy: 0, warped: 0 };
-    /* 144 bearings x 9 powers. Coarser than it could be on purpose: a hole that
-       only goes in through a 1.5 degree window is not a hole, it is a lottery. */
+    /* 144 bearings x 9 powers, swept in pull space - the units the player aims
+       in, so the ring below is a real slip of the hand and not an abstraction.
+       The budget bails early on purpose: a fair window only reachable from a far
+       corner of the sweep is a hole nobody finds. Every course is identical to a
+       6x larger budget, and generation is a third cheaper. */
     var NA = 144, NP = 9, step = TAU / NA;
     var maxSteps = Math.round(FLIGHT_MAX * 240);
-    var found = 0, used = 0, ai, pi, k;
+    var found = 0, used = 0, ai, pi, q;
+
+    function drops(ux, uy) {
+      var L = Math.sqrt(ux * ux + uy * uy);
+      if (L < MIN_DRAG) return false;
+      var v = Math.min(L, MAX_DRAG) / MAX_DRAG * MAX_SPEED;
+      s.x = tee.x; s.y = tee.y; s.vx = -ux / L * v; s.vy = -uy / L * v;
+      for (var k = 0; k < maxSteps; k++) {
+        var e = substep(course, s, k * DT);
+        used++;
+        if (e) return e.type === 'sink';
+      }
+      return false;
+    }
+
     for (ai = 0; ai < NA; ai++) {
       var half = (ai + 1) >> 1;
       var ang = base + ((ai & 1) ? half : -half) * step;
-      var ca = Math.cos(ang), sa = Math.sin(ang);
       for (pi = 0; pi < NP; pi++) {
-        var sp = MAX_SPEED * (0.18 + 0.82 * pi / (NP - 1));
-        s.x = tee.x; s.y = tee.y; s.vx = ca * sp; s.vy = sa * sp;
-        for (k = 0; k < maxSteps; k++) {
-          var e = substep(course, s, k * DT);
-          used++;
-          if (e) { if (e.type === 'sink') found++; break; }
+        var pull = MAX_DRAG * (0.18 + 0.82 * pi / (NP - 1));
+        var ux = -Math.cos(ang) * pull, uy = -Math.sin(ang) * pull;
+        if (drops(ux, uy)) {
+          for (q = 0; q < FAIR_N; q++) {
+            var a = q * TAU / FAIR_N;
+            if (!drops(ux + Math.cos(a) * FAIR_R, uy + Math.sin(a) * FAIR_R)) break;
+          }
+          if (q === FAIR_N) found++;
         }
         if (found >= need) return true;
         if (used > budget) return false;
@@ -552,7 +574,7 @@ var GG = (function () {
                    warps: warps, bands: bands,
                    hasRep: hasRep, hasOrb: hasOrb, hasBump: hasBump,
                    hasBelt: bands.length > 0, hasWarp: warps.length > 0, hasDrift: drift };
-      if (!solvable(cand, 2, 1600000)) continue;
+      if (!solvable(cand, 1, 300000)) continue;
       return cand;
     }
 
@@ -814,10 +836,6 @@ var waitT = 0, deadFade = 1, sinkT = 0, sinkAng = 0, sinkRad = 0, shake = 0;
 var pendingLaunch = false, launchVX = 0, launchVY = 0, launchPow = 0, hintDone = false;
 var aim = { active: false, ox: 0, oy: 0, px: 0, py: 0, vx: 0, vy: 0,
             pullX: 0, pullY: 0, len: 0, power: 0, shown: false, svx: 0, svy: 0 };
-/* Hole 4's sink window is a few world units of pull wide - far narrower than the
-   1.7s preview can show. On that hole only, the cup confirms the aim instead:
-   fly the WHOLE shot behind the scenes and light the core if it drops. */
-var SOLVE_HINT_HOLE = 4, aimSolves = false;
 
 /* ribbon trail: ring buffer, ~0.8s of flight */
 var TN = 100, trx = new Float32Array(TN), tryy = new Float32Array(TN), tcount = 0, thead = 0;
@@ -1023,18 +1041,6 @@ function fixedUpdate() {
 /* ---------------- input: pointer = mouse + touch + pen ---------------- */
 function toWorld(e, out) { out.x = (e.clientX - offX) / scale; out.y = (e.clientY - offY) / scale; }
 var tmp = { x: 0, y: 0 };
-var solveS = { x: 0, y: 0, vx: 0, vy: 0, warped: 0, bounced: 0 };
-function aimWouldSink() {
-  if (holeNum !== SOLVE_HINT_HOLE || aim.len < GG.MIN_DRAG) return false;
-  solveS.x = ball.x; solveS.y = ball.y; solveS.vx = aim.vx; solveS.vy = aim.vy;
-  solveS.warped = 0; solveS.bounced = 0;
-  var n = GG.FLIGHT_MAX * 240;                 // same ceiling the live flight uses
-  for (var k = 0; k < n; k++) {
-    var e = GG.substep(course, solveS, (simStep + k) * DT);
-    if (e) return e.type === 'sink';
-  }
-  return false;
-}
 function updateAim() {
   var dx = aim.px - aim.ox, dy = aim.py - aim.oy;
   var len = Math.hypot(dx, dy);
@@ -1044,7 +1050,6 @@ function updateAim() {
     var sp = aim.power * GG.MAX_SPEED;
     aim.vx = -dx / len * sp; aim.vy = -dy / len * sp;
   } else { aim.vx = 0; aim.vy = 0; }
-  aimSolves = aimWouldSink();
 }
 cv.addEventListener('pointerdown', function (e) {
   e.preventDefault();
@@ -1131,11 +1136,6 @@ function drawBlackHole(t) {
   ctx.beginPath(); ctx.arc(0, 0, 46, 0, TAU); ctx.fill();
   ctx.restore();
   ctx.globalCompositeOperation = 'lighter';
-  if (aimSolves && state === 'aim' && aim.active) {   // this pull goes in - release it
-    var pu = 0.76 + 0.24 * Math.sin(t * 7.5);
-    blob(x, y, 44, '255,214,132', 0.46 * pu);
-    blob(x, y, 16, '255,250,228', 0.9 * pu);
-  }
   ctx.strokeStyle = 'rgba(190,238,255,0.6)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(x, y, GG.CAPTURE_R + 3, 0, TAU); ctx.stroke();
   ctx.setLineDash([5, 8]);
